@@ -23,6 +23,23 @@
         --muted: #666;
         --muted2: #444;
         --white: #f5f3ee;
+        --copy: #9a9aa0;
+        --copy-soft: #83838b;
+      }
+      body[data-theme="light"] {
+        --bg: #f8f8f6;
+        --bg2: #ffffff;
+        --bg3: #efefea;
+        --border: #d8d8d0;
+        --border2: #bdbdb3;
+        --accent: #dd6413;
+        --accent-dim: rgba(221, 100, 19, 0.12);
+        --text: #1e1f22;
+        --muted: #4a4c52;
+        --muted2: #666a74;
+        --white: #151617;
+        --copy: #3f4249;
+        --copy-soft: #525661;
       }
       *,
       *::before,
@@ -96,9 +113,14 @@
           background 0.3s;
       }
       nav.scrolled {
-        background: rgba(9, 9, 9, 0.92);
+        background: color-mix(in srgb, var(--bg) 92%, transparent);
         backdrop-filter: blur(12px);
         border-color: var(--border);
+      }
+      .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
       }
       .nav-logo {
         font-family: "IBM Plex Mono", monospace;
@@ -124,6 +146,34 @@
       .nav-links a:hover,
       .nav-links a.active {
         color: var(--accent);
+      }
+      .theme-toggle {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: 999px;
+        padding: 0.4rem 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition:
+          color 0.2s,
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .theme-toggle:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+      .theme-toggle .theme-icon {
+        font-size: 0.85rem;
+        line-height: 1;
       }
       #hero {
         min-height: 100vh;
@@ -212,7 +262,7 @@
       .hero-desc {
         max-width: 540px;
         font-size: 1.05rem;
-        color: #888;
+        color: var(--copy-soft);
         line-height: 1.8;
         margin-bottom: 3rem;
         opacity: 0;
@@ -354,7 +404,7 @@
         align-items: start;
       }
       .about-text p {
-        color: #999;
+        color: var(--copy);
         margin-bottom: 1.25rem;
         font-size: 1rem;
         line-height: 1.85;
@@ -363,6 +413,27 @@
       .about-text p strong {
         color: var(--white);
         font-weight: 500;
+      }
+      .about-core-list {
+        list-style: none;
+        margin: 0 0 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      .about-core-list li {
+        color: var(--copy);
+        font-size: 0.95rem;
+        line-height: 1.75;
+        font-weight: 300;
+        position: relative;
+        padding-left: 1rem;
+      }
+      .about-core-list li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
       }
       .about-stats {
         display: grid;
@@ -464,7 +535,7 @@
       }
       .timeline-desc {
         font-size: 0.92rem;
-        color: #888;
+        color: var(--copy-soft);
         line-height: 1.8;
         font-weight: 300;
       }
@@ -504,6 +575,20 @@
         font-size: 1.5rem;
         margin-bottom: 0.85rem;
       }
+      .skill-group-icon svg {
+        width: 2rem;
+        height: auto;
+        max-height: 2rem;
+        display: block;
+      }
+      .skill-group-icon img {
+        width: 2rem;
+        height: 2rem;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+        border-radius: 0.35rem;
+      }
       .skill-group-title {
         font-family: "Fraunces", serif;
         font-size: 1rem;
@@ -520,7 +605,7 @@
       .skill-list li {
         font-family: "IBM Plex Mono", monospace;
         font-size: 0.75rem;
-        color: #888;
+        color: var(--copy-soft);
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -587,7 +672,7 @@
       }
       .project-desc {
         font-size: 0.875rem;
-        color: #777;
+        color: var(--copy-soft);
         line-height: 1.75;
         font-weight: 300;
         flex: 1;
@@ -669,7 +754,7 @@
       }
       .blog-card-excerpt {
         font-size: 0.85rem;
-        color: #777;
+        color: var(--copy-soft);
         line-height: 1.7;
         font-weight: 300;
         flex: 1;
@@ -697,7 +782,7 @@
         align-items: start;
       }
       .contact-text p {
-        color: #888;
+        color: var(--copy-soft);
         font-size: 1rem;
         font-weight: 300;
         line-height: 1.85;
@@ -726,9 +811,28 @@
         transform: translateX(4px);
       }
       .contact-link-icon {
-        font-size: 1.1rem;
         width: 2rem;
-        text-align: center;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+      }
+      .contact-link-icon svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        display: block;
+      }
+      .contact-link-icon.icon-github svg,
+      .contact-link-icon.icon-linkedin svg {
+        fill: currentColor;
+      }
+      .contact-link-icon.icon-linkedin {
+        color: #0a66c2;
+      }
+      .contact-link-icon.icon-blog svg {
+        width: 1.28rem;
+        height: 1.28rem;
       }
       .contact-link-text {
         flex: 1;
@@ -795,7 +899,7 @@
       }
       .availability-text {
         font-size: 0.875rem;
-        color: #777;
+        color: var(--copy-soft);
         font-weight: 300;
         line-height: 1.7;
       }
@@ -862,6 +966,10 @@
         .nav-links {
           display: none;
         }
+        .theme-toggle {
+          font-size: 0.62rem;
+          padding: 0.35rem 0.6rem;
+        }
         section {
           padding: 5rem 1.5rem;
         }
@@ -912,14 +1020,26 @@
     <div class="cursor-ring" id="cursorRing"></div>
     <nav id="nav">
       <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
-      <ul class="nav-links">
-        <li><a href="#about">About</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#skills">Skills</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="blog.html">Blog</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+      <div class="nav-controls">
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
     </nav>
 
     <section id="hero">
@@ -930,10 +1050,11 @@
         <h1 class="hero-name">Francis<br />Morkeh Mensah</h1>
         <p class="hero-title">Reliability as a product.</p>
         <p class="hero-desc">
-          Building and operating cloud-native production systems that scale
-          predictably, fail gracefully, and recover quickly. Kubernetes and
-          Cloud Native Associate (KCNA) focused on reliable platforms for
-          high-growth teams.
+          I design and operate mission-critical cloud platforms for
+          high-traffic, multi-sided digital products. I operationalize SLIs,
+          SLOs, and error budgets to keep availability, latency, and performance
+          targets consistently on track while enabling rapid, safe product
+          delivery.
         </p>
         <div class="hero-ctas">
           <a href="#contact" class="btn-primary">Get in Touch</a>
@@ -944,7 +1065,9 @@
       <div class="hero-badges">
         <span class="hero-badge">AWS Certified</span>
         <span class="hero-badge">AWS Community Builder</span>
-        <span class="hero-badge">6,000+ Followers</span>
+        <span class="hero-badge"
+          >Kubernetes and Cloud Native Associate Certified</span
+        >
       </div>
     </section>
 
@@ -960,27 +1083,52 @@
       <div class="about-grid reveal">
         <div class="about-text">
           <p>
-            I'm a <strong>Site Reliability Engineer</strong> focused on
-            designing, operating, and continuously improving the reliability of
-            cloud-native production systems in high-transaction environments.
+            I own the reliability posture of mission-critical production systems
+            across customer-facing and internal platforms. I operationalize
+            reliability through well-defined SLIs, SLOs, and error budgets to
+            ensure availability, latency, and performance targets are
+            consistently met while enabling rapid product delivery.
           </p>
           <p>
-            I have owned the reliability posture of mission-critical services
-            across consumer products, internal platforms, and high-transaction
-            workloads. I operationalize reliability through well-defined SLIs,
-            SLOs, and error budgets.
+            My work spans the full reliability lifecycle, from infrastructure
+            design to incident response and continuous optimization.
           </p>
+          <p>Core areas of expertise:</p>
+          <ul class="about-core-list">
+            <li>
+              Designing and managing scalable AWS infrastructure using Terraform
+              (Infrastructure as Code)
+            </li>
+            <li>
+              Building resilient CI/CD pipelines that improve deployment safety
+              and release velocity
+            </li>
+            <li>
+              Designing observability and incident telemetry to improve MTTD,
+              reduce MTTR, and strengthen alert quality across production
+              systems
+            </li>
+            <li>
+              Leading incident response, root cause analysis, and blameless
+              postmortems
+            </li>
+            <li>
+              Reducing operational toil through automation, standardization, and
+              system hardening
+            </li>
+            <li>
+              Architecting Kubernetes-based workloads for resilience and
+              scalability
+            </li>
+          </ul>
           <p>
-            I treat reliability as a product — balancing stability, cost
+            I treat reliability as a product, balancing stability, cost
             efficiency, and engineering velocity while driving operational
-            maturity. My work spans the full reliability lifecycle, from
-            infrastructure design to incident response.
+            maturity across systems.
           </p>
           <p>
-            BSc in Information Technology from <strong>KNUST</strong> and an
-            <strong>AWS Community Builder</strong> and
-            <strong>Kubernetes and Cloud Native Associate (KCNA)</strong> with
-            32+ certifications.
+            Passionate about building production platforms that scale
+            predictably, fail gracefully, and recover quickly.
           </p>
         </div>
         <div class="about-stats">
@@ -1096,7 +1244,120 @@
       </div>
       <div class="skills-grid reveal">
         <div class="skill-group">
-          <div class="skill-group-icon">☁️</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path
+                fill="#61c9cc"
+                d="M6.1 8.4a4.2 4.2 0 017.8-1.5 3.9 3.9 0 014.7 3.7 3.7 3.7 0 01-.1.8 2.9 2.9 0 01.5 5.8H5.4A3.6 3.6 0 015.1 10c.3-.9.6-1.2 1-1.6z"
+              />
+              <rect
+                x="6"
+                y="10"
+                width="11"
+                height="2.6"
+                rx="0.9"
+                fill="#5a95c8"
+              />
+              <rect
+                x="6"
+                y="12.9"
+                width="11"
+                height="2.6"
+                rx="0.9"
+                fill="#4b86b2"
+              />
+              <rect
+                x="6"
+                y="15.8"
+                width="11"
+                height="2.6"
+                rx="0.9"
+                fill="#5a95c8"
+              />
+              <circle cx="8.2" cy="11.3" r="0.45" fill="#f7d65a" />
+              <circle cx="8.2" cy="14.2" r="0.45" fill="#f7d65a" />
+              <circle cx="8.2" cy="17.1" r="0.45" fill="#f7d65a" />
+              <circle cx="10.1" cy="11.3" r="0.45" fill="#64d1d1" />
+              <circle cx="10.1" cy="14.2" r="0.45" fill="#64d1d1" />
+              <circle cx="10.1" cy="17.1" r="0.45" fill="#64d1d1" />
+              <rect
+                x="12.9"
+                y="10.9"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="14.5"
+                y="10.9"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="16.1"
+                y="10.9"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="12.9"
+                y="13.8"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="14.5"
+                y="13.8"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="16.1"
+                y="13.8"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="12.9"
+                y="16.7"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="14.5"
+                y="16.7"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <rect
+                x="16.1"
+                y="16.7"
+                width="0.95"
+                height="0.5"
+                rx="0.25"
+                fill="#2b6f88"
+              />
+              <path
+                fill="#ffffff"
+                d="M10.15 7.25a.42.42 0 00-.6 0l-1.1 1.1a.42.42 0 00.6.6l.4-.4v1.2a.42.42 0 10.84 0v-1.2l.4.4a.42.42 0 10.6-.6l-1.1-1.1zm3.66 0a.42.42 0 00-.6.6l.4.4h-1.2a.42.42 0 100 .84h1.2l-.4.4a.42.42 0 00.6.6l1.1-1.1a.42.42 0 000-.6l-1.1-1.1z"
+              />
+            </svg>
+          </div>
           <div class="skill-group-title">Cloud & Infrastructure</div>
           <ul class="skill-list">
             <li>Amazon Web Services (AWS)</li>
@@ -1107,7 +1368,109 @@
           </ul>
         </div>
         <div class="skill-group">
-          <div class="skill-group-icon">📊</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <circle cx="11" cy="12.3" r="8.4" fill="#f0cea6" />
+              <rect
+                x="6"
+                y="4"
+                width="12"
+                height="5.1"
+                rx="0.8"
+                fill="#1d8ee0"
+              />
+              <rect x="6.7" y="4" width="1.7" height="5.1" fill="#2294e8" />
+              <path
+                fill="#f6cb56"
+                d="M8.8 5.2a1.4 1.4 0 101.4 1.4h1.5A2.9 2.9 0 108.8 5.2z"
+              />
+              <path fill="#65c848" d="M10.4 4.9h.8v1.7h-1.7V5.7h.9z" />
+              <rect
+                x="12.3"
+                y="5.9"
+                width="0.5"
+                height="1.5"
+                rx="0.25"
+                fill="#6ecf55"
+              />
+              <rect
+                x="13.2"
+                y="5.4"
+                width="0.5"
+                height="2"
+                rx="0.25"
+                fill="#f7c544"
+              />
+              <rect
+                x="14.1"
+                y="6.1"
+                width="0.5"
+                height="1.3"
+                rx="0.25"
+                fill="#ff9f00"
+              />
+              <rect
+                x="15"
+                y="5.2"
+                width="0.5"
+                height="2.2"
+                rx="0.25"
+                fill="#67c94d"
+              />
+              <rect
+                x="11.5"
+                y="9"
+                width="11.2"
+                height="9"
+                rx="0.8"
+                fill="#d6dfea"
+              />
+              <rect x="11.5" y="9" width="11.2" height="1.4" fill="#1f8fe2" />
+              <circle cx="21.2" cy="9.7" r="0.22" fill="#ff5f73" />
+              <circle cx="20.5" cy="9.7" r="0.22" fill="#f7c64f" />
+              <circle cx="19.8" cy="9.7" r="0.22" fill="#66c94c" />
+              <rect
+                x="12.5"
+                y="11.4"
+                width="0.7"
+                height="2.2"
+                rx="0.2"
+                fill="#67c94d"
+              />
+              <rect
+                x="13.6"
+                y="12.1"
+                width="0.7"
+                height="1.5"
+                rx="0.2"
+                fill="#ff6174"
+              />
+              <rect
+                x="14.7"
+                y="11.9"
+                width="0.7"
+                height="1.7"
+                rx="0.2"
+                fill="#f6a000"
+              />
+              <circle cx="18.4" cy="13" r="2.1" fill="#ff5d71" />
+              <circle cx="18.4" cy="13" r="1.3" fill="#f1f2f3" />
+              <path
+                fill="#59aaf0"
+                d="M16.9 13.6a.55.55 0 01-.39-.94l1.02-1.03a.55.55 0 01.78 0l.63.64 1.41-1.41a.55.55 0 11.78.78l-1.8 1.8a.55.55 0 01-.78 0l-.63-.64-.63.64a.54.54 0 01-.39.16z"
+              />
+              <path fill="#3f5bd0" d="M20 14.4l1.7 1.7-.7.7-1.7-1.7z" />
+              <rect
+                x="20.8"
+                y="15.8"
+                width="1.9"
+                height="0.8"
+                rx="0.35"
+                transform="rotate(45 20.8 15.8)"
+                fill="#3550c8"
+              />
+            </svg>
+          </div>
           <div class="skill-group-title">Observability</div>
           <ul class="skill-list">
             <li>Prometheus & Grafana</li>
@@ -1118,7 +1481,15 @@
           </ul>
         </div>
         <div class="skill-group">
-          <div class="skill-group-icon">🔁</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <img
+              src="https://arrowcore.com/wp-content/uploads/2022/03/3.8-930x500-c-default.png"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+          </div>
           <div class="skill-group-title">CI/CD & Automation</div>
           <ul class="skill-list">
             <li>Azure DevOps</li>
@@ -1129,7 +1500,167 @@
           </ul>
         </div>
         <div class="skill-group">
-          <div class="skill-group-icon">🛡️</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path
+                fill="#bfcbdb"
+                d="M5.4 9.1a2.4 2.4 0 013.8-2.1A2.7 2.7 0 0113.9 8a2 2 0 01.3 3.9H5.7a2.1 2.1 0 01-.3-2.8z"
+              />
+              <circle cx="8.1" cy="8.1" r="0.55" fill="#f6bf00" />
+              <circle cx="10.2" cy="7.6" r="0.62" fill="#ff4f66" />
+              <path
+                fill="#2c345f"
+                d="M14.6 5.5a2.1 2.1 0 012.6-.2c.9.6 1.2 1.8.8 2.8-.3.8-.1 1.7.3 2.5h-4.7a2.8 2.8 0 01-.2-2.2c.2-.9.6-2.1 1.2-2.9z"
+              />
+              <circle cx="16.1" cy="7.9" r="1.15" fill="#f4b49f" />
+              <path fill="#ffffff" d="M15.5 9h1.2l.3.7-1.8.4z" />
+              <path fill="#ff5164" d="M14.7 9.2h3.7v2.8h-3.7z" />
+              <path fill="#a3bee4" d="M11.9 10.8h3.6v3.2h-3.6z" />
+              <circle cx="13.6" cy="12.3" r="0.45" fill="#5fa4ef" />
+              <rect
+                x="10.6"
+                y="13.5"
+                width="7.4"
+                height="0.6"
+                rx="0.3"
+                fill="#6ab0ff"
+              />
+              <rect
+                x="2.2"
+                y="13.2"
+                width="9.6"
+                height="2.8"
+                rx="0.45"
+                fill="#5f6f8a"
+              />
+              <rect
+                x="2.2"
+                y="16.5"
+                width="9.6"
+                height="2.8"
+                rx="0.45"
+                fill="#4f5f7a"
+              />
+              <rect
+                x="2.2"
+                y="19.8"
+                width="9.6"
+                height="2.8"
+                rx="0.45"
+                fill="#43536d"
+              />
+              <rect
+                x="3.1"
+                y="14"
+                width="2.6"
+                height="0.8"
+                rx="0.2"
+                fill="#f3f4f7"
+              />
+              <rect
+                x="3.1"
+                y="17.3"
+                width="2.6"
+                height="0.8"
+                rx="0.2"
+                fill="#f3f4f7"
+              />
+              <rect
+                x="3.1"
+                y="20.6"
+                width="2.6"
+                height="0.8"
+                rx="0.2"
+                fill="#f3f4f7"
+              />
+              <rect
+                x="8.7"
+                y="13.8"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#f7c900"
+              />
+              <rect
+                x="9.5"
+                y="13.8"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="10.3"
+                y="13.8"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="8.7"
+                y="17.1"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#f7c900"
+              />
+              <rect
+                x="9.5"
+                y="17.1"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="10.3"
+                y="17.1"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="8.7"
+                y="20.4"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#f7c900"
+              />
+              <rect
+                x="9.5"
+                y="20.4"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="10.3"
+                y="20.4"
+                width="0.55"
+                height="0.55"
+                rx="0.1"
+                fill="#ffffff"
+              />
+              <rect
+                x="15.7"
+                y="12.2"
+                width="2.3"
+                height="11.8"
+                fill="#3490d4"
+              />
+              <rect
+                x="17.7"
+                y="12.2"
+                width="1.9"
+                height="11.8"
+                fill="#5ea7de"
+              />
+            </svg>
+          </div>
           <div class="skill-group-title">Reliability Practices</div>
           <ul class="skill-list">
             <li>Incident Response & RCA</li>
@@ -1140,7 +1671,109 @@
           </ul>
         </div>
         <div class="skill-group">
-          <div class="skill-group-icon">🗄️</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <ellipse cx="8" cy="7" rx="4.4" ry="1.7" fill="#6674a6" />
+              <path
+                fill="#5f6ea0"
+                d="M3.6 7v2.5c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V7z"
+              />
+              <ellipse cx="8" cy="9.5" rx="4.4" ry="1.7" fill="#6172a5" />
+              <path
+                fill="#6a78aa"
+                d="M3.6 9.5V12c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V9.5z"
+              />
+              <ellipse cx="8" cy="12" rx="4.4" ry="1.7" fill="#5c6da0" />
+              <path
+                fill="#58679a"
+                d="M3.6 12v2.5c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V12z"
+              />
+              <ellipse cx="8" cy="14.5" rx="4.4" ry="1.7" fill="#566599" />
+              <rect
+                x="4.8"
+                y="8.4"
+                width="1.3"
+                height="0.35"
+                rx="0.17"
+                fill="#dfe6ff"
+              />
+              <rect
+                x="4.8"
+                y="10.9"
+                width="1.3"
+                height="0.35"
+                rx="0.17"
+                fill="#dfe6ff"
+              />
+              <rect
+                x="4.8"
+                y="13.4"
+                width="1.3"
+                height="0.35"
+                rx="0.17"
+                fill="#dfe6ff"
+              />
+              <circle cx="10.2" cy="8.2" r="0.35" fill="#f35a57" />
+              <circle cx="11.1" cy="8.2" r="0.35" fill="#f7c843" />
+              <circle cx="12" cy="8.2" r="0.35" fill="#65c96d" />
+              <circle cx="10.2" cy="10.7" r="0.35" fill="#f35a57" />
+              <circle cx="11.1" cy="10.7" r="0.35" fill="#f7c843" />
+              <circle cx="12" cy="10.7" r="0.35" fill="#65c96d" />
+              <circle cx="10.2" cy="13.2" r="0.35" fill="#f35a57" />
+              <circle cx="11.1" cy="13.2" r="0.35" fill="#f7c843" />
+              <circle cx="12" cy="13.2" r="0.35" fill="#65c96d" />
+              <path fill="#d8d9ec" d="M14.8 7.8h1.9v.4h-1.5v3.5h1.5v.4h-1.9z" />
+              <path fill="#d8d9ec" d="M14.8 11.5h2.1v.4h-2.1z" />
+              <rect
+                x="16.9"
+                y="6.9"
+                width="3.1"
+                height="1.8"
+                rx="0.25"
+                fill="#ea5250"
+              />
+              <rect
+                x="16.9"
+                y="9.6"
+                width="3.1"
+                height="1.8"
+                rx="0.25"
+                fill="#f7c53b"
+              />
+              <rect
+                x="16.9"
+                y="12.3"
+                width="3.1"
+                height="1.8"
+                rx="0.25"
+                fill="#73c978"
+              />
+              <rect
+                x="17.2"
+                y="8.9"
+                width="1.2"
+                height="0.15"
+                rx="0.07"
+                fill="#d74643"
+              />
+              <rect
+                x="17.2"
+                y="11.6"
+                width="1.2"
+                height="0.15"
+                rx="0.07"
+                fill="#e2a81e"
+              />
+              <rect
+                x="17.2"
+                y="14.3"
+                width="1.2"
+                height="0.15"
+                rx="0.07"
+                fill="#5bb661"
+              />
+            </svg>
+          </div>
           <div class="skill-group-title">Data & Networking</div>
           <ul class="skill-list">
             <li>Redis</li>
@@ -1151,7 +1784,69 @@
           </ul>
         </div>
         <div class="skill-group">
-          <div class="skill-group-icon">🤝</div>
+          <div class="skill-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <rect
+                x="2.4"
+                y="4"
+                width="5.9"
+                height="2.2"
+                rx="0.45"
+                fill="#173b4e"
+              />
+              <rect
+                x="15.7"
+                y="4"
+                width="5.9"
+                height="2.2"
+                rx="0.45"
+                fill="#173b4e"
+              />
+              <rect
+                x="3.1"
+                y="4.7"
+                width="3"
+                height="0.45"
+                rx="0.2"
+                fill="#aacdd8"
+              />
+              <rect
+                x="16.4"
+                y="4.7"
+                width="3"
+                height="0.45"
+                rx="0.2"
+                fill="#aacdd8"
+              />
+              <circle cx="6" cy="9.2" r="1.7" fill="#66b8d7" />
+              <circle cx="18" cy="9.2" r="1.7" fill="#eb8f4b" />
+              <path
+                fill="#66b8d7"
+                d="M3.9 16.8v-3.7a2 2 0 012-2h2a2 2 0 012 2v3.7z"
+              />
+              <path
+                fill="#eb8f4b"
+                d="M14.1 16.8v-3.7a2 2 0 012-2h2a2 2 0 012 2v3.7z"
+              />
+              <rect
+                x="9"
+                y="12.6"
+                width="6"
+                height="0.8"
+                rx="0.35"
+                fill="#123644"
+              />
+              <rect x="11.6" y="13.4" width="0.8" height="4.2" fill="#123644" />
+              <path
+                fill="#f5cd56"
+                d="M11.2 7.2a1 1 0 011 1h.8v1h-.8v.8h-1v-.8h-.8v-1h.8a1 1 0 011-1z"
+              />
+              <path
+                fill="#f5cd56"
+                d="M12.3 9.7h.6a.8.8 0 01.8.8v.6h-.8v-.4h-.6a.8.8 0 01-.8-.8v-.6h.8z"
+              />
+            </svg>
+          </div>
           <div class="skill-group-title">Soft Skills</div>
           <ul class="skill-list">
             <li>Cross-team Collaboration</li>
@@ -1320,7 +2015,13 @@
               href="https://www.linkedin.com/in/francis-morkeh-mensah"
               target="_blank"
               class="contact-link"
-              ><div class="contact-link-icon">💼</div>
+              ><div class="contact-link-icon icon-linkedin" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                  <path
+                    d="M20.447 20.452h-3.554V14.87c0-1.331-.027-3.045-1.855-3.045-1.856 0-2.14 1.449-2.14 2.948v5.679H9.345V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.369-1.85 3.601 0 4.267 2.369 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 11.003-4.124 2.062 2.062 0 01-.003 4.124zM7.119 20.452H3.555V9h3.564v11.452z"
+                  />
+                </svg>
+              </div>
               <div class="contact-link-text">
                 <div class="contact-link-label">LinkedIn</div>
                 <div class="contact-link-value">francis-morkeh-mensah</div>
@@ -1331,7 +2032,13 @@
               href="https://github.com/Francismensah"
               target="_blank"
               class="contact-link"
-              ><div class="contact-link-icon">🐙</div>
+              ><div class="contact-link-icon icon-github" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                  <path
+                    d="M12 .5C5.648.5.5 5.662.5 12.03c0 5.095 3.292 9.417 7.863 10.943.575.109.785-.25.785-.556 0-.275-.01-1.004-.015-1.97-3.2.698-3.876-1.548-3.876-1.548-.523-1.333-1.278-1.688-1.278-1.688-1.045-.716.079-.702.079-.702 1.155.082 1.763 1.19 1.763 1.19 1.026 1.763 2.693 1.254 3.35.959.104-.747.402-1.254.73-1.541-2.554-.291-5.238-1.279-5.238-5.695 0-1.258.448-2.286 1.184-3.092-.119-.292-.513-1.468.113-3.06 0 0 .965-.31 3.162 1.181a10.96 10.96 0 015.757 0c2.196-1.491 3.16-1.181 3.16-1.181.628 1.592.234 2.768.115 3.06.738.806 1.182 1.834 1.182 3.092 0 4.427-2.688 5.4-5.25 5.685.413.355.781 1.058.781 2.133 0 1.54-.014 2.782-.014 3.16 0 .308.207.67.79.555 4.567-1.529 7.855-5.85 7.855-10.942C23.5 5.662 18.352.5 12 .5z"
+                  />
+                </svg>
+              </div>
               <div class="contact-link-text">
                 <div class="contact-link-label">GitHub</div>
                 <div class="contact-link-value">Francismensah</div>
@@ -1339,18 +2046,126 @@
               <div class="contact-link-arrow">→</div></a
             >
             <a href="blog.html" class="contact-link"
-              ><div class="contact-link-icon">✍️</div>
+              ><div class="contact-link-icon icon-blog" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                  <rect
+                    x="1.5"
+                    y="2"
+                    width="17"
+                    height="20"
+                    rx="2.4"
+                    fill="#b9b8de"
+                  />
+                  <rect
+                    x="1.5"
+                    y="2"
+                    width="17"
+                    height="3"
+                    rx="1.3"
+                    fill="#5e5f8d"
+                  />
+                  <circle cx="3.6" cy="3.5" r="0.55" fill="#d9daf6" />
+                  <circle cx="5.5" cy="3.5" r="0.55" fill="#d9daf6" />
+                  <circle cx="7.4" cy="3.5" r="0.55" fill="#d9daf6" />
+                  <rect
+                    x="3.1"
+                    y="6.1"
+                    width="12.8"
+                    height="5"
+                    rx="1.1"
+                    fill="#68b5ef"
+                  />
+                  <text
+                    x="9.5"
+                    y="9.6"
+                    text-anchor="middle"
+                    fill="#d8d9f7"
+                    font-size="3"
+                    font-family="Arial, sans-serif"
+                    font-weight="700"
+                  >
+                    BLOG
+                  </text>
+                  <rect
+                    x="3.4"
+                    y="12.3"
+                    width="4"
+                    height="5.6"
+                    rx="0.7"
+                    fill="#f4b443"
+                  />
+                  <rect
+                    x="8.4"
+                    y="12.4"
+                    width="7.1"
+                    height="0.8"
+                    rx="0.4"
+                    fill="#a9a8d8"
+                  />
+                  <rect
+                    x="8.4"
+                    y="14.2"
+                    width="6"
+                    height="0.8"
+                    rx="0.4"
+                    fill="#a9a8d8"
+                  />
+                  <rect
+                    x="8.4"
+                    y="16"
+                    width="5"
+                    height="0.8"
+                    rx="0.4"
+                    fill="#a9a8d8"
+                  />
+                  <path
+                    d="M15.5 18.6l3.8-5.6 1.5 1-3.8 5.6-1.5.5z"
+                    fill="#3dbf6a"
+                  />
+                  <path
+                    d="M19.3 13l1.2-1.8a.8.8 0 011.1-.2l.5.3a.8.8 0 01.2 1.1l-1.2 1.8-1.8-1.2z"
+                    fill="#2a2d4f"
+                  />
+                  <circle cx="18.7" cy="2.7" r="2.8" fill="#ec4f7a" />
+                  <circle cx="18.7" cy="2.7" r="1" fill="#f7a7bc" />
+                </svg>
+              </div>
               <div class="contact-link-text">
                 <div class="contact-link-label">Blog</div>
                 <div class="contact-link-value">infrabyfrancis.me/blog</div>
               </div>
               <div class="contact-link-arrow">→</div></a
             >
-            <a href="mailto:hello@infrabyfrancis.me" class="contact-link"
-              ><div class="contact-link-icon">📬</div>
+            <a href="mailto:mensah.morkehfrancis@gmail.com" class="contact-link"
+              ><div class="contact-link-icon icon-email" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img" focusable="false">
+                  <rect
+                    x="1"
+                    y="3"
+                    width="22"
+                    height="18"
+                    rx="3"
+                    fill="#c7cdd3"
+                  />
+                  <path
+                    fill="#f44336"
+                    d="M1 7.3V18a3 3 0 003 3h1.7V9.4L12 14.1l6.3-4.7V21H20a3 3 0 003-3V7.3l-11 8.2L1 7.3z"
+                  />
+                  <path
+                    fill="#e3e7ea"
+                    d="M1 7a3 3 0 013-3h16a3 3 0 013 3l-11 8.2L1 7z"
+                  />
+                  <path
+                    fill="#f44336"
+                    d="M1 7l5.7 4.2L12 14.9l5.3-3.7L23 7v1.5l-11 8.2L1 8.5V7z"
+                  />
+                </svg>
+              </div>
               <div class="contact-link-text">
                 <div class="contact-link-label">Email</div>
-                <div class="contact-link-value">hello@infrabyfrancis.me</div>
+                <div class="contact-link-value">
+                  mensah.morkehfrancis@gmail.com
+                </div>
               </div>
               <div class="contact-link-arrow">→</div></a
             >
@@ -1384,6 +2199,13 @@
       </div>
     </footer>
     <script>
+      const storedTheme = localStorage.getItem("theme");
+      const preferredDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const initialTheme = storedTheme || (preferredDark ? "dark" : "light");
+      document.body.setAttribute("data-theme", initialTheme);
+
       const cursor = document.getElementById("cursor"),
         ring = document.getElementById("cursorRing");
       let mx = 0,
@@ -1431,6 +2253,27 @@
         { threshold: 0.1 },
       );
       document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
+
+      const themeToggle = document.getElementById("themeToggle");
+      const themeIcon = document.getElementById("themeIcon");
+      const themeLabel = document.getElementById("themeLabel");
+
+      function syncThemeUI(theme) {
+        const nextTheme = theme === "dark" ? "light" : "dark";
+        themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
+        themeIcon.textContent = nextTheme === "dark" ? "☾" : "☀";
+        themeLabel.textContent = nextTheme === "dark" ? "Dark" : "Light";
+      }
+
+      syncThemeUI(initialTheme);
+
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme") || "dark";
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+        document.body.setAttribute("data-theme", nextTheme);
+        localStorage.setItem("theme", nextTheme);
+        syncThemeUI(nextTheme);
+      });
     </script>
   </body>
 </html>

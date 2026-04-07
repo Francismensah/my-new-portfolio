@@ -9,6 +9,14 @@
       content="How a tiny Nginx proxy buffer misconfiguration caused a production login outage — and the four-line fix that resolved it."
     />
     <link rel="canonical" href="https://infrabyfrancis.me/nginx-502-fix.html" />
+    <script>
+      const storedTheme = localStorage.getItem("theme");
+      const preferredDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const initialTheme = storedTheme || (preferredDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", initialTheme);
+    </script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
       :root {
@@ -26,6 +34,19 @@
         --red: #f87171;
         --blue: #60a5fa;
         --code-bg: #0d0d0f;
+      }
+      html[data-theme="light"] {
+        --bg: #f8f8f6;
+        --bg2: #ffffff;
+        --border: #d8d8d0;
+        --border2: #bdbdb3;
+        --accent: #dd6413;
+        --accent-dim: rgba(221, 100, 19, 0.12);
+        --text: #1e1f22;
+        --muted: #4a4c52;
+        --muted2: #666a74;
+        --white: #151617;
+        --code-bg: #f1f2ef;
       }
       *,
       *::before,
@@ -93,7 +114,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 1.25rem 3rem;
-        background: rgba(9, 9, 9, 0.92);
+        background: color-mix(in srgb, var(--bg) 92%, transparent);
         backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--border);
       }
