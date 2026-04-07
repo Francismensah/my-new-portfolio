@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fixing Nginx 502 Bad Gateway — infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="How a tiny Nginx proxy buffer misconfiguration caused a production login outage — and the four-line fix that resolved it."
+    />
+    <link rel="canonical" href="https://infrabyfrancis.me/nginx-502-fix.html" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
+      :root {
+        --bg: #090909;
+        --bg2: #101012;
+        --border: #222226;
+        --border2: #2c2c32;
+        --accent: #f97316;
+        --accent-dim: rgba(249, 115, 22, 0.1);
+        --text: #e2e0db;
+        --muted: #666;
+        --muted2: #444;
+        --white: #f5f3ee;
+        --green: #4ade80;
+        --red: #f87171;
+        --blue: #60a5fa;
+        --code-bg: #0d0d0f;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 17px;
+        line-height: 1.8;
+        overflow-x: hidden;
+        cursor: none;
+      }
+      .cursor {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.2s,
+          height 0.2s;
+      }
+      .cursor-ring {
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(249, 115, 22, 0.4);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: all 0.15s ease;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        opacity: 0.025;
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 3rem;
+        background: rgba(9, 9, 9, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        text-decoration: none;
+      }
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--accent);
+      }
+
+      /* Article layout */
+      .article-hero {
+        padding: 8rem 3rem 5rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .article-hero-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 60% 60% at 50% 100%,
+          rgba(249, 115, 22, 0.04) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .article-hero-inner {
+        max-width: 760px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .breadcrumb {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.75rem;
+        opacity: 0;
+        animation: fadeUp 0.5s ease forwards 0.1s;
+      }
+      .breadcrumb a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .breadcrumb a:hover {
+        color: var(--accent);
+      }
+      .breadcrumb span {
+        color: var(--muted2);
+      }
+      .article-category {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        opacity: 0;
+        animation: fadeUp 0.6s ease forwards 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .article-category::before {
+        content: "";
+        display: inline-block;
+        width: 1.5rem;
+        height: 1px;
+        background: var(--accent);
+      }
+      .article-hero h1 {
+        font-family: "Fraunces", serif;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 700;
+        line-height: 1.15;
+        color: var(--white);
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.02em;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.3s;
+      }
+      .article-hero h1 em {
+        color: var(--accent);
+        font-style: italic;
+      }
+      .article-subtitle {
+        font-size: 1.1rem;
+        color: #888;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        line-height: 1.7;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.45s;
+      }
+      .article-meta-bar {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        padding: 1.25rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.6s;
+      }
+      .meta-item {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        letter-spacing: 0.06em;
+      }
+      .meta-tags {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .meta-tag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: var(--accent);
+        background: var(--accent-dim);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        padding: 0.2rem 0.55rem;
+        border-radius: 2px;
+      }
+
+      /* Body */
+      .article-body {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 4rem 3rem 6rem;
+      }
+      h2 {
+        font-family: "Fraunces", serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--white);
+        margin: 3.5rem 0 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        letter-spacing: -0.01em;
+      }
+      h2::before {
+        content: "";
+        display: inline-block;
+        width: 4px;
+        height: 1.4em;
+        background: var(--accent);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+      h3 {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin: 2.5rem 0 0.75rem;
+      }
+      p {
+        margin-bottom: 1.4rem;
+        color: #b0ada8;
+        font-weight: 300;
+      }
+      p strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      ul.body-list {
+        list-style: none;
+        margin: 1rem 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      ul.body-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        color: #999;
+        font-size: 0.95rem;
+        font-weight: 300;
+      }
+      ul.body-list li::before {
+        content: "→";
+        color: var(--accent);
+        font-family: "IBM Plex Mono", monospace;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+        font-size: 0.8rem;
+      }
+
+      /* Error box */
+      .error-box {
+        background: rgba(248, 113, 113, 0.06);
+        border: 1px solid rgba(248, 113, 113, 0.2);
+        border-left: 3px solid var(--red);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.85rem;
+        color: var(--red);
+        line-height: 1.6;
+      }
+      .error-box .box-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(248, 113, 113, 0.5);
+        margin-bottom: 0.5rem;
+      }
+
+      /* Success box */
+      .success-box {
+        background: rgba(74, 222, 128, 0.06);
+        border: 1px solid rgba(74, 222, 128, 0.18);
+        border-left: 3px solid var(--green);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.95rem;
+        color: #b6f7cb;
+        font-weight: 300;
+      }
+      .success-box strong {
+        color: var(--green);
+      }
+
+      /* Info box */
+      .info-box {
+        background: rgba(96, 165, 250, 0.06);
+        border: 1px solid rgba(96, 165, 250, 0.18);
+        border-left: 3px solid var(--blue);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #bfdbfe;
+        font-weight: 300;
+      }
+
+      /* Warning */
+      .warn-box {
+        background: rgba(249, 115, 22, 0.06);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-left: 3px solid var(--accent);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #fed7aa;
+        font-weight: 300;
+      }
+
+      /* Code */
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1.25rem 0;
+        position: relative;
+      }
+      pre .file-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: var(--muted2);
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        letter-spacing: 0.06em;
+      }
+      code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1.75;
+        color: var(--text);
+      }
+      p code,
+      li code {
+        background: #161618;
+        border: 1px solid var(--border);
+        padding: 0.1em 0.4em;
+        border-radius: 3px;
+        font-size: 0.82em;
+        color: #f0b27a;
+      }
+      .cm {
+        color: #3a3a3f;
+      }
+      .cd {
+        color: var(--blue);
+      }
+      .cv {
+        color: var(--green);
+      }
+      .cp {
+        color: #a78bfa;
+      }
+      .bp {
+        color: var(--muted2);
+        user-select: none;
+      }
+
+      /* Diagram */
+      .diagram {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.82rem;
+      }
+      .diagram-label {
+        font-size: 0.68rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+      }
+      .flow-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin: 0.35rem 0;
+      }
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0.3rem 0.75rem;
+        font-size: 0.78rem;
+        white-space: nowrap;
+      }
+      .box.client {
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .box.nginx {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .box.up {
+        border-color: #a78bfa;
+        color: #a78bfa;
+      }
+      .box.fail {
+        border-color: var(--red);
+        color: var(--red);
+        background: rgba(248, 113, 113, 0.05);
+      }
+      .box.ok {
+        border-color: var(--green);
+        color: var(--green);
+        background: rgba(74, 222, 128, 0.05);
+      }
+      .arr {
+        color: var(--muted);
+      }
+      .arr.r {
+        color: var(--red);
+      }
+      .arr.g {
+        color: var(--green);
+      }
+
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.85rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.65rem 1rem;
+        background: #0f0f11;
+        border: 1px solid var(--border);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.68rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      td {
+        padding: 0.65rem 1rem;
+        border: 1px solid var(--border);
+        color: #aaa;
+        vertical-align: top;
+        font-size: 0.85rem;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.015);
+      }
+      td.td-dir {
+        color: var(--blue);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+      }
+      td.td-old {
+        color: var(--red);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+      }
+      td.td-new {
+        color: var(--green);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+      }
+
+      /* Takeaway */
+      .takeaway {
+        background: var(--accent-dim);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 2.5rem 0;
+      }
+      .takeaway h3 {
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        margin-top: 0;
+      }
+      .takeaway p {
+        color: #e8c9a8;
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      /* Article footer */
+      .article-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 3rem;
+        margin-top: 4rem;
+      }
+      .article-footer-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+      }
+      .author-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.75rem;
+        margin-bottom: 2.5rem;
+      }
+      .author-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fraunces", serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #000;
+        flex-shrink: 0;
+      }
+      .author-name {
+        font-family: "Fraunces", serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--white);
+        margin-bottom: 0.2rem;
+      }
+      .author-title {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+      .author-bio {
+        font-size: 0.875rem;
+        color: #777;
+        font-weight: 300;
+      }
+      .article-tags-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+      }
+      .atag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 0.25rem 0.65rem;
+        border-radius: 2px;
+      }
+
+      /* Back / next nav */
+      .post-nav {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #000;
+        background: var(--accent);
+        padding: 0.85rem 1.75rem;
+        text-decoration: none;
+        border-radius: 2px;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+      }
+      .btn-secondary {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--border2);
+        padding: 0.85rem 1.75rem;
+        text-decoration: none;
+        border-radius: 2px;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-secondary:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+      .footer-copy {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted2);
+      }
+      .footer-tagline {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted2);
+      }
+      .footer-tagline span {
+        color: var(--accent);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 900px) {
+        nav {
+          padding: 1rem 1.5rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .article-hero {
+          padding: 7rem 1.5rem 3rem;
+        }
+        .article-body {
+          padding: 3rem 1.5rem 4rem;
+        }
+        body {
+          cursor: auto;
+        }
+        .cursor,
+        .cursor-ring {
+          display: none;
+        }
+        footer {
+          flex-direction: column;
+          gap: 0.75rem;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav>
+      <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#experience">Experience</a></li>
+        <li><a href="index.html#skills">Skills</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="blog.html" class="active">Blog</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="article-hero">
+      <div class="article-hero-bg"></div>
+      <div class="article-hero-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span>/</span>
+          <a href="blog.html">Blog</a><span>/</span>
+          <span style="color: var(--text)">Nginx 502 Fix</span>
+        </div>
+        <p class="article-category">Nginx · SRE · Incident Writeup</p>
+        <h1>
+          Fixing the Nginx <em>502 Bad Gateway</em> — upstream sent too big
+          header
+        </h1>
+        <p class="article-subtitle">
+          Users couldn't log in across multiple internal services. No code had
+          changed. The fix was four lines of Nginx config.
+        </p>
+        <div class="article-meta-bar">
+          <span class="meta-item">📅 2025</span>
+          <span class="meta-item">⏱ 8 min read</span>
+          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+          <div class="meta-tags">
+            <span class="meta-tag">Nginx</span>
+            <span class="meta-tag">SRE</span>
+            <span class="meta-tag">Production</span>
+            <span class="meta-tag">Incident</span>
+            <span class="meta-tag">DevOps</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <h2>Overview</h2>
+      <p>
+        Authentication failures started appearing across several internal
+        services simultaneously. Users attempting to log in were met with a
+        blank page or an error screen. No application code had changed. No
+        deployments had gone out. The infrastructure hadn't been touched.
+      </p>
+      <p>Checking the Nginx error logs told the story immediately:</p>
+      <div class="error-box">
+        <div class="box-label">nginx error.log</div>
+        upstream sent too big header while reading response header from upstream
+      </div>
+      <p>
+        This is a classic reverse proxy misconfiguration — one that's easy to
+        miss until your headers grow large enough to trigger it.
+      </p>
+
+      <h2>Root Cause</h2>
+      <p>
+        Nginx acts as a reverse proxy, sitting between the client (browser) and
+        the upstream application server. When the upstream returns a response,
+        Nginx reads the headers into an internal memory buffer before forwarding
+        to the client.
+      </p>
+      <p>
+        By default, these buffers are intentionally small — designed for the era
+        of simple HTTP responses with minimal headers. Modern web applications
+        are a different beast. They often return:
+      </p>
+      <ul class="body-list">
+        <li>Large JWT tokens or OAuth tokens set as cookies</li>
+        <li>Multiple session cookies from authentication providers</li>
+        <li>Feature flag headers from A/B testing frameworks</li>
+        <li>Verbose security headers (CSP, CORS, HSTS policies)</li>
+        <li>Multiple <code>Set-Cookie</code> directives from SSO systems</li>
+      </ul>
+      <p>
+        When the combined size of these headers exceeds Nginx's proxy buffer,
+        Nginx fails — returning a <code>502 Bad Gateway</code> to the client.
+      </p>
+
+      <h3>Request Flow — Before Fix</h3>
+      <div class="diagram">
+        <div class="diagram-label">What was happening</div>
+        <div class="flow-row">
+          <div class="box client">Browser</div>
+          <span class="arr">→</span>
+          <div class="box nginx">Nginx</div>
+          <span class="arr">→</span>
+          <div class="box up">App Server</div>
+        </div>
+        <div class="flow-row" style="padding-left: 1rem; margin-top: 0.25rem">
+          <span class="arr r">←</span
+          ><span style="color: #444; font-size: 0.78rem">
+            Response with large auth headers</span
+          >
+        </div>
+        <div class="flow-row" style="padding-left: 1rem">
+          <div class="box fail">Buffer overflow → 502</div>
+          <span class="arr r">←</span>
+          <div class="box nginx">Nginx</div>
+        </div>
+      </div>
+
+      <h2>Nginx Default Buffer Limits</h2>
+      <p>
+        To understand why this happens, it helps to know what Nginx's defaults
+        actually are:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Directive</th>
+            <th>Default</th>
+            <th>What It Controls</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-dir">proxy_buffer_size</td>
+            <td class="td-old">4k / 8k</td>
+            <td>Buffer for the first part of the response (headers)</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_buffers</td>
+            <td class="td-old">8 × 4k/8k</td>
+            <td>Number and size of buffers for the response body</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_busy_buffers_size</td>
+            <td class="td-old">8k / 16k</td>
+            <td>Max size of buffers busy sending to the client</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_max_temp_file_size</td>
+            <td class="td-old">1024m</td>
+            <td>Max size of temp file when buffers are full</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-box">
+        💡 <strong>Note:</strong> <code>proxy_buffer_size</code> specifically
+        handles the response <em>header</em>. At 4–8 KB, a single large JWT
+        cookie can exceed this limit.
+      </div>
+
+      <h2>The Fix</h2>
+      <p>
+        The solution is to increase the proxy buffer sizes in the
+        <code>location /</code> block of each affected server block, and to
+        disable temp file offloading — which can introduce disk I/O under load.
+      </p>
+
+      <h3>Configuration Change</h3>
+      <pre><span class="file-label">nginx.conf / site config</span><code><span class="cm"># Inside the relevant server block</span>
+server {
+    ...
+
+    location / {
+        proxy_pass  http://upstream_service;
+
+        <span class="cm"># Increased buffer sizes to handle large response headers</span>
+        <span class="cd">proxy_buffer_size</span>        <span class="cv">128k</span>;
+        <span class="cd">proxy_buffers</span>            <span class="cv">4 256k</span>;
+        <span class="cd">proxy_busy_buffers_size</span>  <span class="cv">256k</span>;
+        <span class="cd">proxy_max_temp_file_size</span> <span class="cv">0</span>;
+    }
+}</code></pre>
+
+      <h3>What Each Directive Does</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Directive</th>
+            <th>Old</th>
+            <th>New</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-dir">proxy_buffer_size</td>
+            <td class="td-old">8k</td>
+            <td class="td-new">128k</td>
+            <td>Handles large response headers including auth tokens</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_buffers</td>
+            <td class="td-old">8 × 4k</td>
+            <td class="td-new">4 × 256k</td>
+            <td>1MB total buffer capacity for response bodies</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_busy_buffers_size</td>
+            <td class="td-old">16k</td>
+            <td class="td-new">256k</td>
+            <td>More data in-flight to the client at once</td>
+          </tr>
+          <tr>
+            <td class="td-dir">proxy_max_temp_file_size</td>
+            <td class="td-old">1024m</td>
+            <td class="td-new">0 (off)</td>
+            <td>Eliminates disk I/O fallback; keep in memory</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn-box">
+        ⚠️ <strong>On proxy_max_temp_file_size 0:</strong> Setting this to
+        <code>0</code> disables disk spilling entirely. Appropriate when
+        upstream responses fit in your configured buffers. If you serve large
+        file downloads, consider leaving temp files enabled and only increasing
+        <code>proxy_buffer_size</code>.
+      </div>
+
+      <h2>Applying the Change Safely</h2>
+      <p>
+        Always validate your Nginx config before reloading. A syntax error will
+        take down your server.
+      </p>
+      <pre><code><span class="bp">$ </span><span class="cp">sudo nginx -t</span>
+<span style="color:var(--green)">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</span>
+
+<span class="bp">$ </span><span class="cp">sudo systemctl reload nginx</span></code></pre>
+      <p>
+        Using <code>reload</code> instead of <code>restart</code> is important —
+        it performs a graceful reload that finishes in-flight requests with zero
+        downtime.
+      </p>
+
+      <h3>Request Flow — After Fix</h3>
+      <div class="diagram">
+        <div class="diagram-label">After the fix</div>
+        <div class="flow-row">
+          <div class="box client">Browser</div>
+          <span class="arr">→</span>
+          <div class="box nginx">Nginx</div>
+          <span class="arr">→</span>
+          <div class="box up">App Server</div>
+        </div>
+        <div class="flow-row" style="padding-left: 1rem">
+          <div class="box ok">Buffered → 200 OK</div>
+          <span class="arr g">←</span>
+          <div class="box nginx">Nginx (128k buffer)</div>
+          <span class="arr g">←</span
+          ><span style="color: #444; font-size: 0.78rem">Large headers</span>
+        </div>
+      </div>
+      <div class="success-box">
+        <strong>✅ Result:</strong> Login restored immediately across all
+        affected services. No application changes required. Zero downtime during
+        the fix.
+      </div>
+
+      <h2>Prevention & Best Practices</h2>
+      <ul class="body-list">
+        <li>
+          <strong>Set sensible buffer defaults globally</strong> — Add proxy
+          buffer sizes to your base Nginx template so all new server blocks
+          inherit them.
+        </li>
+        <li>
+          <strong>Monitor header sizes</strong> — Periodically inspect
+          auth-heavy response headers with <code>curl -I</code> or log
+          <code>$upstream_http_*</code> variables.
+        </li>
+        <li>
+          <strong>Scope changes to affected locations</strong> — Apply increased
+          buffers only to <code>location /</code> blocks that need them. Don't
+          waste memory on static asset endpoints.
+        </li>
+        <li>
+          <strong>Keep auth tokens lean</strong> — Audit what's in your cookies
+          and JWT claims. Large tokens with redundant data are often the
+          upstream root cause.
+        </li>
+        <li>
+          <strong>Alert on 502 spike rates</strong> — A sudden increase in Nginx
+          502s is often the first signal of buffer exhaustion. Set thresholds
+          before users notice.
+        </li>
+      </ul>
+
+      <div class="takeaway">
+        <h3>💡 Key Engineering Takeaway</h3>
+        <p>
+          Not every 502 is an application crash. Nginx's default proxy buffer
+          sizes were designed for a simpler era of HTTP. As authentication
+          systems have grown more sophisticated — SSO, JWTs, OAuth — response
+          headers have grown with them. Infrastructure defaults need to keep
+          pace. A four-line config change resolved a production incident that
+          looked, on the surface, like a broken login system.
+        </p>
+      </div>
+
+      <h2>References</h2>
+      <ul class="body-list">
+        <li>
+          <a
+            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffer_size"
+            target="_blank"
+            >Nginx Docs — proxy_buffer_size</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffers"
+            target="_blank"
+            >Nginx Docs — proxy_buffers</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_busy_buffers_size"
+            target="_blank"
+            >Nginx Docs — proxy_busy_buffers_size</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_max_temp_file_size"
+            target="_blank"
+            >Nginx Docs — proxy_max_temp_file_size</a
+          >
+        </li>
+      </ul>
+
+      <div class="article-footer">
+        <div class="article-footer-label">Written by</div>
+        <div class="author-card">
+          <div class="author-avatar">F</div>
+          <div>
+            <div class="author-name">Francis Morkeh Mensah</div>
+            <div class="author-title">
+              Site Reliability Engineer · AWS Community Builder
+            </div>
+            <div class="author-bio">
+              Building and operating cloud-native production systems at Hubtel.
+              Writing about SRE, infrastructure, and the lessons learned from
+              production failures.
+            </div>
+          </div>
+        </div>
+        <div class="article-tags-footer">
+          <span class="atag">#Nginx</span><span class="atag">#SRE</span
+          ><span class="atag">#DevOps</span><span class="atag">#502</span
+          ><span class="atag">#ReverseProxy</span
+          ><span class="atag">#IncidentResponse</span
+          ><span class="atag">#WebInfrastructure</span>
+        </div>
+        <div class="post-nav">
+          <a href="blog.html" class="btn-secondary">← Back to Blog</a>
+          <a href="index.html#contact" class="btn-primary">Get in Touch</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-copy">
+        © 2025 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script>
+      const cursor = document.getElementById("cursor"),
+        ring = document.getElementById("cursorRing");
+      let mx = 0,
+        my = 0,
+        rx = 0,
+        ry = 0;
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+      (function anim() {
+        cursor.style.left = mx + "px";
+        cursor.style.top = my + "px";
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + "px";
+        ring.style.top = ry + "px";
+        requestAnimationFrame(anim);
+      })();
+      document.querySelectorAll("a,button").forEach((el) => {
+        el.addEventListener("mouseenter", () => {
+          cursor.style.width = "6px";
+          cursor.style.height = "6px";
+          ring.style.width = "44px";
+          ring.style.height = "44px";
+        });
+        el.addEventListener("mouseleave", () => {
+          cursor.style.width = "10px";
+          cursor.style.height = "10px";
+          ring.style.width = "32px";
+          ring.style.height = "32px";
+        });
+      });
+    </script>
+  </body>
+</html>
