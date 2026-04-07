@@ -42,6 +42,23 @@
         --muted2: #666a74;
         --white: #151617;
       }
+      html[data-theme="light"] .featured-visual {
+        background: linear-gradient(
+          135deg,
+          #efefea 0%,
+          #e8e8e0 50%,
+          #efefea 100%
+        );
+      }
+      html[data-theme="light"] .featured-visual-inner {
+        color: #1e1f22;
+      }
+      html[data-theme="light"] .featured-visual-inner span {
+        color: rgba(221, 100, 19, 0.7);
+      }
+      html[data-theme="light"] .featured-visual::before {
+        color: rgba(221, 100, 19, 0.08);
+      }
       *,
       *::before,
       *::after {
@@ -674,7 +691,7 @@
 
       <!-- All articles -->
       <div class="articles-section-title reveal">
-        All Articles — 2 published · more coming soon
+        All Articles — 3 published · more coming soon
       </div>
       <div class="articles-grid reveal">
         <a href="nginx-502-fix.html" class="article-card">
@@ -707,17 +724,20 @@
           </div>
           <div class="article-read">Read →</div>
         </a>
-        <div class="article-card coming-soon">
-          <div class="article-tag">SRE · Reliability</div>
+        <a href="slo-alerting-framework.html" class="article-card">
+          <div class="article-tag">SRE · Observability</div>
           <div class="article-title">
-            SLIs, SLOs, and Error Budgets: A Practical Guide
+            Building an SLI/SLO Alerting Framework for Microservices
           </div>
           <div class="article-excerpt">
-            How to define meaningful service level objectives and use error
-            budgets to balance reliability with feature velocity.
+            A comprehensive observability strategy using SLIs, SLOs, error
+            budgets, and Grafana dashboards for real-time service health.
           </div>
-          <div class="article-meta"><span>Coming soon</span></div>
-        </div>
+          <div class="article-meta">
+            <span>2025</span><span>·</span><span>12 min</span>
+          </div>
+          <div class="article-read">Read →</div>
+        </a>
         <div class="article-card coming-soon">
           <div class="article-tag">Terraform · IaC</div>
           <div class="article-title">
