@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Cloudflare 522 Caused by an EC2 Public IP Change — infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="How associate_public_ip_address = true caused a Cloudflare 522 after an EC2 restart, and how an Elastic IP fixed the problem."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/cloudflare-522-ec2-public-ip-change.html"
+    />
+    <script>
+      const storedTheme = localStorage.getItem("theme");
+      const preferredDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const initialTheme = storedTheme || (preferredDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", initialTheme);
+    </script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
+      :root {
+        --bg: #090909;
+        --bg2: #101012;
+        --border: #222226;
+        --border2: #2c2c32;
+        --accent: #f97316;
+        --accent-dim: rgba(249, 115, 22, 0.1);
+        --text: #e2e0db;
+        --muted: #666;
+        --muted2: #444;
+        --white: #f5f3ee;
+        --green: #4ade80;
+        --red: #f87171;
+        --blue: #60a5fa;
+        --code-bg: #0d0d0f;
+      }
+      html[data-theme="light"] {
+        --bg: #f8f8f6;
+        --bg2: #ffffff;
+        --border: #d8d8d0;
+        --border2: #bdbdb3;
+        --accent: #dd6413;
+        --accent-dim: rgba(221, 100, 19, 0.12);
+        --text: #1e1f22;
+        --muted: #4a4c52;
+        --muted2: #666a74;
+        --white: #151617;
+        --code-bg: #f1f2ef;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 17px;
+        line-height: 1.8;
+        overflow-x: hidden;
+        cursor: none;
+      }
+      .cursor {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.2s,
+          height 0.2s;
+      }
+      .cursor-ring {
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(249, 115, 22, 0.4);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: all 0.15s ease;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        opacity: 0.025;
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 3rem;
+        background: color-mix(in srgb, var(--bg) 92%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        text-decoration: none;
+      }
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--accent);
+      }
+      .article-hero {
+        padding: 8rem 3rem 5rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .article-hero-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 60% 60% at 50% 100%,
+          rgba(249, 115, 22, 0.04) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .article-hero-inner {
+        max-width: 760px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .breadcrumb {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.75rem;
+        opacity: 0;
+        animation: fadeUp 0.5s ease forwards 0.1s;
+      }
+      .breadcrumb a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .breadcrumb a:hover {
+        color: var(--accent);
+      }
+      .breadcrumb span {
+        color: var(--muted2);
+      }
+      .article-category {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        opacity: 0;
+        animation: fadeUp 0.6s ease forwards 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .article-category::before {
+        content: "";
+        display: inline-block;
+        width: 1.5rem;
+        height: 1px;
+        background: var(--accent);
+      }
+      .article-hero h1 {
+        font-family: "Fraunces", serif;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 700;
+        line-height: 1.15;
+        color: var(--white);
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.02em;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.3s;
+      }
+      .article-hero h1 em {
+        color: var(--accent);
+        font-style: italic;
+      }
+      .article-subtitle {
+        font-size: 1.1rem;
+        color: #888;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        max-width: 620px;
+        line-height: 1.7;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.45s;
+      }
+      .article-meta-bar {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        padding: 1.25rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.6s;
+      }
+      .meta-item {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        letter-spacing: 0.06em;
+      }
+      .meta-tags {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .meta-tag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: var(--accent);
+        background: var(--accent-dim);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        padding: 0.2rem 0.55rem;
+        border-radius: 2px;
+      }
+      .article-body {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 4rem 3rem 6rem;
+      }
+      h2 {
+        font-family: "Fraunces", serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--white);
+        margin: 3.5rem 0 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        letter-spacing: -0.01em;
+      }
+      h2::before {
+        content: "";
+        display: inline-block;
+        width: 4px;
+        height: 1.4em;
+        background: var(--accent);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+      h3 {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin: 2.5rem 0 0.75rem;
+      }
+      p {
+        margin-bottom: 1.4rem;
+        color: #b0ada8;
+        font-weight: 300;
+      }
+      p strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      ul.body-list {
+        list-style: none;
+        margin: 1rem 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      ul.body-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        color: #999;
+        font-size: 0.95rem;
+        font-weight: 300;
+      }
+      ul.body-list li::before {
+        content: "→";
+        color: var(--accent);
+        font-family: "IBM Plex Mono", monospace;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+        font-size: 0.8rem;
+      }
+      .warn-box {
+        background: rgba(249, 115, 22, 0.06);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-left: 3px solid var(--accent);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #fed7aa;
+        font-weight: 300;
+      }
+      .info-box {
+        background: rgba(96, 165, 250, 0.06);
+        border: 1px solid rgba(96, 165, 250, 0.18);
+        border-left: 3px solid var(--blue);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #bfdbfe;
+        font-weight: 300;
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1.25rem 0;
+        position: relative;
+      }
+      pre .file-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: var(--muted2);
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        letter-spacing: 0.06em;
+      }
+      code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1.75;
+        color: var(--text);
+      }
+      p code,
+      li code {
+        background: #161618;
+        border: 1px solid var(--border);
+        padding: 0.1em 0.4em;
+        border-radius: 3px;
+        font-size: 0.82em;
+        color: #f0b27a;
+      }
+      .takeaway {
+        background: var(--accent-dim);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 2.5rem 0;
+      }
+      .takeaway h3 {
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        margin-top: 0;
+      }
+      .takeaway p {
+        color: #e8c9a8;
+        margin: 0;
+        font-size: 0.95rem;
+      }
+      .article-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 3rem;
+        margin-top: 4rem;
+      }
+      .article-footer-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+      }
+      .article-tags-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+      }
+      .atag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 0.25rem 0.65rem;
+        border-radius: 2px;
+      }
+      .post-nav {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #000;
+        background: var(--accent);
+        padding: 0.85rem 1.75rem;
+        text-decoration: none;
+        border-radius: 2px;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+      }
+      .btn-secondary {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--border2);
+        padding: 0.85rem 1.75rem;
+        text-decoration: none;
+        border-radius: 2px;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-secondary:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+      .footer-copy,
+      .footer-tagline {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted2);
+      }
+      .footer-tagline span {
+        color: var(--accent);
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 900px) {
+        nav {
+          padding: 1rem 1.5rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .article-hero {
+          padding: 7rem 1.5rem 3rem;
+        }
+        .article-body {
+          padding: 3rem 1.5rem 4rem;
+        }
+        footer {
+          flex-direction: column;
+          gap: 0.75rem;
+          text-align: center;
+        }
+        body {
+          cursor: auto;
+        }
+        .cursor,
+        .cursor-ring {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav>
+      <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#experience">Experience</a></li>
+        <li><a href="index.html#skills">Skills</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="blog.html" class="active">Blog</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="article-hero">
+      <div class="article-hero-bg"></div>
+      <div class="article-hero-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span>/</span>
+          <a href="blog.html">Blog</a><span>/</span>
+          <span style="color: var(--text)">Cloudflare 522</span>
+        </div>
+        <p class="article-category">AWS · Terraform · Incident Writeup</p>
+        <h1>Cloudflare <em>522</em> Caused by an EC2 Public IP Change</h1>
+        <p class="article-subtitle">
+          The origin did not fail because of an app bug. The instance came back
+          with a new public IP, Cloudflare kept calling the old one, and the fix
+          was a stable Elastic IP.
+        </p>
+        <div class="article-meta-bar">
+          <span class="meta-item">📅 2026</span>
+          <span class="meta-item">⏱ 7 min read</span>
+          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+          <div class="meta-tags">
+            <span class="meta-tag">AWS</span>
+            <span class="meta-tag">Terraform</span>
+            <span class="meta-tag">Cloudflare</span>
+            <span class="meta-tag">EC2</span>
+            <span class="meta-tag">Incident</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <h2>Overview</h2>
+      <p>
+        I hit a <code>522</code> from Cloudflare after an EC2-hosted service
+        restarted. Nothing in the application changed. The problem was the
+        origin address itself: I had been relying on
+        <code>associate_public_ip_address = true</code>, so when the instance
+        cycled, it came back with a different public IP.
+      </p>
+      <p>
+        Cloudflare was still pointing traffic at the old origin address, which
+        meant the edge could not establish a healthy connection to the server.
+        From the outside it looked like a platform outage, but the root cause
+        was a public IP that was never stable enough for production.
+      </p>
+
+      <div class="warn-box">
+        <strong>What a 522 means:</strong> Cloudflare reached the edge of the
+        network, but it could not complete the connection to the origin within
+        the expected time. In practice, that can be a stale IP, an unreachable
+        server, or a service that is not listening where Cloudflare expects it
+        to be.
+      </div>
+
+      <h2>Root Cause</h2>
+      <p>
+        The infrastructure was built with Terraform, and the EC2 instance was
+        launched with an auto-assigned public IPv4 address. That is convenient
+        for testing, but it is fragile for anything that depends on a stable
+        origin address.
+      </p>
+      <p>The failure chain was simple:</p>
+      <ul class="body-list">
+        <li>The instance restarted during a maintenance cycle.</li>
+        <li>The public IP changed when the instance came back.</li>
+        <li>Cloudflare continued sending traffic to the old address.</li>
+        <li>
+          Users saw <code>522</code> because the origin could not be reached.
+        </li>
+      </ul>
+      <p>
+        The application itself was healthy. The edge just had the wrong origin
+        endpoint.
+      </p>
+
+      <h2>The Fix</h2>
+      <p>
+        The fix was to stop depending on a disposable public IP and allocate an
+        Elastic IP for the instance instead. That gave the server a stable
+        public address that survived restarts and kept the origin reference
+        consistent.
+      </p>
+      <pre><code><span class="file-label">main.tf</span>resource "aws_eip" "instance_name" {
+  instance = aws_instance.instance_name.id
+  domain   = "vpc"
+
+  tags = {
+    Name = var.instance_name
+  }
+}</code></pre>
+      <p>
+        After associating the Elastic IP, I updated the origin to use that
+        address. Cloudflare could reach the service again, and the 522 errors
+        disappeared.
+      </p>
+
+      <div class="info-box">
+        <strong>Why this works:</strong> an Elastic IP gives you a stable public
+        address that you control. The instance can restart, but the origin IP
+        stays fixed, which means DNS and reverse-proxy layers do not have to
+        chase a moving target.
+      </div>
+
+      <h2>What I Changed in Practice</h2>
+      <p>There were three practical changes after the incident:</p>
+      <ul class="body-list">
+        <li>Replaced the auto-assigned public IP with an Elastic IP.</li>
+        <li>
+          Pointed the origin at the stable EIP instead of the ephemeral address.
+        </li>
+        <li>
+          Kept the Terraform configuration responsible for the association so
+          the setup is reproducible.
+        </li>
+      </ul>
+      <p>
+        This also made the architecture easier to reason about during future
+        restarts. If the instance is up, the origin address is still the same.
+      </p>
+
+      <h2>Lesson Learned</h2>
+      <p>
+        If a production service needs a public origin, do not build it on top of
+        an address that can move underneath you. Auto-assigned public IPs are
+        fine for experiments, but they are the wrong primitive for a stable
+        internet-facing origin.
+      </p>
+      <ul class="body-list">
+        <li>Use an Elastic IP when you need a fixed origin address on EC2.</li>
+        <li>
+          Use a load balancer if the service is meant to scale or move around.
+        </li>
+        <li>
+          Keep the origin identity stable so Cloudflare and DNS never drift.
+        </li>
+        <li>
+          Treat restart behavior as part of the reliability design, not an
+          afterthought.
+        </li>
+      </ul>
+
+      <div class="takeaway">
+        <h3>Takeaway</h3>
+        <p>
+          The bug was not Cloudflare and it was not the application. It was a
+          fragile origin address. Switching from
+          <code>associate_public_ip_address = true</code> to a dedicated
+          <code>aws_eip</code> made the origin stable and removed the 522 from
+          the restart path.
+        </p>
+      </div>
+
+      <div class="article-footer">
+        <div class="article-footer-label">Tags</div>
+        <div class="article-tags-footer">
+          <span class="atag">AWS</span>
+          <span class="atag">Terraform</span>
+          <span class="atag">Cloudflare</span>
+          <span class="atag">EC2</span>
+          <span class="atag">Incident</span>
+        </div>
+        <div class="post-nav">
+          <a href="blog.html" class="btn-primary">Back to Blog</a>
+          <a href="index.html" class="btn-secondary">Home</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script>
+      const cursor = document.getElementById("cursor"),
+        ring = document.getElementById("cursorRing");
+      let mx = 0,
+        my = 0,
+        rx = 0,
+        ry = 0;
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+      (function anim() {
+        cursor.style.left = mx + "px";
+        cursor.style.top = my + "px";
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + "px";
+        ring.style.top = ry + "px";
+        requestAnimationFrame(anim);
+      })();
+      document.querySelectorAll("a,button").forEach((el) => {
+        el.addEventListener("mouseenter", () => {
+          cursor.style.width = "6px";
+          cursor.style.height = "6px";
+          ring.style.width = "44px";
+          ring.style.height = "44px";
+          ring.style.borderColor = "rgba(249,115,22,0.7)";
+        });
+        el.addEventListener("mouseleave", () => {
+          cursor.style.width = "10px";
+          cursor.style.height = "10px";
+          ring.style.width = "32px";
+          ring.style.height = "32px";
+          ring.style.borderColor = "rgba(249,115,22,0.4)";
+        });
+      });
+    </script>
+  </body>
+</html>

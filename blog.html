@@ -655,44 +655,43 @@
       </div>
 
       <!-- Featured -->
-      <a href="nginx-502-fix.html" class="featured-article reveal">
+      <a
+        href="building-and-deploying-my-portfolio.html"
+        class="featured-article reveal"
+      >
         <span class="featured-label">Featured</span>
         <div class="featured-content">
-          <div class="featured-meta">2025 · 8 min read · Nginx · SRE</div>
+          <div class="featured-meta">2026 · 10 min read · AWS · Deployment</div>
           <div class="featured-title">
-            Fixing the Nginx 502 Bad Gateway — upstream sent too big header
+            How I Finally Built and Deployed My Personal Portfolio
           </div>
           <div class="featured-excerpt">
-            Users couldn't log in across multiple internal services. No code had
-            changed. No deployments went out. The culprit? Nginx was silently
-            dropping oversized response headers from the upstream auth system.
+            A reflective build log covering EC2 provisioning, Nginx setup,
+            Cloudflare DNS mapping, SSL with Certbot, and what I will automate
+            next.
           </div>
           <div class="featured-tags">
-            <span class="featured-tag">Nginx</span
-            ><span class="featured-tag">SRE</span
-            ><span class="featured-tag">Production</span
-            ><span class="featured-tag">Incident</span
-            ><span class="featured-tag">DevOps</span>
+            <span class="featured-tag">AWS</span
+            ><span class="featured-tag">DevOps</span
+            ><span class="featured-tag">Deployment</span
+            ><span class="featured-tag">Nginx</span
+            ><span class="featured-tag">Cloudflare</span>
           </div>
           <div class="featured-read">Read Article →</div>
         </div>
         <div class="featured-visual">
           <div class="featured-visual-inner">
-            <div>proxy_buffer_size &nbsp;&nbsp;&nbsp;<span>128k</span>;</div>
-            <div>
-              proxy_buffers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
-                >4 256k</span
-              >;
-            </div>
-            <div>proxy_busy_buffers_size <span>256k</span>;</div>
-            <div>proxy_max_temp_file_size <span>0</span>;</div>
+            <div>EC2 <span>provisioned</span></div>
+            <div>Nginx <span>configured</span></div>
+            <div>Cloudflare <span>mapped</span></div>
+            <div>SSL via <span>Certbot</span></div>
           </div>
         </div>
       </a>
 
       <!-- All articles -->
       <div class="articles-section-title reveal">
-        All Articles — 4 published · more coming soon
+        All Articles — 6 published · more coming soon
       </div>
       <div class="articles-grid reveal">
         <a href="building-and-deploying-my-portfolio.html" class="article-card">
@@ -706,6 +705,20 @@
           </div>
           <div class="article-meta">
             <span>2026</span><span>·</span><span>10 min</span>
+          </div>
+          <div class="article-read">Read →</div>
+        </a>
+        <a href="cloudflare-522-ec2-public-ip-change.html" class="article-card">
+          <div class="article-tag">AWS · Terraform · Cloudflare</div>
+          <div class="article-title">
+            Cloudflare 522 Caused by an EC2 Public IP Change
+          </div>
+          <div class="article-excerpt">
+            How an instance restart changed the public IP, broke the origin, and
+            was fixed by moving to a stable Elastic IP.
+          </div>
+          <div class="article-meta">
+            <span>2026</span><span>·</span><span>7 min</span>
           </div>
           <div class="article-read">Read →</div>
         </a>
