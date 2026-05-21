@@ -313,3 +313,69 @@ footer {
       font-size: 0.6rem;
     }
   }
+
+  /* Critical mobile improvements */
+  @media (max-width: 768px) {
+    /* Better word breaking for long text */
+    p, li, a, span {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    
+    /* Ensure images are responsive */
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* Better touch targets */
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Table scrolling */
+    table {
+      font-size: 0.75rem;
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    table thead {
+      display: none;
+    }
+    
+    table tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    table tr {
+      display: block;
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+    
+    table td {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 0.5rem;
+      padding: 0.25rem 0;
+      border: none;
+    }
+    
+    table td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.65rem;
+    }
+  }
