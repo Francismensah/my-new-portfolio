@@ -23,7 +23,13 @@
   --pre-code-text: #d6d6d8;
   --info-text: #e8c9a8;
   --takeaway-text: #bbe7cb;
+  --content-max: 1100px;
+  --space-page-x: 1rem;
+  --space-page-y: 3rem;
+  --bp-sm: 640px;
+  --bp-lg: 900px;
 }
+
 html[data-theme="light"] {
   --bg: #f8f8f6;
   --bg2: #ffffff;
@@ -44,4 +50,18 @@ html[data-theme="light"] {
   --pre-code-text: #2a2d33;
   --info-text: #5b3c1f;
   --takeaway-text: #1f5e3a;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --space-page-x: 1.5rem;
+    --space-page-y: 4rem;
+  }
+}
+
+@media (min-width: 900px) {
+  :root {
+    --space-page-x: 3rem;
+    --space-page-y: 7rem;
+  }
 }
