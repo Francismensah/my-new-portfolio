@@ -31,16 +31,42 @@
   <body>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
-    <nav class="nav-solid">
+            <nav id="nav" class="nav-solid">
       <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
-      <ul class="nav-links">
-        <li><a href="../index.html#about">About</a></li>
-        <li><a href="../index.html#experience">Experience</a></li>
-        <li><a href="../index.html#skills">Skills</a></li>
-        <li><a href="../index.html#projects">Projects</a></li>
-        <li><a href="index.html" class="active">Blog</a></li>
-        <li><a href="../index.html#contact">Contact</a></li>
-      </ul>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+          <ul class="nav-links">
+            <li><a href="../index.html#about">About</a></li>
+            <li><a href="../index.html#experience">Experience</a></li>
+            <li><a href="../index.html#skills">Skills</a></li>
+            <li><a href="../index.html#projects">Projects</a></li>
+            <li><a href="index.html" class="active">Blog</a></li>
+            <li><a href="../index.html#contact">Contact</a></li>
+          </ul>
+      </div>
     </nav>
 
     <div class="article-hero">

@@ -29,14 +29,18 @@
     <nav id="nav" class="nav-scroll">
       <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
       <div class="nav-controls">
-        <ul class="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#experience">Experience</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="blog/">Blog</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
         <button
           class="theme-toggle"
           id="themeToggle"
@@ -47,6 +51,16 @@
           <span class="theme-icon" id="themeIcon">☀</span>
           <span id="themeLabel">Light</span>
         </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="blog/">Blog</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
       </div>
     </nav>
 

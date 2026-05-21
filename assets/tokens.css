@@ -24,8 +24,9 @@
   --info-text: #e8c9a8;
   --takeaway-text: #bbe7cb;
   --content-max: 1100px;
-  --space-page-x: 1rem;
-  --space-page-y: 3rem;
+  --space-page-x: 1.25rem;
+  --space-page-y: 2.5rem;
+  --nav-height: 3.25rem;
   --bp-sm: 640px;
   --bp-lg: 900px;
 }

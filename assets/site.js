@@ -74,11 +74,40 @@
     });
   }
 
-  const nav = document.getElementById("nav");
-  if (nav && nav.classList.contains("nav-scroll")) {
-    window.addEventListener("scroll", () =>
-      nav.classList.toggle("scrolled", window.scrollY > 60),
-    );
+  const nav = document.getElementById("nav") || document.querySelector("nav");
+  if (nav) {
+    if (nav.classList.contains("nav-scroll")) {
+      window.addEventListener("scroll", () =>
+        nav.classList.toggle("scrolled", window.scrollY > 60),
+      );
+    }
+
+    const menuBtn = document.getElementById("navMenuBtn");
+    const menuPanel = document.getElementById("navMenu");
+    if (menuBtn && menuPanel) {
+      const closeMenu = () => {
+        nav.classList.remove("nav-open");
+        document.body.classList.remove("nav-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        menuBtn.setAttribute("aria-label", "Open menu");
+      };
+
+      menuBtn.addEventListener("click", () => {
+        const open = !nav.classList.contains("nav-open");
+        nav.classList.toggle("nav-open", open);
+        document.body.classList.toggle("nav-open", open);
+        menuBtn.setAttribute("aria-expanded", String(open));
+        menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      });
+
+      menuPanel.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeMenu);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+      });
+    }
   }
 
   if ("IntersectionObserver" in window) {
