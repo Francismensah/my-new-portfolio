@@ -1,0 +1,10 @@
+{
+  "name": "infrabyfrancis-portfolio",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "python3 -m http.server 8080",
+    "build:css": "node scripts/generate-css.mjs",
+    "build:all": "node scripts/generate-css.mjs && node scripts/build.mjs"
+  }
+}

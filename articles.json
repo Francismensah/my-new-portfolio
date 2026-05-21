@@ -1,0 +1,124 @@
+{
+  "filters": [
+    "All",
+    "SRE",
+    "Deployment",
+    "Nginx",
+    "Terraform",
+    "Kubernetes",
+    "Observability",
+    "Incident"
+  ],
+  "featured": {
+    "href": "building-and-deploying-my-portfolio.html",
+    "meta": "2026 · 10 min read · AWS · Deployment",
+    "title": "How I Finally Built and Deployed My Personal Portfolio",
+    "excerpt": "A reflective build log covering EC2 provisioning, Nginx setup, Cloudflare DNS mapping, SSL with Certbot, and what I will automate next.",
+    "tags": ["AWS", "DevOps", "Deployment", "Nginx", "Cloudflare"],
+    "visual": [
+      { "label": "EC2", "highlight": "provisioned" },
+      { "label": "Nginx", "highlight": "configured" },
+      { "label": "Cloudflare", "highlight": "mapped" },
+      { "label": "SSL via", "highlight": "Certbot" }
+    ]
+  },
+  "published": [
+    {
+      "href": "building-and-deploying-my-portfolio.html",
+      "tag": "AWS · Deployment",
+      "title": "How I Finally Built and Deployed My Personal Portfolio",
+      "excerpt": "A personal, step-by-step walkthrough of shipping my portfolio with AWS EC2, Nginx, Cloudflare DNS, and SSL via Certbot.",
+      "year": "2026",
+      "readMinutes": "10 min",
+      "filters": ["Deployment", "SRE"],
+      "homePreview": true,
+      "homeTag": "AWS · DevOps · Deployment"
+    },
+    {
+      "href": "cloudflare-522-ec2-public-ip-change.html",
+      "tag": "AWS · Terraform · Cloudflare",
+      "title": "Cloudflare 522 Caused by an EC2 Public IP Change",
+      "excerpt": "How an instance restart changed the public IP, broke the origin, and was fixed by moving to a stable Elastic IP.",
+      "year": "2026",
+      "readMinutes": "7 min",
+      "filters": ["Incident", "Terraform", "Deployment"],
+      "homePreview": true,
+      "homeTag": "AWS · Terraform · Cloudflare"
+    },
+    {
+      "href": "building-scalable-elastic-infrastructure-aws-cloudflare.html",
+      "tag": "AWS · Terraform · Deployment",
+      "title": "Building Scalable and Elastic Infrastructure on AWS with Cloudflare: From AMI to ALB",
+      "excerpt": "A complete guide to designing immutable infrastructure using EC2 AMIs, Launch Templates, Auto Scaling, ALB, and Cloudflare as your edge.",
+      "year": "2026",
+      "readMinutes": "18 min",
+      "filters": ["Deployment", "Terraform", "SRE"],
+      "homePreview": true,
+      "homeTag": "AWS · Terraform · Cloudflare"
+    },
+    {
+      "href": "nginx-502-fix.html",
+      "tag": "Nginx · Incident",
+      "title": "Fixing the Nginx 502 Bad Gateway — upstream sent too big header",
+      "excerpt": "How a tiny proxy buffer config resolved a production login outage across multiple services.",
+      "year": "2025",
+      "readMinutes": "8 min",
+      "filters": ["Nginx", "Incident", "SRE"],
+      "homePreview": false,
+      "homeTag": "Nginx · SRE · Incident"
+    },
+    {
+      "href": "systemd-decommission-fix.html",
+      "tag": "Systemd · Incident",
+      "title": "A decommissioned service ruined my Easter holiday and the fix was a single command.",
+      "excerpt": "An old service restarted after reboot, stole the port, and crashed the replacement with EADDRINUSE. The resolution was proper systemd decommissioning.",
+      "year": "2026",
+      "readMinutes": "6 min",
+      "filters": ["Incident", "SRE"],
+      "homePreview": false,
+      "homeTag": "Systemd · Linux · Incident"
+    },
+    {
+      "href": "slo-alerting-framework.html",
+      "tag": "SRE · Observability",
+      "title": "Building an SLI/SLO Alerting Framework for Microservices",
+      "excerpt": "A comprehensive observability strategy using SLIs, SLOs, error budgets, and Grafana dashboards for real-time service health.",
+      "year": "2025",
+      "readMinutes": "12 min",
+      "filters": ["Observability", "SRE"],
+      "homePreview": false,
+      "homeTag": "Observability · SRE"
+    },
+    {
+      "href": "writing-postmortems-that-drive-real-change.html",
+      "tag": "Incident · SRE",
+      "title": "Writing Postmortems That Drive Real Change",
+      "excerpt": "Blameless is not the same as inconclusive. A practical framework for timelines, root cause analysis, and action items that actually ship.",
+      "year": "2026",
+      "readMinutes": "11 min",
+      "filters": ["Incident", "SRE"],
+      "homePreview": true,
+      "homeTag": "Incident · SRE · Culture"
+    }
+  ],
+  "comingSoon": [
+    {
+      "tag": "Terraform · IaC",
+      "title": "Terraform State Management with S3 and DynamoDB",
+      "excerpt": "Best practices for managing Terraform remote state safely in a team environment using AWS-native locking.",
+      "filters": ["Terraform"]
+    },
+    {
+      "tag": "Kubernetes · DevOps",
+      "title": "Kubernetes for SREs: What You Actually Need to Know",
+      "excerpt": "A practitioner's take on running Kubernetes in production — not the tutorials, the parts they don't tell you.",
+      "filters": ["Kubernetes", "SRE"]
+    },
+    {
+      "tag": "Observability",
+      "title": "Building a Grafana Dashboard That Actually Gets Used",
+      "excerpt": "Most dashboards end up ignored. Here's how to design observability that engineers actually trust and act on.",
+      "filters": ["Observability"]
+    }
+  ]
+}

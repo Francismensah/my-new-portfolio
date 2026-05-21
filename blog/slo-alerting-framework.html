@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SLI/SLO Alerting Framework — infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="Building a comprehensive observability strategy for microservices using SLIs, SLOs, error budgets, and Grafana dashboards."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/slo-alerting-framework.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/article.css" />
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="index.html" class="active">Blog</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="article-hero">
+      <div class="article-hero-bg"></div>
+      <div class="article-hero-inner">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a><span>/</span>
+          <a href="index.html">Blog</a><span>/</span>
+          <span style="color: var(--text)">SLI/SLO Alerting Framework</span>
+        </div>
+        <p class="article-category">Observability · SRE · Production Systems</p>
+        <h1>
+          Building an <em>SLI/SLO Alerting Framework</em> for Microservices
+        </h1>
+        <p class="article-subtitle">
+          A comprehensive observability strategy using SLIs, SLOs, error
+          budgets, and Grafana dashboards for real-time service health.
+        </p>
+        <div class="article-meta-bar">
+          <span class="meta-item">📅 2025</span>
+          <span class="meta-item">⏱ 12 min read</span>
+          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+          <div class="meta-tags">
+            <span class="meta-tag">SLO</span>
+            <span class="meta-tag">Observability</span>
+            <span class="meta-tag">Prometheus</span>
+            <span class="meta-tag">Grafana</span>
+            <span class="meta-tag">SRE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <h2>Overview</h2>
+      <p>
+        Service Level Objectives (SLOs) are foundational to modern SRE
+        practices. They define the acceptable level of service performance and
+        availability. But SLOs are meaningless without proper measurement,
+        alerting, and error budget management.
+      </p>
+      <p>
+        This writeup covers building a production-grade SLI/SLO framework that
+        instructs on what to measure (SLIs), what targets matter (SLOs), when
+        failures matter (error budgets), and how to visualize health in real
+        time (Grafana).
+      </p>
+
+      <h2>What are SLIs and SLOs?</h2>
+      <p>
+        <strong>SLI (Service Level Indicator):</strong> A measurable metric of
+        service performance. Examples:
+      </p>
+      <ul class="body-list">
+        <li>Request latency (p99 response time)</li>
+        <li>Error rate (4xx/5xx responses per second)</li>
+        <li>Availability (requests that succeeded)</li>
+        <li>Throughput (requests per second)</li>
+      </ul>
+      <p>
+        <strong>SLO (Service Level Objective):</strong> A target for an SLI.
+        Example: "99.9% of requests complete in under 500ms".
+      </p>
+      <p>
+        <strong>Error Budget:</strong> The remaining tolerance before breaching
+        your SLO. If your SLO is 99.95% uptime over 30 days, you have a budget
+        of 21.6 minutes of downtime.
+      </p>
+      <div class="info-box">
+        <strong>Key insight:</strong> SLOs force difficult conversations about
+        what "good enough" means. Too loose an SLO is unambitious. Too tight and
+        you'll burn out on firefighting rather than feature work.
+      </div>
+
+      <h2>Measuring SLIs with Prometheus</h2>
+      <p>
+        We instrument applications with Prometheus client libraries to expose
+        metrics in a format Prometheus can scrape.
+      </p>
+      <p>
+        Define metrics for success rate (requests that returned 2xx status
+        codes):
+      </p>
+      <ul class="body-list">
+        <li>Counter: total_requests_success incremented on 2xx responses</li>
+        <li>Counter: total_requests_error incremented on 4xx/5xx responses</li>
+        <li>
+          Histogram: request_duration_seconds to track latency percentiles
+        </li>
+      </ul>
+
+      <h2>Defining SLOs and Burn Alerts</h2>
+      <p>
+        Once you have SLIs, define your SLOs. Prometheus recording rules compute
+        rolling windows of these metrics.
+      </p>
+      <div class="info-box">
+        An SLO of 99.9% availability means you can afford to burn through your
+        error budget. A "burn rate" alert fires when you're consuming error
+        budget faster than the linear rate. Burning 1400x in the last hour means
+        you'll exhaust your monthly budget in 30 minutes.
+      </div>
+
+      <h2>Real-Time Dashboards in Grafana</h2>
+      <p>
+        Grafana visualizes SLOs, error budgets, and burn rates. The dashboard
+        shows:
+      </p>
+      <ul class="body-list">
+        <li>Current SLO status (% remaining in error budget)</li>
+        <li>30-day rolling error budget consumption</li>
+        <li>Burn rate trends</li>
+        <li>Alerting status of all monitored services</li>
+      </ul>
+      <img
+        src="../images/SLO.png"
+        alt="Grafana SLO Dashboard with Golden Signals"
+        style="
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          margin: 2rem 0;
+          display: block;
+        "
+      />
+      <p>
+        Teams reference this dashboard in daily standups, incident reviews, and
+        deployment planning decisions.
+      </p>
+
+      <h2>Conclusion</h2>
+      <p>
+        Building SLI/SLO frameworks forces clarity on what matters: reliability
+        in production. Paired with error budgets and burn rate alerts, you
+        ensure your team balances velocity with stability.
+      </p>
+
+      <div class="takeaway">
+        <h3>Key Takeaway</h3>
+        <p>
+          SLOs work best when they're properly instrumented, monitored, and
+          discussed. Set them too loose and they're worthless. Set them too
+          tight and your team burns out. The right SLO reflects your business
+          priorities and enables confident, sustainable releases.
+        </p>
+      </div>
+    </div>
+
+    <div class="article-body" style="padding-top: 0">
+      <div class="article-footer">
+        <p class="article-footer-label">Author</p>
+        <div class="author-card">
+          <div class="author-avatar">F</div>
+          <div class="author-details">
+            <div class="author-name">Francis Morkeh Mensah</div>
+            <div class="author-title">Site Reliability Engineer</div>
+            <div class="author-bio">
+              Building cloud-native systems and observability infrastructure in
+              Accra, Ghana.
+            </div>
+          </div>
+        </div>
+
+        <p class="article-footer-label">Topics</p>
+        <div class="article-tags-footer">
+          <span class="atag">SRE</span>
+          <span class="atag">SLO</span>
+          <span class="atag">Observability</span>
+          <span class="atag">Prometheus</span>
+          <span class="atag">Grafana</span>
+          <span class="atag">Alerting</span>
+        </div>
+
+        <p class="article-footer-label">Related</p>
+        <div class="post-nav">
+          <a href="index.html" class="btn-secondary">← Back to Blog</a>
+          <a href="../index.html#projects" class="btn-primary"
+            >View All Projects →</a
+          >
+        </div>
+      </div>
+    </div>
+    <script src="../assets/site.js" defer></script>
+  </body>
+</html>

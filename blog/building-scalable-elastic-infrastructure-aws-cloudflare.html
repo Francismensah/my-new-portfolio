@@ -13,525 +13,34 @@
     />
     <link
       rel="canonical"
-      href="https://infrabyfrancis.me/building-scalable-elastic-infrastructure-aws-cloudflare.html"
+      href="https://infrabyfrancis.me/blog/building-scalable-elastic-infrastructure-aws-cloudflare.html"
     />
     <script>
-      const storedTheme = localStorage.getItem("theme");
-      const preferredDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      const initialTheme = storedTheme || (preferredDark ? "dark" : "light");
-      document.documentElement.setAttribute("data-theme", initialTheme);
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
     </script>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
-      :root {
-        --bg: #090909;
-        --bg2: #101012;
-        --border: #222226;
-        --border2: #2c2c32;
-        --accent: #f97316;
-        --accent-dim: rgba(249, 115, 22, 0.1);
-        --text: #e2e0db;
-        --copy: #a9a9af;
-        --copy-soft: #8f9098;
-        --muted: #666;
-        --muted2: #444;
-        --white: #f5f3ee;
-        --green: #4ade80;
-        --code-bg: #0d0d0f;
-        --inline-code-bg: rgba(255, 255, 255, 0.04);
-        --inline-code-text: #f3f3f4;
-        --pre-code-text: #d6d6d8;
-        --info-text: #e8c9a8;
-        --takeaway-text: #bbe7cb;
-      }
-      html[data-theme="light"] {
-        --bg: #f8f8f6;
-        --bg2: #ffffff;
-        --border: #d8d8d0;
-        --border2: #bdbdb3;
-        --accent: #dd6413;
-        --accent-dim: rgba(221, 100, 19, 0.12);
-        --text: #1e1f22;
-        --copy: #3f4249;
-        --copy-soft: #525661;
-        --muted: #4a4c52;
-        --muted2: #666a74;
-        --white: #151617;
-        --code-bg: #f1f2ef;
-        --inline-code-bg: rgba(0, 0, 0, 0.06);
-        --inline-code-text: #1f2329;
-        --pre-code-text: #2a2d33;
-        --info-text: #5b3c1f;
-        --takeaway-text: #1f5e3a;
-      }
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "DM Sans", sans-serif;
-        font-size: 17px;
-        line-height: 1.8;
-        overflow-x: hidden;
-        cursor: none;
-      }
-      .cursor {
-        width: 10px;
-        height: 10px;
-        background: var(--accent);
-        border-radius: 50%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 9999;
-        transform: translate(-50%, -50%);
-        transition:
-          width 0.2s,
-          height 0.2s;
-      }
-      .cursor-ring {
-        width: 32px;
-        height: 32px;
-        border: 1px solid rgba(249, 115, 22, 0.4);
-        border-radius: 50%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 9998;
-        transform: translate(-50%, -50%);
-        transition: all 0.15s ease;
-      }
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        opacity: 0.025;
-        pointer-events: none;
-        z-index: 0;
-      }
-      nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.25rem 3rem;
-        background: color-mix(in srgb, var(--bg) 92%, transparent);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
-      }
-      .nav-logo {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.8rem;
-        color: var(--accent);
-        letter-spacing: 0.05em;
-        text-decoration: none;
-      }
-      .nav-links {
-        display: flex;
-        gap: 2rem;
-        list-style: none;
-      }
-      .nav-links a {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.72rem;
-        color: var(--muted);
-        text-decoration: none;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        transition: color 0.2s;
-      }
-      .nav-links a:hover,
-      .nav-links a.active {
-        color: var(--accent);
-      }
-
-      .article-hero {
-        padding: 8rem 3rem 5rem;
-        border-bottom: 1px solid var(--border);
-        position: relative;
-        overflow: hidden;
-      }
-      .article-hero-bg {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          ellipse 60% 60% at 50% 100%,
-          rgba(249, 115, 22, 0.04) 0%,
-          transparent 70%
-        );
-        pointer-events: none;
-      }
-      .article-hero-inner {
-        max-width: 760px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 1;
-      }
-      .breadcrumb {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.7rem;
-        color: var(--muted);
-        letter-spacing: 0.08em;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.75rem;
-      }
-      .breadcrumb a {
-        color: var(--muted);
-        text-decoration: none;
-        transition: color 0.2s;
-      }
-      .breadcrumb a:hover {
-        color: var(--accent);
-      }
-      .breadcrumb span {
-        color: var(--muted2);
-      }
-      .article-category {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.72rem;
-        color: var(--accent);
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-      .article-category::before {
-        content: "";
-        display: inline-block;
-        width: 1.5rem;
-        height: 1px;
-        background: var(--accent);
-      }
-      .article-hero h1 {
-        font-family: "Fraunces", serif;
-        font-size: clamp(2rem, 5vw, 3.25rem);
-        font-weight: 700;
-        line-height: 1.15;
-        color: var(--white);
-        margin-bottom: 1.25rem;
-        letter-spacing: -0.02em;
-      }
-      .article-subtitle {
-        font-size: 1.1rem;
-        color: var(--copy-soft);
-        font-weight: 300;
-        margin-bottom: 2rem;
-        max-width: 650px;
-        line-height: 1.7;
-      }
-      .article-meta-bar {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-        padding: 1.25rem 0;
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-      }
-      .meta-item {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.72rem;
-        color: var(--muted);
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        letter-spacing: 0.06em;
-      }
-      .meta-tags {
-        display: flex;
-        gap: 0.4rem;
-        flex-wrap: wrap;
-      }
-      .meta-tag {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.65rem;
-        color: var(--accent);
-        background: var(--accent-dim);
-        border: 1px solid rgba(249, 115, 22, 0.25);
-        padding: 0.2rem 0.55rem;
-        border-radius: 2px;
-      }
-
-      .article-body {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 4rem 3rem 6rem;
-      }
-      h2 {
-        font-family: "Fraunces", serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: var(--white);
-        margin: 3.5rem 0 1.25rem;
-        letter-spacing: -0.01em;
-      }
-      h3 {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.86rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--accent);
-        margin: 2.25rem 0 1rem;
-      }
-      p {
-        margin-bottom: 1.1rem;
-        color: var(--copy);
-        font-weight: 300;
-      }
-      p strong {
-        color: var(--text);
-      }
-      a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-      code {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.86em;
-        background: var(--inline-code-bg);
-        border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 0.08rem 0.35rem;
-        color: var(--inline-code-text);
-      }
-      pre {
-        margin: 1.35rem 0 1.75rem;
-        background: var(--code-bg);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow-x: auto;
-        padding: 1.1rem 1.2rem;
-      }
-      pre code {
-        border: none;
-        background: transparent;
-        padding: 0;
-        color: var(--pre-code-text);
-        line-height: 1.7;
-        font-size: 0.82rem;
-      }
-      .body-list {
-        list-style: none;
-        margin: 1rem 0 1.75rem;
-      }
-      .body-list li {
-        position: relative;
-        padding-left: 1.2rem;
-        margin-bottom: 0.55rem;
-        color: var(--copy);
-      }
-      .body-list li::before {
-        content: "→";
-        position: absolute;
-        left: 0;
-        top: 0.05rem;
-        color: var(--accent);
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.75rem;
-      }
-      .info-box {
-        background: var(--accent-dim);
-        border: 1px solid rgba(249, 115, 22, 0.25);
-        border-left: 3px solid var(--accent);
-        border-radius: 6px;
-        padding: 1.25rem 1.5rem;
-        margin: 1.5rem 0;
-        font-size: 0.9rem;
-        color: var(--info-text);
-        font-weight: 300;
-      }
-      .info-box strong {
-        color: var(--accent);
-      }
-      .takeaway {
-        background: var(--accent-dim);
-        border: 1px solid rgba(249, 115, 22, 0.25);
-        border-radius: 8px;
-        padding: 2rem;
-        margin: 2.5rem 0;
-      }
-      .takeaway h3 {
-        color: var(--accent);
-        margin-bottom: 0.75rem;
-        margin-top: 0;
-      }
-      .takeaway p {
-        color: var(--info-text);
-        margin: 0;
-        font-size: 0.95rem;
-      }
-      .architecture-diagram {
-        margin: 2.5rem 0;
-        padding: 2rem;
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow-x: auto;
-      }
-      .architecture-diagram svg {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 0 auto;
-      }
-      .article-footer {
-        border-top: 1px solid var(--border);
-        padding-top: 3rem;
-        margin-top: 3.8rem;
-      }
-      .article-footer-label {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.7rem;
-        color: var(--muted);
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-      }
-      .article-tags-footer {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 2.5rem;
-      }
-      .atag {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.7rem;
-        color: var(--muted);
-        border: 1px solid var(--border);
-        padding: 0.25rem 0.65rem;
-        border-radius: 2px;
-      }
-      .post-nav {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-      .btn-primary {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.78rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #000;
-        background: var(--accent);
-        padding: 0.85rem 1.75rem;
-        text-decoration: none;
-        border-radius: 2px;
-        transition:
-          opacity 0.2s,
-          transform 0.2s;
-        border: none;
-        cursor: pointer;
-      }
-      .btn-primary:hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
-      }
-      .btn-secondary {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.78rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--muted);
-        background: transparent;
-        border: 1px solid var(--border2);
-        padding: 0.85rem 1.75rem;
-        text-decoration: none;
-        border-radius: 2px;
-        transition:
-          color 0.2s,
-          border-color 0.2s;
-      }
-      .btn-secondary:hover {
-        color: var(--accent);
-        border-color: var(--accent);
-      }
-      footer {
-        border-top: 1px solid var(--border);
-        padding: 2rem 3rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        z-index: 1;
-      }
-      .footer-copy {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.7rem;
-        color: var(--muted2);
-      }
-      .footer-tagline {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 0.7rem;
-        color: var(--muted2);
-      }
-      .footer-tagline span {
-        color: var(--accent);
-      }
-      @media (max-width: 900px) {
-        nav {
-          padding: 1rem 1.5rem;
-        }
-        .nav-links {
-          display: none;
-        }
-        .article-hero {
-          padding: 7rem 1.5rem 3rem;
-        }
-        .article-body {
-          padding: 3rem 1.5rem 4rem;
-        }
-        body {
-          cursor: auto;
-        }
-        .cursor,
-        .cursor-ring {
-          display: none;
-        }
-        footer {
-          flex-direction: column;
-          gap: 0.75rem;
-          text-align: center;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/article.css" />
   </head>
   <body>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
-    <nav>
-      <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
+    <nav class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
       <ul class="nav-links">
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#experience">Experience</a></li>
-        <li><a href="index.html#skills">Skills</a></li>
-        <li><a href="index.html#projects">Projects</a></li>
-        <li><a href="blog.html" class="active">Blog</a></li>
-        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="index.html" class="active">Blog</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
       </ul>
     </nav>
 
@@ -539,8 +48,8 @@
       <div class="article-hero-bg"></div>
       <div class="article-hero-inner">
         <div class="breadcrumb">
-          <a href="index.html">Home</a><span>/</span>
-          <a href="blog.html">Blog</a><span>/</span>
+          <a href="../index.html">Home</a><span>/</span>
+          <a href="index.html">Blog</a><span>/</span>
           <span style="color: var(--text)">Scalable AWS Infrastructure</span>
         </div>
         <p class="article-category">Infrastructure · AWS · DevOps</p>
@@ -1597,45 +1106,7 @@ cloudflare_zone_id    = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
                 style="stop-color: #ea580c; stop-opacity: 1"
               />
             </linearGradient>
-            <style>
-              .arch-box {
-                fill: url(#grad1);
-                stroke: #f97316;
-                stroke-width: 2;
-              }
-              .arch-label {
-                font-family: "IBM Plex Mono", monospace;
-                font-size: 13px;
-                fill: white;
-                text-anchor: middle;
-                font-weight: 500;
-              }
-              .arch-desc {
-                font-family: "IBM Plex Mono", monospace;
-                font-size: 11px;
-                fill: #e2e0db;
-                text-anchor: middle;
-              }
-              .arch-arrow {
-                stroke: #f97316;
-                stroke-width: 2;
-                fill: none;
-                marker-end: url(#arrowhead);
-              }
-              .arch-label-arrow {
-                font-family: "IBM Plex Mono", monospace;
-                font-size: 10px;
-                fill: #f97316;
-                text-anchor: middle;
-              }
-              .layer-bg {
-                fill: rgba(249, 115, 22, 0.05);
-                stroke: #f97316;
-                stroke-width: 1;
-                stroke-dasharray: 5, 5;
-              }
-            </style>
-            <marker
+<marker
               id="arrowhead"
               markerWidth="10"
               markerHeight="10"
@@ -1925,8 +1396,8 @@ cloudflare_zone_id    = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
           <span class="atag">DevOps</span>
         </div>
         <div class="post-nav">
-          <a href="blog.html" class="btn-primary">Back to Blog</a>
-          <a href="index.html" class="btn-secondary">Home</a>
+          <a href="index.html" class="btn-primary">Back to Blog</a>
+          <a href="../index.html" class="btn-secondary">Home</a>
         </div>
       </div>
     </div>
@@ -1939,43 +1410,6 @@ cloudflare_zone_id    = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
         Built with intention. <span>Reliable by design.</span>
       </div>
     </footer>
-
-    <script>
-      const cursor = document.getElementById("cursor"),
-        ring = document.getElementById("cursorRing");
-      let mx = 0,
-        my = 0,
-        rx = 0,
-        ry = 0;
-      document.addEventListener("mousemove", (e) => {
-        mx = e.clientX;
-        my = e.clientY;
-      });
-      (function anim() {
-        cursor.style.left = mx + "px";
-        cursor.style.top = my + "px";
-        rx += (mx - rx) * 0.12;
-        ry += (my - ry) * 0.12;
-        ring.style.left = rx + "px";
-        ring.style.top = ry + "px";
-        requestAnimationFrame(anim);
-      })();
-      document.querySelectorAll("a,button").forEach((el) => {
-        el.addEventListener("mouseenter", () => {
-          cursor.style.width = "6px";
-          cursor.style.height = "6px";
-          ring.style.width = "44px";
-          ring.style.height = "44px";
-          ring.style.borderColor = "rgba(249,115,22,0.7)";
-        });
-        el.addEventListener("mouseleave", () => {
-          cursor.style.width = "10px";
-          cursor.style.height = "10px";
-          ring.style.width = "32px";
-          ring.style.height = "32px";
-          ring.style.borderColor = "rgba(249,115,22,0.4)";
-        });
-      });
-    </script>
+    <script src="../assets/site.js" defer></script>
   </body>
 </html>

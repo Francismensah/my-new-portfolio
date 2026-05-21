@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How I Built and Deployed My Portfolio - infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="A personal and technical walkthrough of building and deploying my portfolio on AWS EC2 with Nginx, Cloudflare DNS, and SSL via Certbot."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/building-and-deploying-my-portfolio.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/article.css" />
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="index.html" class="active">Blog</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="article-hero">
+      <div class="article-hero-bg"></div>
+      <div class="article-hero-inner">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a><span>/</span>
+          <a href="index.html">Blog</a><span>/</span>
+          <span style="color: var(--text)">Building My Portfolio</span>
+        </div>
+        <p class="article-category">DevOps Journey · AWS · Deployment</p>
+        <h1>How I Finally Built and Deployed My Personal Portfolio</h1>
+        <p class="article-subtitle">
+          This project sat in my notes for over a year. Here is how I finally
+          shipped it to production using AWS EC2, Nginx, Cloudflare, and
+          Certbot.
+        </p>
+        <div class="article-meta-bar">
+          <span class="meta-item">2026</span>
+          <span class="meta-item">10 min read</span>
+          <span class="meta-item">Francis Morkeh Mensah</span>
+          <div class="meta-tags">
+            <span class="meta-tag">AWS EC2</span>
+            <span class="meta-tag">Nginx</span>
+            <span class="meta-tag">Cloudflare</span>
+            <span class="meta-tag">Certbot</span>
+            <span class="meta-tag">Linux</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <h2>From "I should build this" to "it is live"</h2>
+      <p>
+        I had been planning this portfolio since last year. I had the ideas,
+        rough notes, even a few half-finished designs, but I kept pushing it
+        aside for client work, incidents, and everything else that feels urgent
+        in day-to-day engineering.
+      </p>
+      <p>
+        At some point, I realized I was helping teams ship reliable systems for
+        everyone else while my own public profile stayed unfinished. So I
+        blocked time, treated it like a real production project, and decided to
+        ship it end to end.
+      </p>
+      <p>
+        I wanted this build to reflect how I actually work as an SRE and DevOps
+        engineer: simple architecture, explicit configs, observable behavior,
+        and predictable deployment steps.
+      </p>
+
+      <h2>Tech Stack I Used</h2>
+      <ul class="body-list">
+        <li>AWS EC2 for compute hosting</li>
+        <li>Nginx as the web server and reverse proxy layer</li>
+        <li>Git and GitHub for source control and delivery workflow</li>
+        <li>Cloudflare for DNS management and domain mapping</li>
+        <li>Certbot + Let's Encrypt for SSL/TLS certificates</li>
+        <li>Linux (Amazon Linux 2023) for server administration and hardening</li>
+      </ul>
+
+      <h3>Source code stack</h3>
+      <ul class="body-list">
+        <li>Language: HTML5 for structure and page content</li>
+        <li>Language: CSS3 for styling, layout, and theme variables</li>
+        <li>Language: Vanilla JavaScript (ES6) for interactivity</li>
+        <li>Framework: none (intentionally built without React/Vue/Angular)</li>
+        <li>
+          Libraries/services: Google Fonts (IBM Plex Mono, Fraunces, DM Sans)
+          and inline SVG assets for icons/visuals
+        </li>
+      </ul>
+
+      <h2>Deployment Walkthrough</h2>
+      <p>
+        Below is the exact flow I followed to move from local files to a public
+        HTTPS website.
+      </p>
+      <p>
+        Since this server runs Amazon Linux 2023, I used <code>yum</code>
+        commands throughout (on AL2023, yum is the compatibility wrapper over
+        dnf).
+      </p>
+
+      <div class="step">
+        <div class="step-title">1) Launching an EC2 instance</div>
+        <p>
+          I provisioned an Amazon Linux 2023 EC2 instance in AWS, attached a
+          security group, and allowed only the minimum ports needed:
+        </p>
+        <ul class="body-list">
+          <li>22 for SSH access</li>
+          <li>80 for HTTP</li>
+          <li>443 for HTTPS</li>
+        </ul>
+        <p>
+          I also allocated an Elastic IP so the server address stays stable.
+          That avoids DNS churn later and makes the setup more predictable.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">2) Cloning the project from Git</div>
+        <p>
+          Once I SSHed into the server, I updated packages and pulled the site
+          source directly from GitHub.
+        </p>
+        <pre><code>sudo yum update -y
+sudo yum install -y git
+
+cd ~
+git clone https://github.com/<your-username>/<your-portfolio-repo>.git</code></pre>
+        <p>
+          I like this flow because deployment state is tied to commit history.
+          It is easy to audit what changed and when.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">3) Moving the project to /var/www/&lt;project-name&gt;</div>
+        <p>
+          I moved the static site files into the standard web root location and
+          fixed permissions so Nginx could serve them.
+        </p>
+        <pre><code>sudo mkdir -p /var/www/portfolio
+sudo rsync -av --delete ~/&lt;your-portfolio-repo&gt;/ /var/www/portfolio/
+
+      sudo chown -R nginx:nginx /var/www/portfolio
+sudo chmod -R 755 /var/www/portfolio</code></pre>
+        <p>
+          Using rsync made updates clean and repeatable while keeping directory
+          structure intact.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">4) Installing and configuring Nginx</div>
+        <p>
+          Next, I installed Nginx and created a dedicated server block for the
+          domain instead of modifying the default config.
+        </p>
+        <pre><code>sudo yum install -y nginx
+sudo systemctl enable --now nginx
+
+      sudo vim /etc/nginx/conf.d/portfolio.conf</code></pre>
+        <pre><code>server {
+    listen 80;
+    server_name infrabyfrancis.me www.infrabyfrancis.me;
+
+    root /var/www/portfolio;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+</code></pre>
+  <pre><code>sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+        <p>
+          I always run <code>nginx -t</code> before reload. That simple habit
+          prevents avoidable downtime.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">5) Setting up the domain</div>
+        <p>
+          I had already registered the domain, so the next job was linking it
+          to the EC2 instance IP. I prepared both the apex domain and
+          <code>www</code> so users can access either variant.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">6) Configuring DNS and domain mapping with Cloudflare</div>
+        <p>
+          I pointed Cloudflare DNS records to my Elastic IP and turned on proxy
+          mode for edge protection and performance.
+        </p>
+        <pre><code>Type: A
+Name: @
+Content: &lt;EC2-Elastic-IP&gt;
+Proxy status: Proxied
+
+Type: CNAME
+Name: www
+Content: infrabyfrancis.me
+Proxy status: Proxied</code></pre>
+        <p>
+          After propagation, the domain resolved correctly and traffic started
+          reaching Nginx as expected.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7) Securing the site with SSL using Certbot</div>
+        <p>
+          With HTTP working end to end, I added TLS and automatic certificate
+          renewal using Certbot.
+        </p>
+        <pre><code>sudo yum install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d infrabyfrancis.me -d www.infrabyfrancis.me</code></pre>
+        <p>
+          Certbot updated the Nginx config to redirect HTTP to HTTPS and issued
+          trusted certificates from Let's Encrypt.
+        </p>
+        <pre><code>sudo certbot renew --dry-run</code></pre>
+        <p>
+          I run the dry-run renewal test immediately so I know future renewals
+          will not surprise me.
+        </p>
+      </div>
+
+      <h2>Challenges and lessons learned</h2>
+      <p>
+        The hardest part was not technical complexity, it was consistency.
+        Starting was easy. Finishing and polishing was the real challenge.
+      </p>
+      <p>
+        A few practical lessons stood out:
+      </p>
+      <ul class="body-list">
+        <li>
+          Treat personal projects like production systems and they actually get
+          shipped.
+        </li>
+        <li>
+          Keep deployment steps explicit and documented, even for "small"
+          static sites.
+        </li>
+        <li>
+          Validate every change in sequence: DNS, Nginx config, SSL, then
+          redirects.
+        </li>
+        <li>
+          Simplicity wins. A clean static architecture is easier to maintain,
+          secure, and troubleshoot.
+        </li>
+      </ul>
+
+      <div class="info-box">
+        Operationally, this build reminded me that reliability starts with small
+        habits: test configs before reload, lock down ports, and automate
+        anything repetitive.
+      </div>
+
+      <h2>What is next</h2>
+      <p>
+        Right now, deployment is still semi-manual. It works, but it is not the
+        end state I want.
+      </p>
+      <p>
+        My next step is setting up a full GitHub Actions CI/CD pipeline so that
+        every push to the main branch can run checks and deploy automatically to
+        EC2. The goal is to eliminate manual deployment drift and make releases
+        repeatable.
+      </p>
+      <p>
+        Once that is in place, this portfolio will not just describe my
+        engineering style, it will run on the same discipline: automated,
+        observable, and reliable by design.
+      </p>
+
+      <div class="takeaway">
+        <h3>Final takeaway</h3>
+        <p>
+          I had been planning this site since last year. Shipping it reminded me
+          that momentum matters more than perfect timing. Build, deploy, learn,
+          iterate.
+        </p>
+      </div>
+
+      <div class="article-footer">
+        <div class="article-footer-label">Written by</div>
+        <div class="author-card">
+          <div class="author-avatar">F</div>
+          <div class="author-details">
+            <div class="author-name">Francis Morkeh Mensah</div>
+            <div class="author-title">
+              Site Reliability Engineer · AWS Community Builder
+            </div>
+            <div class="author-bio">
+              Building and operating cloud-native production systems. Writing
+              about reliability, infrastructure, and lessons from real-world
+              deployments.
+            </div>
+          </div>
+        </div>
+        <div class="article-tags-footer">
+          <span class="atag">#AWS</span><span class="atag">#EC2</span
+          ><span class="atag">#Nginx</span><span class="atag">#Cloudflare</span
+          ><span class="atag">#Certbot</span><span class="atag">#DevOps</span
+          ><span class="atag">#SRE</span>
+        </div>
+        <div class="post-nav">
+          <a href="index.html" class="btn-secondary"><- Back to Blog</a>
+          <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-copy">
+        Copyright 2025 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js" defer></script>
+  </body>
+</html>

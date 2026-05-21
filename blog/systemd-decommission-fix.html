@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Systemd Decommission Incident — infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="A decommissioned service restarted after reboot, caused EADDRINUSE, and took down the replacement. The fix: proper systemd decommissioning steps."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/systemd-decommission-fix.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/article.css" />
+  </head>
+  <body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="index.html" class="active">Blog</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="article-hero">
+      <div class="article-hero-bg"></div>
+      <div class="article-hero-inner">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a><span>/</span>
+          <a href="index.html">Blog</a><span>/</span>
+          <span style="color: var(--text)">Systemd Decommission Incident</span>
+        </div>
+        <p class="article-category">Linux · Systemd · Incident Writeup</p>
+        <h1>
+          A decommissioned service ruined my Easter holiday and the fix was a
+          single command.
+        </h1>
+        <p class="article-subtitle">
+          We thought an old service was dead. A reboot brought it back, hijacked
+          the port, and crashed the replacement with EADDRINUSE.
+        </p>
+        <div class="article-meta-bar">
+          <span class="meta-item">📅 2026</span>
+          <span class="meta-item">⏱ 6 min read</span>
+          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+          <div class="meta-tags">
+            <span class="meta-tag">Systemd</span>
+            <span class="meta-tag">Linux</span>
+            <span class="meta-tag">Incident</span>
+            <span class="meta-tag">SRE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <h2>What Happened</h2>
+      <p>
+        Our team decommissioned an old service. Someone stopped it and called it
+        done. No disable. No deletion. No daemon-reload.
+      </p>
+      <p>
+        Fast forward to an Easter weekend maintenance window. A server reboot
+        happened as planned.
+      </p>
+      <p>The dead service came back to life.</p>
+      <p>
+        Because it was never disabled, systemd still considered it enabled and
+        started it automatically on boot. It grabbed the port before our new
+        service could, and the new service crashed with
+        <strong>EADDRINUSE</strong>. Alerts fired. Easter plans canceled.
+      </p>
+
+      <figure class="article-image">
+        <img
+          src="../images/systemd.jpeg"
+          alt="Systemd service incident screenshot"
+        />
+        <figcaption>
+          Incident snapshot: the old service reclaiming the port after reboot.
+        </figcaption>
+      </figure>
+
+      <div class="error-box">
+        <div class="box-label">service startup failure</div>
+        Error: listen EADDRINUSE: address already in use
+      </div>
+
+      <h2>Root Cause</h2>
+      <p>
+        The incident was not caused by application code or new-service config.
+        It was caused by incomplete decommissioning.
+      </p>
+      <ul class="body-list">
+        <li>The old service unit file still existed.</li>
+        <li>The service remained enabled in systemd.</li>
+        <li>A reboot retriggered auto-start behavior.</li>
+        <li>The old process bound the same port as the replacement.</li>
+      </ul>
+
+      <h2>The Fix</h2>
+      <p>The resolution was straightforward once we found the real issue:</p>
+      <pre><code>sudo systemctl stop old-service
+sudo systemctl disable old-service
+sudo rm /etc/systemd/system/old-service.service
+sudo systemctl daemon-reload</code></pre>
+
+      <div class="success-box">
+        <strong>Result:</strong> The ghost service stayed down after reboot, the
+        new service started cleanly, and the outage was resolved.
+      </div>
+
+      <h2>Why This Matters</h2>
+      <p>
+        Decommissioning is not the same as stopping. A stopped service that is
+        still enabled <strong>will come back</strong> on reboot.
+      </p>
+      <p>
+        Maintenance windows, disaster recovery events, cloud instance restarts,
+        and kernel patch reboots all trigger the same risk.
+      </p>
+
+      <div class="warn-box">
+        Treat service retirement as an operational procedure, not a casual shell
+        command.
+      </div>
+
+      <h2>Checklist for Service Decommissioning</h2>
+      <p>Use this sequence every time:</p>
+      <ul class="body-list">
+        <li><strong>Stop</strong> the service.</li>
+        <li><strong>Disable</strong> it so it cannot auto-start on boot.</li>
+        <li><strong>Delete</strong> the obsolete unit file.</li>
+        <li>
+          <strong>Reload</strong> systemd so state and units are refreshed.
+        </li>
+      </ul>
+
+      <div class="takeaway">
+        <h3>Key Lesson</h3>
+        <p>Stop → Disable → Delete → Reload. In that order. Always.</p>
+      </div>
+
+      <div class="article-footer">
+        <div class="post-nav">
+          <a href="index.html" class="btn-secondary">← Back to Blog</a>
+          <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-copy">
+        © 2025 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js" defer></script>
+  </body>
+</html>
