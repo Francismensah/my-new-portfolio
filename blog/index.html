@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="../assets/blog.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
     <nav id="nav" class="nav-solid">
@@ -62,6 +63,9 @@
         </ul>
       </div>
     </nav>
+
+    <main id="main">
+
 
     <div class="page-header">
       <p class="page-header-label">Engineering Blog</p>
@@ -231,6 +235,7 @@
       </div>
     </div>
 
+    </main>
     <footer>
       <div class="footer-copy">
         © 2025 Francis Morkeh Mensah · infrabyfrancis.me
@@ -239,12 +244,6 @@
         Built with intention. <span>Reliable by design.</span>
       </div>
     </footer>
-    <!-- Mobile accessibility ARIA landmark roles -->
-    <script>
-      document.body.setAttribute("role", "main");
-      document.querySelector("nav").setAttribute("role", "navigation");
-      document.querySelector("footer").setAttribute("role", "contentinfo");
-    </script>
     <script src="../assets/site.js" defer></script>
   </body>
 </html>

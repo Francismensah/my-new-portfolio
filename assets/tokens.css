@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
 
+/* ── Design tokens (mobile-first defaults) ── */
 :root {
+  /* Color */
   --bg: #090909;
   --bg2: #101012;
   --bg3: #141416;
@@ -9,8 +11,8 @@
   --accent: #f97316;
   --accent-dim: rgba(249, 115, 22, 0.1);
   --text: #e2e0db;
-  --muted: #666;
-  --muted2: #444;
+  --muted: #8a8a92;
+  --muted2: #5c5c64;
   --white: #f5f3ee;
   --copy: #9a9aa0;
   --copy-soft: #83838b;
@@ -23,12 +25,43 @@
   --pre-code-text: #d6d6d8;
   --info-text: #e8c9a8;
   --takeaway-text: #bbe7cb;
-  --content-max: 1100px;
-  --space-page-x: 1.25rem;
+  --focus-ring: rgba(249, 115, 22, 0.55);
+
+  /* Layout */
+  --content-max: 72rem;
+  --prose-max: 42rem;
+  --nav-height: 3.5rem;
+  --touch-min: 2.75rem;
+
+  /* Spacing (mobile base) */
+  --space-page-x: max(1rem, env(safe-area-inset-left, 0px) + 1rem);
   --space-page-y: 2.5rem;
-  --nav-height: 3.25rem;
-  --bp-sm: 640px;
-  --bp-lg: 900px;
+  --space-section: 2.5rem;
+  --space-stack: 1rem;
+  --space-inline: 0.75rem;
+
+  /* Typography */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --leading: 1.65;
+  --leading-tight: 1.2;
+
+  /* Radius & motion */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+
+  /* Breakpoints (for reference in comments; use in @media) */
+  --bp-sm: 40rem; /* 640px */
+  --bp-md: 48rem; /* 768px */
+  --bp-lg: 56.25rem; /* 900px */
+  --bp-xl: 75rem; /* 1200px */
 }
 
 html[data-theme="light"] {
@@ -51,18 +84,30 @@ html[data-theme="light"] {
   --pre-code-text: #2a2d33;
   --info-text: #5b3c1f;
   --takeaway-text: #1f5e3a;
+  --focus-ring: rgba(221, 100, 19, 0.45);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 40rem) {
   :root {
-    --space-page-x: 1.5rem;
+    --space-page-x: max(1.5rem, env(safe-area-inset-left, 0px) + 1.5rem);
     --space-page-y: 4rem;
+    --space-section: 3.5rem;
+    --space-stack: 1.25rem;
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 56.25rem) {
   :root {
-    --space-page-x: 3rem;
-    --space-page-y: 7rem;
+    --space-page-x: max(3rem, env(safe-area-inset-left, 0px) + 3rem);
+    --space-page-y: 5.5rem;
+    --space-section: 5rem;
+    --nav-height: 4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
   }
 }
