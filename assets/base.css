@@ -488,6 +488,7 @@ section,
 
   .nav-controls {
     order: unset;
+    grid-column: 3;
     justify-self: end;
     gap: 1rem;
   }
