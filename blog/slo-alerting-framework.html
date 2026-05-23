@@ -89,7 +89,7 @@
         </p>
         <div class="article-meta-bar">
           <span class="meta-item">📅 2025</span>
-          <span class="meta-item">⏱ 12 min read</span>
+          <span class="meta-item">⏱ 16 min read</span>
           <span class="meta-item">✍️ Francis Morkeh Mensah</span>
           <div class="meta-tags">
             <span class="meta-tag">SLO</span>
@@ -159,6 +159,27 @@
           Histogram: request_duration_seconds to track latency percentiles
         </li>
       </ul>
+      <p>
+        <strong>Practical example:</strong> Your API handler increments metrics:
+      </p>
+      <div style="background: var(--bg-muted); padding: 1rem; border-radius: 6px; margin: 1.5rem 0; font-family: monospace; font-size: 0.9rem; overflow-x: auto;">
+        <pre style="margin: 0;">// Pseudocode: On each request
+start_time = now()
+response = handle_request()
+duration = now() - start_time
+
+// Record metrics
+if response.status in [200, 201, 204]:
+  prometheus.counter("requests_success").inc()
+  prometheus.histogram("request_duration").observe(duration)
+else if response.status >= 400:
+  prometheus.counter("requests_error").inc()
+  prometheus.counter("requests_error", {"code": response.status}).inc()</pre>
+      </div>
+      <p>
+        This gives Prometheus the raw signals to compute SLOs. A 99.95% SLO on success rate
+        means: <code style="background: var(--bg-muted); padding: 0.2rem 0.4rem; border-radius: 3px;">success_rate = requests_success / (requests_success + requests_error) >= 0.9995</code>
+      </p>
 
       <h2>Defining SLOs and Burn Alerts</h2>
       <p>
@@ -171,6 +192,98 @@
         budget faster than the linear rate. Burning 1400x in the last hour means
         you'll exhaust your monthly budget in 30 minutes.
       </div>
+
+      <h2>Real-World SLO Examples</h2>
+      <p>
+        Different services need different SLOs based on business criticality and
+        technical constraints. Here are practical examples from production systems:
+      </p>
+      <ul class="body-list">
+        <li>
+          <strong>Payment Processing API:</strong> 99.95% availability (21.6 min downtime/month).
+          Missing a payment costs direct revenue. This is a critical path service where every minute matters.
+        </li>
+        <li>
+          <strong>Notification Service (Email/SMS):</strong> 99.5% availability (3.6 hours downtime/month).
+          Users expect notifications eventually, but delayed notifications are acceptable for 30 minutes.
+        </li>
+        <li>
+          <strong>Analytics Dashboard:</strong> 99% availability (7.2 hours downtime/month).
+          Historical data queries can tolerate failures; eventual consistency is fine.
+        </li>
+        <li>
+          <strong>User Authentication:</strong> 99.9% availability (43.2 sec downtime/day).
+          Auth failures cascade across all services. This sits on the critical path.
+        </li>
+        <li>
+          <strong>Internal Admin Tool:</strong> 95% availability (36 hours downtime/month).
+          Used by 10 people during business hours. Degradation is acceptable overnight.
+        </li>
+      </ul>
+      <p>
+        The key: SLOs should reflect <em>user impact</em>, not just infrastructure maturity.
+        A 99.99% SLO on a service nobody relies on is wasted engineering effort.
+      </p>
+
+      <h2>Burn Rate Alerts in Practice</h2>
+      <p>
+        Burn rate alerts are triggered when a service burns through its error budget
+        faster than sustainable. Let's walk through a concrete scenario:
+      </p>
+      <p>
+        <strong>Scenario:</strong> Your payment API has a 99.95% SLO. Monthly error
+        budget = 21.6 minutes. A Prometheus alert fires if:
+      </p>
+      <ul class="body-list">
+        <li>
+          <strong>Fast burn (1-hour window):</strong> If error rate hits 5% or higher
+          (14.4x burn rate) → pages on-call SRE immediately. At this burn rate, budget
+          exhausts in 90 minutes.
+        </li>
+        <li>
+          <strong>Slow burn (6-hour window):</strong> If error rate averages 0.5%
+          (3x burn rate) → creates a Slack alert for triage. Budget exhausts in 7 hours.
+        </li>
+        <li>
+          <strong>Budget exhaustion:</strong> Once burn rate reaches 100% (errors consumed
+          all 21.6 minutes for the month), you've breached SLO and won't recover this month.
+        </li>
+      </ul>
+      <div class="info-box">
+        <strong>Real incident:</strong> A payment service experienced a 2% error spike for
+        45 minutes due to a database failover. At 99.95% SLO, this consumed 10 minutes of
+        the monthly budget. The team reviewed: was the incident preventable? Could failover
+        be faster? This data informed infrastructure improvements and prevented the same
+        issue from exhausting the budget later in the month.
+      </div>
+
+      <h2>Error Budget Trade-offs</h2>
+      <p>
+        Error budgets force honest conversations about technical debt and risk. Here's how
+        real teams use them:
+      </p>
+      <ul class="body-list">
+        <li>
+          <strong>Risky Deployment:</strong> A team wants to deploy a major refactor on Friday.
+          Current budget: 2 minutes remaining for the month. Decision: delay deployment to
+          Monday when budget resets. This prevents a 3 AM incident.
+        </li>
+        <li>
+          <strong>Skipping Staging:</strong> Fast-moving team has 45 minutes of error budget.
+          They debate: ship directly to production or test in staging for 2 hours? If staging
+          reveals issues, they save the budget. They choose staging—and find a subtle race condition.
+        </li>
+        <li>
+          <strong>Backward Compatibility Debt:</strong> Supporting 3 API versions costs 0.5%
+          extra error rate in edge cases. Team realizes: drop support for v1 (used by 2 customers).
+          This frees up error budget for new features instead of firefighting.
+        </li>
+        <li>
+          <strong>On-Call Fatigue:</strong> Team has 4 pages per week from false alarms. They
+          adjust alert thresholds to reduce noise, trading slightly lower detection speed for
+          team sanity. Result: fewer false pages, same incident detection overall.
+        </li>
+      </ul>
 
       <h2>Real-Time Dashboards in Grafana</h2>
       <p>
@@ -198,6 +311,43 @@
         Teams reference this dashboard in daily standups, incident reviews, and
         deployment planning decisions.
       </p>
+
+      <h2>SLOs in Incident Response and Post-Mortems</h2>
+      <p>
+        The real value of SLOs emerges during and after incidents. They shift conversations
+        from blame to data:
+      </p>
+      <ul class="body-list">
+        <li>
+          <strong>During an incident:</strong> "How much error budget do we have left?"
+          If 2 minutes remain and it's already been consumed, incident severity is critical.
+          If 30 minutes remain and we just hit 5 minutes, we have breathing room to fix it
+          thoughtfully rather than applying a quick band-aid.
+        </li>
+        <li>
+          <strong>Post-mortem questions:</strong> Instead of "Who broke it?", you ask:
+          "Did this incident consume a reasonable amount of error budget? What's our burndown trend?
+          Is this a systemic reliability issue or a one-off?" This shifts focus to patterns, not blame.
+        </li>
+        <li>
+          <strong>Prioritization:</strong> If a service has breached SLO twice in a month due to
+          the same root cause (e.g., memory leaks under load), that becomes a P1 item to fix before
+          next month's budget resets, not just "something to get to eventually".
+        </li>
+      </ul>
+      <p>
+        <strong>Real post-mortem excerpt:</strong>
+      </p>
+      <div style="background: var(--bg-muted); padding: 1rem; border-radius: 6px; margin: 1.5rem 0; border-left: 3px solid var(--accent);">
+        <p style="margin: 0 0 0.5rem 0;"><strong>Service:</strong> User Notification Queue | <strong>SLO:</strong> 99.5% available</p>
+        <p style="margin: 0 0 0.5rem 0;"><strong>Incident:</strong> 2 hours of 8% error rate due to Redis connection pool exhaustion</p>
+        <p style="margin: 0 0 0.5rem 0;"><strong>Error budget impact:</strong> Consumed 96 minutes of monthly budget</p>
+        <p style="margin: 0;">
+          <strong>Action:</strong> Implement connection pool monitoring and auto-scaling.
+          Previously, this was marked "nice to have". Now it's P1 because we have data showing
+          it directly impacts our SLO.
+        </p>
+      </div>
 
       <h2>Conclusion</h2>
       <p>
