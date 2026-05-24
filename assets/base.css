@@ -132,6 +132,35 @@ nav.nav-solid {
   border-color: var(--border);
 }
 
+@keyframes grow-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+nav::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 101;
+}
+
+@supports (animation-timeline: scroll()) {
+  nav::after {
+    animation: grow-progress auto linear;
+    animation-timeline: scroll();
+  }
+}
+
 .nav-logo {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -189,7 +218,7 @@ nav.nav-open .nav-menu-bar:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Mobile menu panel — full width below nav */
+/* Mobile menu panel — full width below nav with premium glassmorphism */
 .nav-panel {
   order: 3;
   flex: 1 1 100%;
@@ -199,7 +228,9 @@ nav.nav-open .nav-menu-bar:nth-child(3) {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  background: color-mix(in srgb, var(--bg) 98%, transparent);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid transparent;
   transition:
     max-height var(--duration-normal) var(--ease-out),
@@ -209,12 +240,12 @@ nav.nav-open .nav-menu-bar:nth-child(3) {
 }
 
 nav.nav-open .nav-panel {
-  max-height: min(70vh, 24rem);
+  max-height: min(70vh, 26rem);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   border-bottom-color: var(--border);
-  padding-bottom: 0.5rem;
+  padding-bottom: 1rem;
 }
 
 .nav-panel .nav-links {
@@ -225,28 +256,76 @@ nav.nav-open .nav-panel {
   list-style: none;
 }
 
+.nav-panel .nav-links li {
+  transform: translateY(10px);
+  opacity: 0;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    opacity var(--duration-normal);
+}
+
+nav.nav-open .nav-panel .nav-links li {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Elegant staggered stagger animations for mobile menu links */
+nav.nav-open .nav-panel .nav-links li:nth-child(1) {
+  transition-delay: 40ms;
+}
+nav.nav-open .nav-panel .nav-links li:nth-child(2) {
+  transition-delay: 80ms;
+}
+nav.nav-open .nav-panel .nav-links li:nth-child(3) {
+  transition-delay: 120ms;
+}
+nav.nav-open .nav-panel .nav-links li:nth-child(4) {
+  transition-delay: 160ms;
+}
+nav.nav-open .nav-panel .nav-links li:nth-child(5) {
+  transition-delay: 200ms;
+}
+nav.nav-open .nav-panel .nav-links li:nth-child(6) {
+  transition-delay: 240ms;
+}
+
 .nav-panel .nav-links a {
   display: flex;
   align-items: center;
   min-height: var(--touch-min);
-  padding: 0 0.25rem;
+  padding: 0.5rem 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--muted);
   text-decoration: none;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--border);
-  transition: color var(--duration-fast);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition:
+    color var(--duration-fast),
+    padding-left var(--duration-fast);
+}
+
+html[data-theme="light"] .nav-panel .nav-links a {
+  color: var(--copy);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
 .nav-panel .nav-links li:last-child a {
   border-bottom: none;
 }
 
-.nav-links a:hover,
 .nav-links a.active {
   color: var(--accent);
+}
+
+@media (hover: hover) {
+  .nav-links a:hover {
+    color: var(--accent);
+  }
+  .nav-panel .nav-links a:hover {
+    padding-left: 0.85rem;
+  }
 }
 
 .theme-toggle {
@@ -269,9 +348,11 @@ nav.nav-open .nav-panel {
     border-color var(--duration-fast);
 }
 
-.theme-toggle:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+@media (hover: hover) {
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
 }
 
 .theme-toggle .theme-icon {
@@ -307,25 +388,25 @@ nav.nav-open .nav-panel {
   border: none;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
 .btn-secondary {
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--border2);
 }
 
-.btn-secondary:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .btn-primary:hover,
+@media (hover: hover) {
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
   .btn-secondary:hover {
-    transform: translateY(-1px);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-primary:hover,
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+    }
   }
 }
 
@@ -473,11 +554,11 @@ section,
 @media (min-width: 56.25rem) {
   nav {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
     flex-wrap: nowrap;
     padding: 0.75rem var(--space-page-x);
-    gap: 1rem;
+    gap: 2rem;
   }
 
   .nav-logo {
@@ -506,7 +587,10 @@ section,
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    grid-column: 2;
+    grid-row: 1;
     justify-self: center;
+    align-self: center;
     background: none;
     border: none;
     padding: 0;
@@ -516,6 +600,12 @@ section,
     flex-direction: row;
     gap: 2rem;
     width: auto;
+    justify-content: flex-end;
+  }
+
+  .nav-panel .nav-links li {
+    transform: none;
+    opacity: 1;
   }
 
   .nav-panel .nav-links a {

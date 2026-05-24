@@ -33,7 +33,7 @@
     <a class="skip-link" href="#main">Skip to main content</a>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
-            <nav id="nav" class="nav-solid">
+    <nav id="nav" class="nav-solid">
       <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
       <div class="nav-controls">
         <button
@@ -60,124 +60,122 @@
         </button>
       </div>
       <div class="nav-panel" id="navMenu">
-          <ul class="nav-links">
-            <li><a href="../index.html#about">About</a></li>
-            <li><a href="../index.html#experience">Experience</a></li>
-            <li><a href="../index.html#skills">Skills</a></li>
-            <li><a href="../index.html#projects">Projects</a></li>
-            <li><a href="index.html" class="active">Blog</a></li>
-            <li><a href="../index.html#contact">Contact</a></li>
-          </ul>
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
       </div>
     </nav>
 
     <main id="main">
-
-
-    <div class="article-hero">
-      <div class="article-hero-bg"></div>
-      <div class="article-hero-inner">
-        <div class="breadcrumb">
-          <a href="../index.html">Home</a><span>/</span>
-          <a href="index.html">Blog</a><span>/</span>
-          <span style="color: var(--text)">Scalable AWS Infrastructure</span>
-        </div>
-        <p class="article-category">Infrastructure · AWS · DevOps</p>
-        <h1>
-          Building Scalable and Elastic Infrastructure on AWS with Cloudflare:
-          From AMI to ALB
-        </h1>
-        <p class="article-subtitle">
-          A production-ready architecture that scales horizontally, survives
-          component failures, and sits protected behind Cloudflare's global edge
-          layer.
-        </p>
-        <div class="article-meta-bar">
-          <span class="meta-item">2026</span>
-          <span class="meta-item">18 min read</span>
-          <span class="meta-item">Francis Morkeh Mensah</span>
-          <div class="meta-tags">
-            <span class="meta-tag">AWS</span>
-            <span class="meta-tag">ALB</span>
-            <span class="meta-tag">Auto Scaling</span>
-            <span class="meta-tag">Cloudflare</span>
-            <span class="meta-tag">Infrastructure</span>
-            <span class="meta-tag">SRE</span>
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">Scalable AWS Infrastructure</span>
+          </div>
+          <p class="article-category">Infrastructure · AWS · DevOps</p>
+          <h1>
+            Building Scalable and Elastic Infrastructure on AWS with Cloudflare:
+            From AMI to ALB
+          </h1>
+          <p class="article-subtitle">
+            A production-ready architecture that scales horizontally, survives
+            component failures, and sits protected behind Cloudflare's global
+            edge layer.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">2026</span>
+            <span class="meta-item">18 min read</span>
+            <span class="meta-item">Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">AWS</span>
+              <span class="meta-tag">ALB</span>
+              <span class="meta-tag">Auto Scaling</span>
+              <span class="meta-tag">Cloudflare</span>
+              <span class="meta-tag">Infrastructure</span>
+              <span class="meta-tag">SRE</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="article-body">
-      <h2>Introduction</h2>
-      <p>
-        Scalability and elasticity are not optional in modern cloud
-        infrastructure—they are survival requirements. Systems that cannot grow
-        under load fail silently, and systems that cannot shrink waste money. I
-        have spent enough time on incident calls where we blamed "unexpected
-        traffic" that we should have expected. That ends today.
-      </p>
-      <p>
-        This post walks you through a production-ready architecture that handles
-        variable demand gracefully. You will build custom AMIs, wire them to
-        Auto Scaling Groups, route traffic through an Application Load Balancer,
-        and sit behind Cloudflare for edge performance and DDoS protection. By
-        the end, you will have a system that scales horizontally without human
-        intervention and fails over gracefully.
-      </p>
-      <p>
-        I am assuming you know AWS basics—EC2, security groups, VPCs. What you
-        might not have done is wire all these pieces together coherently. That
-        is the gap we close here.
-      </p>
+      <div class="article-body">
+        <h2>Introduction</h2>
+        <p>
+          Scalability and elasticity are not optional in modern cloud
+          infrastructure—they are survival requirements. Systems that cannot
+          grow under load fail silently, and systems that cannot shrink waste
+          money. I have spent enough time on incident calls where we blamed
+          "unexpected traffic" that we should have expected. That ends today.
+        </p>
+        <p>
+          This post walks you through a production-ready architecture that
+          handles variable demand gracefully. You will build custom AMIs, wire
+          them to Auto Scaling Groups, route traffic through an Application Load
+          Balancer, and sit behind Cloudflare for edge performance and DDoS
+          protection. By the end, you will have a system that scales
+          horizontally without human intervention and fails over gracefully.
+        </p>
+        <p>
+          I am assuming you know AWS basics—EC2, security groups, VPCs. What you
+          might not have done is wire all these pieces together coherently. That
+          is the gap we close here.
+        </p>
 
-      <h2>Step 1 – AMI: Your Golden Image Foundation</h2>
-      <p>
-        An AMI (Amazon Machine Image) is a snapshot of a configured OS and
-        pre-installed dependencies. Instead of launching instances and babying
-        them to a usable state, you bake an AMI once and reuse it everywhere.
-        This is the immutable infrastructure mindset: your instances are cattle,
-        not pets.
-      </p>
-      <p>
-        Why custom AMIs matter: Every instance launched from your AMI is
-        identical. No drift. No "it works on my machine" nightmares when a
-        junior teammate SSHes and tweaks a config. You version your AMI, you
-        version your infrastructure.
-      </p>
+        <h2>Step 1 – AMI: Your Golden Image Foundation</h2>
+        <p>
+          An AMI (Amazon Machine Image) is a snapshot of a configured OS and
+          pre-installed dependencies. Instead of launching instances and babying
+          them to a usable state, you bake an AMI once and reuse it everywhere.
+          This is the immutable infrastructure mindset: your instances are
+          cattle, not pets.
+        </p>
+        <p>
+          Why custom AMIs matter: Every instance launched from your AMI is
+          identical. No drift. No "it works on my machine" nightmares when a
+          junior teammate SSHes and tweaks a config. You version your AMI, you
+          version your infrastructure.
+        </p>
 
-      <h3>Best Practices for AMI Creation</h3>
-      <p>
-        <strong>Pre-install everything.</strong> Security updates, runtime
-        dependencies, monitoring agents, log forwarders. The goal is that when
-        an instance launches from your AMI, it is ready to serve traffic within
-        seconds. No yum install at startup. No downloading agents
-        mid-deployment.
-      </p>
-      <p>
-        <strong>Harden the OS.</strong> Disable unnecessary services. Set
-        SELinux modes appropriately. Remove default users. Apply vendor security
-        patches. Treat the AMI like you would a production hardened base
-        image—because it is.
-      </p>
-      <p>
-        <strong>Version your AMIs with naming conventions.</strong> Do not use
-        "latest-build-v1". Use ISO timestamps or semantic versioning. Example:
-        <code>my-app-ubuntu-22.04-v2025-05-17-0342</code>. This way, when an AMI
-        causes an incident, you can trace it back. You can also roll back
-        quickly.
-      </p>
-      <p>
-        <strong>Test the AMI before using it.</strong> Launch an instance from
-        it. Run basic health checks. Verify your application starts correctly. A
-        broken AMI will break every instance launched from it.
-      </p>
+        <h3>Best Practices for AMI Creation</h3>
+        <p>
+          <strong>Pre-install everything.</strong> Security updates, runtime
+          dependencies, monitoring agents, log forwarders. The goal is that when
+          an instance launches from your AMI, it is ready to serve traffic
+          within seconds. No yum install at startup. No downloading agents
+          mid-deployment.
+        </p>
+        <p>
+          <strong>Harden the OS.</strong> Disable unnecessary services. Set
+          SELinux modes appropriately. Remove default users. Apply vendor
+          security patches. Treat the AMI like you would a production hardened
+          base image—because it is.
+        </p>
+        <p>
+          <strong>Version your AMIs with naming conventions.</strong> Do not use
+          "latest-build-v1". Use ISO timestamps or semantic versioning. Example:
+          <code>my-app-ubuntu-22.04-v2025-05-17-0342</code>. This way, when an
+          AMI causes an incident, you can trace it back. You can also roll back
+          quickly.
+        </p>
+        <p>
+          <strong>Test the AMI before using it.</strong> Launch an instance from
+          it. Run basic health checks. Verify your application starts correctly.
+          A broken AMI will break every instance launched from it.
+        </p>
 
-      <h3>Creating an AMI from an EC2 Instance</h3>
-      <p>
-        Here is the AWS CLI flow for creating an AMI from a running instance:
-      </p>
-      <pre><code>#!/bin/bash
+        <h3>Creating an AMI from an EC2 Instance</h3>
+        <p>
+          Here is the AWS CLI flow for creating an AMI from a running instance:
+        </p>
+        <pre><code>#!/bin/bash
 # 1. Launch an instance manually and configure it exactly as you want
 # 2. Once ready, create the AMI
 
@@ -191,17 +189,17 @@ aws ec2 create-image \
 aws ec2 describe-images --image-ids ami-1a2b3c4d --query 'Images[0].State'
 
 # 4. Once available, note the AMI ID for use in Launch Templates</code></pre>
-      <p>
-        The image will go through several states: <code>pending</code> →
-        <code>available</code>. This takes a few minutes. Once available, you
-        can launch instances from it immediately.
-      </p>
+        <p>
+          The image will go through several states: <code>pending</code> →
+          <code>available</code>. This takes a few minutes. Once available, you
+          can launch instances from it immediately.
+        </p>
 
-      <h3>Integrate into IaC</h3>
-      <p>
-        If you use Terraform, store your AMI ID as a variable or data source:
-      </p>
-      <pre><code>data "aws_ami" "my_app" {
+        <h3>Integrate into IaC</h3>
+        <p>
+          If you use Terraform, store your AMI ID as a variable or data source:
+        </p>
+        <pre><code>data "aws_ami" "my_app" {
   most_recent = true
   owners      = ["self"]
 
@@ -214,67 +212,67 @@ aws ec2 describe-images --image-ids ami-1a2b3c4d --query 'Images[0].State'
 locals {
   ami_id = data.aws_ami.my_app.id
 }</code></pre>
-      <p>
-        This way, when you create a new AMI, your Launch Template automatically
-        picks it up.
-      </p>
+        <p>
+          This way, when you create a new AMI, your Launch Template
+          automatically picks it up.
+        </p>
 
-      <h2>Step 2 – Launch Template: The Blueprint for Every Instance</h2>
-      <p>
-        Launch Templates (LTs) replaced the older Launch Configurations years
-        ago. If you are still using Launch Configurations, migrate to LTs now.
-        They are more flexible, support versioning, and allow you to update
-        templates without affecting running instances.
-      </p>
-      <p>
-        A Launch Template is a blueprint. It says: "When you launch an instance,
-        use this AMI, this instance type, these security groups, this IAM role,
-        and run this user data script." The Auto Scaling Group then uses the
-        template to spin up instances on demand.
-      </p>
+        <h2>Step 2 – Launch Template: The Blueprint for Every Instance</h2>
+        <p>
+          Launch Templates (LTs) replaced the older Launch Configurations years
+          ago. If you are still using Launch Configurations, migrate to LTs now.
+          They are more flexible, support versioning, and allow you to update
+          templates without affecting running instances.
+        </p>
+        <p>
+          A Launch Template is a blueprint. It says: "When you launch an
+          instance, use this AMI, this instance type, these security groups,
+          this IAM role, and run this user data script." The Auto Scaling Group
+          then uses the template to spin up instances on demand.
+        </p>
 
-      <h3>Key Fields in a Launch Template</h3>
-      <p>
-        <strong>AMI ID:</strong> The starting image for your instance. This
-        should be your custom AMI from Step 1.
-      </p>
-      <p>
-        <strong>Instance Type:</strong> <code>t3.medium</code>,
-        <code>m5.large</code>, etc. Pick based on your workload. Dev/test? t3
-        series (burstable). Production with steady traffic? m5 or c5 (general or
-        compute optimized).
-      </p>
-      <p>
-        <strong>IAM Instance Profile:</strong> The role your instance assumes.
-        It needs permissions to fetch application secrets, write logs to
-        CloudWatch, pull from your container registry—whatever your app needs.
-        Never use root credentials inside an instance.
-      </p>
-      <p>
-        <strong>Security Groups:</strong> Define which ports are open and from
-        where. For an app behind an ALB, typically the app only listens on port
-        8080 internally. Port 443/80 is handled by the ALB.
-      </p>
-      <p>
-        <strong>User Data Script:</strong> A script that runs on first boot.
-        Typically used for final setup, pulling configuration, or triggering
-        deployment. Keep it lightweight; most setup should be baked into the
-        AMI.
-      </p>
-      <p>
-        <strong>EBS Configuration:</strong> Root volume size, IOPS, volume type.
-        For most workloads, gp3 volumes are faster and cheaper than gp2.
-        Production apps often need higher IOPS—configure accordingly.
-      </p>
-      <p>
-        <strong>Monitoring:</strong> Enable detailed CloudWatch monitoring so
-        you see CPU, network, and disk metrics at 1-minute intervals instead of
-        5-minute.
-      </p>
+        <h3>Key Fields in a Launch Template</h3>
+        <p>
+          <strong>AMI ID:</strong> The starting image for your instance. This
+          should be your custom AMI from Step 1.
+        </p>
+        <p>
+          <strong>Instance Type:</strong> <code>t3.medium</code>,
+          <code>m5.large</code>, etc. Pick based on your workload. Dev/test? t3
+          series (burstable). Production with steady traffic? m5 or c5 (general
+          or compute optimized).
+        </p>
+        <p>
+          <strong>IAM Instance Profile:</strong> The role your instance assumes.
+          It needs permissions to fetch application secrets, write logs to
+          CloudWatch, pull from your container registry—whatever your app needs.
+          Never use root credentials inside an instance.
+        </p>
+        <p>
+          <strong>Security Groups:</strong> Define which ports are open and from
+          where. For an app behind an ALB, typically the app only listens on
+          port 8080 internally. Port 443/80 is handled by the ALB.
+        </p>
+        <p>
+          <strong>User Data Script:</strong> A script that runs on first boot.
+          Typically used for final setup, pulling configuration, or triggering
+          deployment. Keep it lightweight; most setup should be baked into the
+          AMI.
+        </p>
+        <p>
+          <strong>EBS Configuration:</strong> Root volume size, IOPS, volume
+          type. For most workloads, gp3 volumes are faster and cheaper than gp2.
+          Production apps often need higher IOPS—configure accordingly.
+        </p>
+        <p>
+          <strong>Monitoring:</strong> Enable detailed CloudWatch monitoring so
+          you see CPU, network, and disk metrics at 1-minute intervals instead
+          of 5-minute.
+        </p>
 
-      <h3>Example Launch Template Creation</h3>
-      <p>Using the AWS CLI:</p>
-      <pre><code>aws ec2 create-launch-template \
+        <h3>Example Launch Template Creation</h3>
+        <p>Using the AWS CLI:</p>
+        <pre><code>aws ec2 create-launch-template \
   --launch-template-name my-app-template-v1 \
   --version-description "Production template with monitoring and IAM" \
   --launch-template-data '{
@@ -298,17 +296,17 @@ locals {
       }
     ]
   }'</code></pre>
-      <p>
-        (The <code>UserData</code> is base64 encoded. Decode it to see the
-        actual script.)
-      </p>
+        <p>
+          (The <code>UserData</code> is base64 encoded. Decode it to see the
+          actual script.)
+        </p>
 
-      <h3>Versioning Launch Templates</h3>
-      <p>
-        When you update a template, AWS keeps the old versions. You can launch
-        instances from any version. This is critical for rollbacks.
-      </p>
-      <pre><code>#!/bin/bash
+        <h3>Versioning Launch Templates</h3>
+        <p>
+          When you update a template, AWS keeps the old versions. You can launch
+          instances from any version. This is critical for rollbacks.
+        </p>
+        <pre><code>#!/bin/bash
 # Create a new version
 aws ec2 create-launch-template-version \
   --launch-template-id lt-0123456789abcdef \
@@ -320,67 +318,67 @@ aws autoscaling update-auto-scaling-group \
   --auto-scaling-group-name my-app-asg \
   --launch-template LaunchTemplateId=lt-0123456789abcdef,Version=1</code></pre>
 
-      <h2>Step 3 – Auto Scaling Group: Elasticity in Action</h2>
-      <p>
-        An Auto Scaling Group (ASG) is the orchestrator. It watches your target
-        metric (CPU, custom metric, request count) and scales up or down
-        accordingly. You tell it "I want between 2 and 10 instances" and it
-        handles the rest.
-      </p>
+        <h2>Step 3 – Auto Scaling Group: Elasticity in Action</h2>
+        <p>
+          An Auto Scaling Group (ASG) is the orchestrator. It watches your
+          target metric (CPU, custom metric, request count) and scales up or
+          down accordingly. You tell it "I want between 2 and 10 instances" and
+          it handles the rest.
+        </p>
 
-      <h3>How ASG Works with Launch Templates</h3>
-      <p>
-        The ASG uses your Launch Template as a recipe. When the scaling policy
-        triggers, the ASG launches new instances from the template. When demand
-        drops, it terminates instances gracefully, respecting connection drain
-        time.
-      </p>
+        <h3>How ASG Works with Launch Templates</h3>
+        <p>
+          The ASG uses your Launch Template as a recipe. When the scaling policy
+          triggers, the ASG launches new instances from the template. When
+          demand drops, it terminates instances gracefully, respecting
+          connection drain time.
+        </p>
 
-      <h3>Scaling Policies: Target Tracking vs Step Scaling</h3>
-      <p>
-        <strong>Target Tracking:</strong> Simplest approach. You say "Keep CPU
-        at 70%" and the ASG adjusts capacity automatically. AWS does the math.
-        Example: CPU hits 80%, ASG scales up; CPU drops to 60%, ASG scales down.
-        It smooths out spikes without you writing complex rules.
-      </p>
-      <p>
-        <strong>Step Scaling:</strong> More granular. You define: "If CPU is
-        75-85%, add 1 instance. If CPU is 85-95%, add 3 instances." Requires
-        more tuning but gives you precise control. Good for predictable traffic
-        patterns.
-      </p>
-      <p>
-        I usually recommend <strong>Target Tracking</strong> for most workloads.
-        It is simpler, less prone to oscillation, and adapts better to traffic
-        changes.
-      </p>
+        <h3>Scaling Policies: Target Tracking vs Step Scaling</h3>
+        <p>
+          <strong>Target Tracking:</strong> Simplest approach. You say "Keep CPU
+          at 70%" and the ASG adjusts capacity automatically. AWS does the math.
+          Example: CPU hits 80%, ASG scales up; CPU drops to 60%, ASG scales
+          down. It smooths out spikes without you writing complex rules.
+        </p>
+        <p>
+          <strong>Step Scaling:</strong> More granular. You define: "If CPU is
+          75-85%, add 1 instance. If CPU is 85-95%, add 3 instances." Requires
+          more tuning but gives you precise control. Good for predictable
+          traffic patterns.
+        </p>
+        <p>
+          I usually recommend <strong>Target Tracking</strong> for most
+          workloads. It is simpler, less prone to oscillation, and adapts better
+          to traffic changes.
+        </p>
 
-      <h3>Health Checks and Grace Periods</h3>
-      <p>
-        An ASG monitors instance health. If an instance fails health checks, it
-        is terminated and replaced automatically.
-      </p>
-      <p>
-        <strong>Health Check Type:</strong> <code>ELB</code> (from load
-        balancer) or <code>EC2</code> (from AWS status checks). Use
-        <code>ELB</code> so the ASG only considers instances healthy if the ALB
-        thinks they are.
-      </p>
-      <p>
-        <strong>Health Check Grace Period:</strong> Time (in seconds) after
-        launch before health checks begin. New instances need time to
-        initialize. Set this to how long your app takes to become ready. Too
-        short and healthy new instances get killed. Too long and failed
-        instances linger.
-      </p>
-      <p>
-        Example: If your app takes 60 seconds to fully initialize, set grace
-        period to 90 seconds.
-      </p>
+        <h3>Health Checks and Grace Periods</h3>
+        <p>
+          An ASG monitors instance health. If an instance fails health checks,
+          it is terminated and replaced automatically.
+        </p>
+        <p>
+          <strong>Health Check Type:</strong> <code>ELB</code> (from load
+          balancer) or <code>EC2</code> (from AWS status checks). Use
+          <code>ELB</code> so the ASG only considers instances healthy if the
+          ALB thinks they are.
+        </p>
+        <p>
+          <strong>Health Check Grace Period:</strong> Time (in seconds) after
+          launch before health checks begin. New instances need time to
+          initialize. Set this to how long your app takes to become ready. Too
+          short and healthy new instances get killed. Too long and failed
+          instances linger.
+        </p>
+        <p>
+          Example: If your app takes 60 seconds to fully initialize, set grace
+          period to 90 seconds.
+        </p>
 
-      <h3>ASG Configuration Example</h3>
-      <p>Using Terraform:</p>
-      <pre><code>resource "aws_autoscaling_group" "my_app" {
+        <h3>ASG Configuration Example</h3>
+        <p>Using Terraform:</p>
+        <pre><code>resource "aws_autoscaling_group" "my_app" {
   name                = "my-app-asg"
   vpc_zone_identifier = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 
@@ -418,55 +416,55 @@ resource "aws_autoscaling_policy" "scale_up" {
     target_value = 70.0
   }
 }</code></pre>
-      <p>
-        Min 2, max 10, desired 3. The ASG will keep 3 running under normal load.
-        If CPU goes above 70%, it adds instances. If it drops below 70%, it
-        removes them (respecting min_size).
-      </p>
+        <p>
+          Min 2, max 10, desired 3. The ASG will keep 3 running under normal
+          load. If CPU goes above 70%, it adds instances. If it drops below 70%,
+          it removes them (respecting min_size).
+        </p>
 
-      <h2>Step 4 – Target Group: Routing Traffic to Healthy Instances</h2>
-      <p>
-        A Target Group is the glue between the Application Load Balancer and
-        your instances. The ALB forwards requests to targets in the group. The
-        Target Group monitors target health and removes unhealthy ones from
-        rotation.
-      </p>
-      <p>
-        Think of it as a smart pool: the ALB places requests into the pool, and
-        the pool decides which instance gets which request.
-      </p>
+        <h2>Step 4 – Target Group: Routing Traffic to Healthy Instances</h2>
+        <p>
+          A Target Group is the glue between the Application Load Balancer and
+          your instances. The ALB forwards requests to targets in the group. The
+          Target Group monitors target health and removes unhealthy ones from
+          rotation.
+        </p>
+        <p>
+          Think of it as a smart pool: the ALB places requests into the pool,
+          and the pool decides which instance gets which request.
+        </p>
 
-      <h3>Health Check Configuration</h3>
-      <p>
-        The Target Group performs its own health checks (separate from the ASG
-        health checks, though they can inform each other).
-      </p>
-      <p>
-        <strong>Path:</strong> The URL path the Target Group hits to determine
-        health. Example: <code>/health</code>. Your app must respond with HTTP
-        200 on that path.
-      </p>
-      <p><strong>Protocol:</strong> HTTP or HTTPS.</p>
-      <p>
-        <strong>Interval:</strong> How often to check. Typically 30 seconds.
-      </p>
-      <p>
-        <strong>Healthy Threshold:</strong> How many consecutive successful
-        checks before marking an instance healthy. Default 2. Means 2 successful
-        checks in a row.
-      </p>
-      <p>
-        <strong>Unhealthy Threshold:</strong> How many consecutive failed checks
-        before marking unhealthy. Default 2. Means 2 failed checks in a row and
-        the instance is removed from rotation.
-      </p>
-      <p>
-        <strong>Timeout:</strong> How long to wait for a response before
-        considering the check failed. 5 seconds is typical.
-      </p>
+        <h3>Health Check Configuration</h3>
+        <p>
+          The Target Group performs its own health checks (separate from the ASG
+          health checks, though they can inform each other).
+        </p>
+        <p>
+          <strong>Path:</strong> The URL path the Target Group hits to determine
+          health. Example: <code>/health</code>. Your app must respond with HTTP
+          200 on that path.
+        </p>
+        <p><strong>Protocol:</strong> HTTP or HTTPS.</p>
+        <p>
+          <strong>Interval:</strong> How often to check. Typically 30 seconds.
+        </p>
+        <p>
+          <strong>Healthy Threshold:</strong> How many consecutive successful
+          checks before marking an instance healthy. Default 2. Means 2
+          successful checks in a row.
+        </p>
+        <p>
+          <strong>Unhealthy Threshold:</strong> How many consecutive failed
+          checks before marking unhealthy. Default 2. Means 2 failed checks in a
+          row and the instance is removed from rotation.
+        </p>
+        <p>
+          <strong>Timeout:</strong> How long to wait for a response before
+          considering the check failed. 5 seconds is typical.
+        </p>
 
-      <h3>Health Check Example</h3>
-      <pre><code>resource "aws_lb_target_group" "my_app" {
+        <h3>Health Check Example</h3>
+        <pre><code>resource "aws_lb_target_group" "my_app" {
   name     = "my-app-tg"
   port     = 8080
   protocol = "HTTP"
@@ -489,52 +487,54 @@ resource "aws_autoscaling_group_attachment" "my_app" {
   autoscaling_group_name = aws_autoscaling_group.my_app.id
   lb_target_group_arn    = aws_lb_target_group.my_app.arn
 }</code></pre>
-      <p>
-        The ASG is attached to the Target Group. When instances launch, they are
-        automatically registered. When they are terminated, they are
-        deregistered. The <code>deregistration_delay</code> gives in-flight
-        requests 30 seconds to complete before the instance is forcibly removed.
-      </p>
+        <p>
+          The ASG is attached to the Target Group. When instances launch, they
+          are automatically registered. When they are terminated, they are
+          deregistered. The <code>deregistration_delay</code> gives in-flight
+          requests 30 seconds to complete before the instance is forcibly
+          removed.
+        </p>
 
-      <h2>Step 5 – Application Load Balancer: The Traffic Gatekeeper</h2>
-      <p>
-        The Application Load Balancer (ALB) is your first layer of traffic
-        distribution. It inspects HTTP headers, routes based on path or
-        hostname, terminates SSL, and distributes load across target groups.
-      </p>
+        <h2>Step 5 – Application Load Balancer: The Traffic Gatekeeper</h2>
+        <p>
+          The Application Load Balancer (ALB) is your first layer of traffic
+          distribution. It inspects HTTP headers, routes based on path or
+          hostname, terminates SSL, and distributes load across target groups.
+        </p>
 
-      <h3>ALB vs NLB</h3>
-      <p>
-        <strong>ALB (Application Load Balancer):</strong> Best for HTTP/HTTPS,
-        microservices, content-based routing. You can route
-        <code>/api/*</code> to one service and <code>/static/*</code> to
-        another. Operates at Layer 7 (application). Slightly higher latency than
-        NLB but far more flexible.
-      </p>
-      <p>
-        <strong>NLB (Network Load Balancer):</strong> Best for ultra-high
-        throughput, low latency, or non-HTTP protocols like TCP/UDP. Operates at
-        Layer 4 (transport). Use NLB if you are moving millions of
-        requests/second or running game servers, IoT, or real-time systems.
-      </p>
-      <p>
-        For most web applications, <strong>ALB is the right choice</strong>.
-      </p>
+        <h3>ALB vs NLB</h3>
+        <p>
+          <strong>ALB (Application Load Balancer):</strong> Best for HTTP/HTTPS,
+          microservices, content-based routing. You can route
+          <code>/api/*</code> to one service and <code>/static/*</code> to
+          another. Operates at Layer 7 (application). Slightly higher latency
+          than NLB but far more flexible.
+        </p>
+        <p>
+          <strong>NLB (Network Load Balancer):</strong> Best for ultra-high
+          throughput, low latency, or non-HTTP protocols like TCP/UDP. Operates
+          at Layer 4 (transport). Use NLB if you are moving millions of
+          requests/second or running game servers, IoT, or real-time systems.
+        </p>
+        <p>
+          For most web applications, <strong>ALB is the right choice</strong>.
+        </p>
 
-      <h3>SSL Termination at the ALB</h3>
-      <p>
-        You upload an SSL certificate to the ALB. The ALB decrypts HTTPS traffic
-        from clients, then forwards HTTP (or re-encrypted HTTPS) to instances.
-        This offloads the CPU cost of decryption from your app instances.
-      </p>
-      <p>
-        Use AWS Certificate Manager (ACM) to provision free certificates.
-        Cloudflare can also generate them, but ACM is simpler if your domain is
-        in Route 53.
-      </p>
+        <h3>SSL Termination at the ALB</h3>
+        <p>
+          You upload an SSL certificate to the ALB. The ALB decrypts HTTPS
+          traffic from clients, then forwards HTTP (or re-encrypted HTTPS) to
+          instances. This offloads the CPU cost of decryption from your app
+          instances.
+        </p>
+        <p>
+          Use AWS Certificate Manager (ACM) to provision free certificates.
+          Cloudflare can also generate them, but ACM is simpler if your domain
+          is in Route 53.
+        </p>
 
-      <h3>Example ALB Configuration</h3>
-      <pre><code>resource "aws_lb" "main" {
+        <h3>Example ALB Configuration</h3>
+        <pre><code>resource "aws_lb" "main" {
   name               = "my-app-alb"
   internal           = false
   load_balancer_type = "application"
@@ -574,115 +574,117 @@ resource "aws_lb_listener" "http" {
     }
   }
 }</code></pre>
-      <p>
-        This ALB listens on 443 (HTTPS) with your ACM certificate and forwards
-        to the Target Group. Port 80 (HTTP) is redirected to HTTPS with a 301
-        redirect.
-      </p>
+        <p>
+          This ALB listens on 443 (HTTPS) with your ACM certificate and forwards
+          to the Target Group. Port 80 (HTTP) is redirected to HTTPS with a 301
+          redirect.
+        </p>
 
-      <h2>
-        Step 6 – Cloudflare: The Edge Layer for Performance and Protection
-      </h2>
-      <p>
-        Cloudflare sits between your users and your ALB. It caches content at
-        the edge, blocks DDoS attacks, and rewrites headers. This is your
-        last-mile optimization layer.
-      </p>
+        <h2>
+          Step 6 – Cloudflare: The Edge Layer for Performance and Protection
+        </h2>
+        <p>
+          Cloudflare sits between your users and your ALB. It caches content at
+          the edge, blocks DDoS attacks, and rewrites headers. This is your
+          last-mile optimization layer.
+        </p>
 
-      <h3>Pointing Your Domain to the ALB via Cloudflare</h3>
-      <p>
-        Your domain's nameservers point to Cloudflare. You create a CNAME record
-        in Cloudflare that points to your ALB's DNS name (something like
-        <code>my-app-alb-1234567890.us-east-1.elb.amazonaws.com</code>).
-      </p>
-      <p>
-        Never point directly to an ALB IP. ALBs can change IPs during updates or
-        failovers. CNAMEs are stable.
-      </p>
+        <h3>Pointing Your Domain to the ALB via Cloudflare</h3>
+        <p>
+          Your domain's nameservers point to Cloudflare. You create a CNAME
+          record in Cloudflare that points to your ALB's DNS name (something
+          like
+          <code>my-app-alb-1234567890.us-east-1.elb.amazonaws.com</code>).
+        </p>
+        <p>
+          Never point directly to an ALB IP. ALBs can change IPs during updates
+          or failovers. CNAMEs are stable.
+        </p>
 
-      <h3>Proxied vs DNS-Only Mode</h3>
-      <p>
-        <strong>DNS-Only (Gray Cloud):</strong> Cloudflare just resolves DNS.
-        Users connect directly to your ALB. No edge benefits. Use only for
-        non-HTTP services or if you need users to see your real ALB IP.
-      </p>
-      <p>
-        <strong>Proxied (Orange Cloud):</strong> Traffic flows through
-        Cloudflare's edge. Your real origin (ALB) is hidden. Users see
-        Cloudflare's IP, not yours. All requests hit Cloudflare first, then
-        Cloudflare forwards to your ALB. This is what you want for HTTP/HTTPS
-        services.
-      </p>
+        <h3>Proxied vs DNS-Only Mode</h3>
+        <p>
+          <strong>DNS-Only (Gray Cloud):</strong> Cloudflare just resolves DNS.
+          Users connect directly to your ALB. No edge benefits. Use only for
+          non-HTTP services or if you need users to see your real ALB IP.
+        </p>
+        <p>
+          <strong>Proxied (Orange Cloud):</strong> Traffic flows through
+          Cloudflare's edge. Your real origin (ALB) is hidden. Users see
+          Cloudflare's IP, not yours. All requests hit Cloudflare first, then
+          Cloudflare forwards to your ALB. This is what you want for HTTP/HTTPS
+          services.
+        </p>
 
-      <h3>Cloudflare WAF, DDoS Protection, and Caching</h3>
-      <p>
-        <strong>WAF (Web Application Firewall):</strong> Blocks malicious
-        requests based on signatures. OWASP Top 10 rules are enabled by default.
-        You can add custom rules: block requests with SQL injection patterns,
-        XSS attempts, unusual user agents, etc.
-      </p>
-      <p>
-        <strong>DDoS Protection:</strong> Cloudflare absorbs volumetric attacks
-        at the edge. Terabits of junk traffic never reach your ALB. Their
-        infrastructure is designed for this.
-      </p>
-      <p>
-        <strong>Caching Rules:</strong> Cache static assets (CSS, JavaScript,
-        images) at Cloudflare's edge for millisecond response times. Set cache
-        TTLs per path. Cache aggressively for assets, never cache login pages.
-      </p>
+        <h3>Cloudflare WAF, DDoS Protection, and Caching</h3>
+        <p>
+          <strong>WAF (Web Application Firewall):</strong> Blocks malicious
+          requests based on signatures. OWASP Top 10 rules are enabled by
+          default. You can add custom rules: block requests with SQL injection
+          patterns, XSS attempts, unusual user agents, etc.
+        </p>
+        <p>
+          <strong>DDoS Protection:</strong> Cloudflare absorbs volumetric
+          attacks at the edge. Terabits of junk traffic never reach your ALB.
+          Their infrastructure is designed for this.
+        </p>
+        <p>
+          <strong>Caching Rules:</strong> Cache static assets (CSS, JavaScript,
+          images) at Cloudflare's edge for millisecond response times. Set cache
+          TTLs per path. Cache aggressively for assets, never cache login pages.
+        </p>
 
-      <h3>SSL Modes: Full vs Full (Strict)</h3>
-      <p>Cloudflare offers multiple SSL modes:</p>
-      <ul class="body-list">
-        <li>
-          <strong>Off:</strong> No HTTPS to Cloudflare. Only use for testing.
-        </li>
-        <li>
-          <strong>Flexible:</strong> HTTP between Cloudflare and origin. Origin
-          has no certificate. Risky; users see HTTPS but origin is unencrypted.
-        </li>
-        <li>
-          <strong>Full:</strong> HTTPS between Cloudflare and origin, but
-          certificate validation is loose. Origin can have a self-signed cert.
-          Works but less secure.
-        </li>
-        <li>
-          <strong>Full (Strict):</strong> HTTPS between Cloudflare and origin,
-          and the origin certificate must be valid and signed by a trusted CA.
-          This is production grade. If your ALB has an ACM certificate, use Full
-          (Strict).
-        </li>
-      </ul>
+        <h3>SSL Modes: Full vs Full (Strict)</h3>
+        <p>Cloudflare offers multiple SSL modes:</p>
+        <ul class="body-list">
+          <li>
+            <strong>Off:</strong> No HTTPS to Cloudflare. Only use for testing.
+          </li>
+          <li>
+            <strong>Flexible:</strong> HTTP between Cloudflare and origin.
+            Origin has no certificate. Risky; users see HTTPS but origin is
+            unencrypted.
+          </li>
+          <li>
+            <strong>Full:</strong> HTTPS between Cloudflare and origin, but
+            certificate validation is loose. Origin can have a self-signed cert.
+            Works but less secure.
+          </li>
+          <li>
+            <strong>Full (Strict):</strong> HTTPS between Cloudflare and origin,
+            and the origin certificate must be valid and signed by a trusted CA.
+            This is production grade. If your ALB has an ACM certificate, use
+            Full (Strict).
+          </li>
+        </ul>
 
-      <h3>Health Checks Before Going Orange</h3>
-      <p>
-        Before setting your CNAME to proxied (orange cloud), verify your ALB is
-        healthy:
-      </p>
-      <pre><code>#!/bin/bash
+        <h3>Health Checks Before Going Orange</h3>
+        <p>
+          Before setting your CNAME to proxied (orange cloud), verify your ALB
+          is healthy:
+        </p>
+        <pre><code>#!/bin/bash
 # Check that your ALB is responding
 curl -k -v https://my-app-alb-1234567890.us-east-1.elb.amazonaws.com
 
 # Check that target instances are healthy
 aws elbv2 describe-target-health \
   --target-group-arn arn:aws:elasticloadbalancing:...</code></pre>
-      <p>
-        If instances show unhealthy, debug them. Check security groups, health
-        check paths, application logs. Do not go orange until everything shows
-        healthy. A broken origin will cascade to a global outage.
-      </p>
+        <p>
+          If instances show unhealthy, debug them. Check security groups, health
+          check paths, application logs. Do not go orange until everything shows
+          healthy. A broken origin will cascade to a global outage.
+        </p>
 
-      <h2>Terraform Implementation: Integrated Resource Chain</h2>
-      <p>
-        Here is a complete Terraform implementation where each resource
-        references the previous one, creating an integrated
-        infrastructure-as-code flow. Organize these into separate files for
-        clarity.
-      </p>
+        <h2>Terraform Implementation: Integrated Resource Chain</h2>
+        <p>
+          Here is a complete Terraform implementation where each resource
+          references the previous one, creating an integrated
+          infrastructure-as-code flow. Organize these into separate files for
+          clarity.
+        </p>
 
-      <h3>variables.tf – Common Configuration</h3>
-      <pre><code>variable "project_name" {
+        <h3>variables.tf – Common Configuration</h3>
+        <pre><code>variable "project_name" {
   description = "Application name"
   type        = string
   default     = "my-app"
@@ -731,8 +733,8 @@ variable "acm_certificate_arn" {
   type        = string
 }</code></pre>
 
-      <h3>ami.tf – Golden Image Creation</h3>
-      <pre><code>data "aws_ami" "latest_app_ami" {
+        <h3>ami.tf – Golden Image Creation</h3>
+        <pre><code>data "aws_ami" "latest_app_ami" {
   most_recent = true
   owners      = ["self"]
 
@@ -746,13 +748,13 @@ variable "acm_certificate_arn" {
 locals {
   app_ami_id = data.aws_ami.latest_app_ami.id
 }</code></pre>
-      <p>
-        In practice, you create the base AMI using Packer or manually via AWS
-        Console, then reference it here.
-      </p>
+        <p>
+          In practice, you create the base AMI using Packer or manually via AWS
+          Console, then reference it here.
+        </p>
 
-      <h3>lt.tf – Launch Template (References AMI)</h3>
-      <pre><code>resource "aws_launch_template" "app" {
+        <h3>lt.tf – Launch Template (References AMI)</h3>
+        <pre><code>resource "aws_launch_template" "app" {
   name_prefix   = "${var.project_name}-"
   image_id      = local.app_ami_id  # References AMI from ami.tf
   instance_type = "m5.large"
@@ -855,8 +857,8 @@ resource "aws_security_group" "app_instance" {
   }
 }</code></pre>
 
-      <h3>tg.tf – Target Group</h3>
-      <pre><code>resource "aws_lb_target_group" "app" {
+        <h3>tg.tf – Target Group</h3>
+        <pre><code>resource "aws_lb_target_group" "app" {
   name_prefix = substr(var.project_name, 0, 6)
   port        = var.app_port
   protocol    = "HTTP"
@@ -878,8 +880,8 @@ resource "aws_security_group" "app_instance" {
   }
 }</code></pre>
 
-      <h3>asg.tf – Auto Scaling Group (References LT and TG)</h3>
-      <pre><code>resource "aws_autoscaling_group" "app" {
+        <h3>asg.tf – Auto Scaling Group (References LT and TG)</h3>
+        <pre><code>resource "aws_autoscaling_group" "app" {
   name                = "${var.project_name}-asg-${aws_launch_template.app.latest_version_number}"
   vpc_zone_identifier = var.private_subnets
   target_group_arns   = [aws_lb_target_group.app.arn]  # References TG from tg.tf
@@ -927,8 +929,8 @@ resource "aws_autoscaling_policy" "cpu_scaling" {
   }
 }</code></pre>
 
-      <h3>alb.tf – Application Load Balancer (References TG)</h3>
-      <pre><code>resource "aws_security_group" "alb" {
+        <h3>alb.tf – Application Load Balancer (References TG)</h3>
+        <pre><code>resource "aws_security_group" "alb" {
   name_prefix = "${var.project_name}-alb-"
   description = "ALB security group for ${var.project_name}"
   vpc_id      = var.vpc_id
@@ -1012,8 +1014,8 @@ output "alb_dns_name" {
   value       = aws_lb.app.dns_name
 }</code></pre>
 
-      <h3>cloudflare.tf – DNS and Edge Configuration</h3>
-      <pre><code>terraform {
+        <h3>cloudflare.tf – DNS and Edge Configuration</h3>
+        <pre><code>terraform {
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
@@ -1084,8 +1086,8 @@ variable "cloudflare_zone_id" {
   type        = string
 }</code></pre>
 
-      <h3>terraform.tfvars – Example Values</h3>
-      <pre><code>project_name = "my-app"
+        <h3>terraform.tfvars – Example Values</h3>
+        <pre><code>project_name = "my-app"
 environment  = "production"
 aws_region   = "us-east-1"
 
@@ -1105,335 +1107,340 @@ acm_certificate_arn   = "arn:aws:acm:us-east-1:123456789012:certificate/12345678
 cloudflare_zone_id    = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
 # Set via environment: export TF_VAR_cloudflare_api_token="your-token"</code></pre>
 
-      <h3>Deployment Flow</h3>
-      <ul class="body-list">
-        <li>Initialize: <code>terraform init</code></li>
-        <li>Plan: <code>terraform plan -var-file=terraform.tfvars</code></li>
-        <li>Apply: <code>terraform apply -var-file=terraform.tfvars</code></li>
-        <li>
-          Verify: Check ALB health in AWS Console, then enable Cloudflare orange
-          cloud
-        </li>
-        <li>Monitor: Watch ASG scaling and CloudWatch metrics</li>
-      </ul>
+        <h3>Deployment Flow</h3>
+        <ul class="body-list">
+          <li>Initialize: <code>terraform init</code></li>
+          <li>Plan: <code>terraform plan -var-file=terraform.tfvars</code></li>
+          <li>
+            Apply: <code>terraform apply -var-file=terraform.tfvars</code>
+          </li>
+          <li>
+            Verify: Check ALB health in AWS Console, then enable Cloudflare
+            orange cloud
+          </li>
+          <li>Monitor: Watch ASG scaling and CloudWatch metrics</li>
+        </ul>
 
-      <div class="info-box">
-        <strong>Pro Tip:</strong> Store sensitive values (Cloudflare API token,
-        ACM ARN) as environment variables or in a secure backend like Terraform
-        Cloud. Never commit secrets to version control.
-      </div>
+        <div class="info-box">
+          <strong>Pro Tip:</strong> Store sensitive values (Cloudflare API
+          token, ACM ARN) as environment variables or in a secure backend like
+          Terraform Cloud. Never commit secrets to version control.
+        </div>
 
-      <h2>Step 7 – Architecture Diagram</h2>
-      <p>Here is your complete infrastructure flow:</p>
-      <div class="architecture-diagram">
-        <svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
-          <!-- Define gradients and styles -->
-          <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color: #f97316; stop-opacity: 1" />
-              <stop
-                offset="100%"
-                style="stop-color: #ea580c; stop-opacity: 1"
-              />
-            </linearGradient>
-<marker
-              id="arrowhead"
-              markerWidth="10"
-              markerHeight="10"
-              refX="9"
-              refY="3"
-              orient="auto"
+        <h2>Step 7 – Architecture Diagram</h2>
+        <p>Here is your complete infrastructure flow:</p>
+        <div class="architecture-diagram">
+          <svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- Define gradients and styles -->
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop
+                  offset="0%"
+                  style="stop-color: #f97316; stop-opacity: 1"
+                />
+                <stop
+                  offset="100%"
+                  style="stop-color: #ea580c; stop-opacity: 1"
+                />
+              </linearGradient>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="3"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3, 0 6" fill="#f97316" />
+              </marker>
+            </defs>
+
+            <!-- Layer backgrounds -->
+            <rect
+              x="20"
+              y="20"
+              width="860"
+              height="460"
+              class="layer-bg"
+              rx="8"
+            />
+
+            <!-- User -->
+            <circle cx="100" cy="80" r="40" class="arch-box" />
+            <text x="100" y="85" class="arch-label">User</text>
+
+            <!-- Arrow 1: User to Cloudflare -->
+            <path d="M 140 80 L 220 80" class="arch-arrow" />
+            <text x="180" y="70" class="arch-label-arrow">HTTPS</text>
+
+            <!-- Cloudflare Edge -->
+            <rect
+              x="220"
+              y="45"
+              width="140"
+              height="70"
+              class="arch-box"
+              rx="4"
+            />
+            <text x="290" y="75" class="arch-label">Cloudflare</text>
+            <text x="290" y="95" class="arch-desc">Edge Layer</text>
+
+            <!-- Arrow 2: Cloudflare to ALB -->
+            <path d="M 360 80 L 440 80" class="arch-arrow" />
+            <text x="400" y="70" class="arch-label-arrow">Forward</text>
+
+            <!-- ALB -->
+            <rect
+              x="440"
+              y="45"
+              width="140"
+              height="70"
+              class="arch-box"
+              rx="4"
+            />
+            <text x="510" y="75" class="arch-label">ALB</text>
+            <text x="510" y="95" class="arch-desc">SSL Termination</text>
+
+            <!-- Arrow 3: ALB to Target Group -->
+            <path d="M 510 115 L 510 180" class="arch-arrow" />
+            <text x="530" y="150" class="arch-label-arrow">Distribute</text>
+
+            <!-- Target Group (represented as pool) -->
+            <rect
+              x="420"
+              y="180"
+              width="180"
+              height="70"
+              class="arch-box"
+              rx="4"
+            />
+            <text x="510" y="210" class="arch-label">Target Group</text>
+            <text x="510" y="230" class="arch-desc">Health Checks</text>
+
+            <!-- Arrow 4: Target Group to ASG -->
+            <path d="M 510 250 L 510 310" class="arch-arrow" />
+            <text x="535" y="280" class="arch-label-arrow">Routes to</text>
+
+            <!-- ASG Container with instances -->
+            <rect
+              x="320"
+              y="310"
+              width="380"
+              height="140"
+              fill="none"
+              stroke="#f97316"
+              stroke-width="2"
+              stroke-dasharray="3,3"
+              rx="4"
+            />
+            <text
+              x="330"
+              y="330"
+              class="arch-label"
+              style="text-anchor: start; font-size: 11px; fill: #f97316"
             >
-              <polygon points="0 0, 10 3, 0 6" fill="#f97316" />
-            </marker>
-          </defs>
+              Auto Scaling Group (2-10 instances)
+            </text>
 
-          <!-- Layer backgrounds -->
-          <rect
-            x="20"
-            y="20"
-            width="860"
-            height="460"
-            class="layer-bg"
-            rx="8"
-          />
+            <!-- Instance 1 -->
+            <rect
+              x="340"
+              y="350"
+              width="100"
+              height="80"
+              class="arch-box"
+              rx="4"
+            />
+            <text x="390" y="375" class="arch-label">Instance 1</text>
+            <text x="390" y="395" class="arch-desc">from AMI</text>
+            <text x="390" y="410" class="arch-desc">Port 8080</text>
 
-          <!-- User -->
-          <circle cx="100" cy="80" r="40" class="arch-box" />
-          <text x="100" y="85" class="arch-label">User</text>
+            <!-- Instance 2 -->
+            <rect
+              x="460"
+              y="350"
+              width="100"
+              height="80"
+              class="arch-box"
+              rx="4"
+            />
+            <text x="510" y="375" class="arch-label">Instance 2</text>
+            <text x="510" y="395" class="arch-desc">from AMI</text>
+            <text x="510" y="410" class="arch-desc">Port 8080</text>
 
-          <!-- Arrow 1: User to Cloudflare -->
-          <path d="M 140 80 L 220 80" class="arch-arrow" />
-          <text x="180" y="70" class="arch-label-arrow">HTTPS</text>
+            <!-- Instance 3 (dotted) -->
+            <rect
+              x="580"
+              y="350"
+              width="100"
+              height="80"
+              class="arch-box"
+              rx="4"
+              opacity="0.5"
+            />
+            <text x="630" y="385" class="arch-label" opacity="0.7">...</text>
 
-          <!-- Cloudflare Edge -->
-          <rect
-            x="220"
-            y="45"
-            width="140"
-            height="70"
-            class="arch-box"
-            rx="4"
-          />
-          <text x="290" y="75" class="arch-label">Cloudflare</text>
-          <text x="290" y="95" class="arch-desc">Edge Layer</text>
+            <!-- Launch Template reference -->
+            <text
+              x="100"
+              y="300"
+              class="arch-label"
+              style="text-anchor: start; font-size: 11px; fill: #f97316"
+            >
+              ← Launch Template
+            </text>
+            <text
+              x="100"
+              y="315"
+              class="arch-desc"
+              style="text-anchor: start; font-size: 10px"
+            >
+              defines instance config
+            </text>
 
-          <!-- Arrow 2: Cloudflare to ALB -->
-          <path d="M 360 80 L 440 80" class="arch-arrow" />
-          <text x="400" y="70" class="arch-label-arrow">Forward</text>
-
-          <!-- ALB -->
-          <rect
-            x="440"
-            y="45"
-            width="140"
-            height="70"
-            class="arch-box"
-            rx="4"
-          />
-          <text x="510" y="75" class="arch-label">ALB</text>
-          <text x="510" y="95" class="arch-desc">SSL Termination</text>
-
-          <!-- Arrow 3: ALB to Target Group -->
-          <path d="M 510 115 L 510 180" class="arch-arrow" />
-          <text x="530" y="150" class="arch-label-arrow">Distribute</text>
-
-          <!-- Target Group (represented as pool) -->
-          <rect
-            x="420"
-            y="180"
-            width="180"
-            height="70"
-            class="arch-box"
-            rx="4"
-          />
-          <text x="510" y="210" class="arch-label">Target Group</text>
-          <text x="510" y="230" class="arch-desc">Health Checks</text>
-
-          <!-- Arrow 4: Target Group to ASG -->
-          <path d="M 510 250 L 510 310" class="arch-arrow" />
-          <text x="535" y="280" class="arch-label-arrow">Routes to</text>
-
-          <!-- ASG Container with instances -->
-          <rect
-            x="320"
-            y="310"
-            width="380"
-            height="140"
-            fill="none"
-            stroke="#f97316"
-            stroke-width="2"
-            stroke-dasharray="3,3"
-            rx="4"
-          />
-          <text
-            x="330"
-            y="330"
-            class="arch-label"
-            style="text-anchor: start; font-size: 11px; fill: #f97316"
-          >
-            Auto Scaling Group (2-10 instances)
-          </text>
-
-          <!-- Instance 1 -->
-          <rect
-            x="340"
-            y="350"
-            width="100"
-            height="80"
-            class="arch-box"
-            rx="4"
-          />
-          <text x="390" y="375" class="arch-label">Instance 1</text>
-          <text x="390" y="395" class="arch-desc">from AMI</text>
-          <text x="390" y="410" class="arch-desc">Port 8080</text>
-
-          <!-- Instance 2 -->
-          <rect
-            x="460"
-            y="350"
-            width="100"
-            height="80"
-            class="arch-box"
-            rx="4"
-          />
-          <text x="510" y="375" class="arch-label">Instance 2</text>
-          <text x="510" y="395" class="arch-desc">from AMI</text>
-          <text x="510" y="410" class="arch-desc">Port 8080</text>
-
-          <!-- Instance 3 (dotted) -->
-          <rect
-            x="580"
-            y="350"
-            width="100"
-            height="80"
-            class="arch-box"
-            rx="4"
-            opacity="0.5"
-          />
-          <text x="630" y="385" class="arch-label" opacity="0.7">...</text>
-
-          <!-- Launch Template reference -->
-          <text
-            x="100"
-            y="300"
-            class="arch-label"
-            style="text-anchor: start; font-size: 11px; fill: #f97316"
-          >
-            ← Launch Template
-          </text>
-          <text
-            x="100"
-            y="315"
-            class="arch-desc"
-            style="text-anchor: start; font-size: 10px"
-          >
-            defines instance config
-          </text>
-
-          <!-- Legend at bottom -->
-          <text
-            x="40"
-            y="470"
-            style="
-              font-family: &quot;IBM Plex Mono&quot;, monospace;
-              font-size: 11px;
-              fill: #666;
-            "
-          >
-            → Data flow direction | Each layer is scalable, monitored, and
-            fault-tolerant
-          </text>
-        </svg>
-      </div>
-
-      <p>
-        When user traffic arrives at Cloudflare, it is inspected for threats
-        (WAF), cached if applicable, then forwarded to your ALB's DNS name. The
-        ALB terminates SSL and routes the request to a healthy instance in the
-        target group. The instance processes it and responds. Responses travel
-        back through the same path, with Cloudflare caching if appropriate.
-      </p>
-      <p>
-        This architecture is fault-tolerant: if one instance fails, the ALB
-        routes around it. If traffic spikes, the ASG launches more instances. If
-        you get DDoSed, Cloudflare absorbs it before it reaches your
-        infrastructure.
-      </p>
-
-      <h2>Key Takeaways and Best Practices</h2>
-      <p>
-        <strong>Immutable Infrastructure Mindset:</strong> Your instances should
-        be disposable. Never SSH into an instance to fix something manually. If
-        something is broken, update the AMI, launch new instances, and tear down
-        old ones. This forces you to codify everything and makes scaling
-        predictable.
-      </p>
-      <p>
-        <strong>Always Version Your AMIs:</strong> A year from now, you will
-        want to know which AMI is running in production and why. Use timestamps
-        or semantic versioning. Automate AMI creation in your CI/CD pipeline so
-        every code change produces a new AMI.
-      </p>
-      <p>
-        <strong
-          >Use Cloudflare Orange-Cloud Only After Validating Health:</strong
-        >
-        Going orange before your origin is ready is a common mistake. New
-        engineers enable Cloudflare proxying before instances are healthy, then
-        panic when users see 502s. Validate ASG, ALB, and Target Group health
-        first. Then go orange.
-      </p>
-      <p>
-        <strong>Tag Everything for Cost Visibility:</strong> Every EC2 instance,
-        ALB, Target Group, and EIP should have tags: <code>Environment</code>,
-        <code>Application</code>, <code>Team</code>, <code>Cost-Center</code>.
-        Use these tags in your cost allocation reports. You will be surprised
-        how much infrastructure creep costs.
-      </p>
-      <p>
-        <strong>Monitor Target Group Health Metrics:</strong> Check CloudWatch
-        metrics on your Target Group. Watch the count of healthy vs unhealthy
-        targets. Watch latency. If latency is climbing, add capacity or
-        investigate the app. If unhealthy target count is increasing, debug why
-        instances are failing health checks.
-      </p>
-      <p>
-        <strong>Set Appropriate Health Check Grace Periods:</strong> Too short
-        and healthy new instances get killed. Too long and failed instances
-        linger. Test your app startup time and set grace period 20-30% higher.
-      </p>
-      <p>
-        <strong>Use Security Groups Defensively:</strong> Your ALB security
-        group should allow 80/443 from anywhere. Your app security group should
-        allow only port 8080 from the ALB security group. Never allow 22 (SSH)
-        except from a bastion or VPN. Never expose your app port directly to the
-        internet.
-      </p>
-      <p>
-        <strong>Cloudflare Certificate Pinning:</strong> If you use Full
-        (Strict) SSL mode, ensure your ALB certificate is from a trusted CA.
-        Cloudflare validates it. Self-signed certificates will cause proxying to
-        fail silently.
-      </p>
-
-      <h2>Conclusion</h2>
-      <p>
-        You now have a production-grade architecture that scales elastically,
-        survives component failures, and sits protected behind a global edge
-        layer. This is the pattern running countless SaaS applications and
-        internal company platforms.
-      </p>
-      <p>
-        The architecture is not magic. It is orchestration. You define the
-        pieces (AMI, Launch Template, ASG, ALB, Cloudflare), and the system
-        handles the boring operational work: spinning instances up and down,
-        distributing traffic, replacing failed components, caching at the edge.
-      </p>
-      <p>
-        The next steps: automate AMI creation in your CI/CD pipeline. Add
-        monitoring and alerting on key metrics. Run chaos engineering exercises
-        to test your architecture under failure. Document runbooks for common
-        incidents.
-      </p>
-      <p>
-        For deeper dives, check out the
-        <a href="https://docs.aws.amazon.com/autoscaling/"
-          >AWS Auto Scaling documentation</a
-        >,
-        <a
-          href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/"
-          >ALB documentation</a
-        >, and
-        <a href="https://developers.cloudflare.com/"
-          >Cloudflare's architecture guides</a
-        >. Build this. Test it. Break it intentionally. Iterate.
-      </p>
-      <p>
-        Your future self will thank you when 3 AM incidents become 10-minute
-        nonproblems.
-      </p>
-
-      <div class="article-footer">
-        <div class="article-footer-label">Tags</div>
-        <div class="article-tags-footer">
-          <span class="atag">AWS</span>
-          <span class="atag">Infrastructure</span>
-          <span class="atag">Auto Scaling</span>
-          <span class="atag">ALB</span>
-          <span class="atag">Cloudflare</span>
-          <span class="atag">SRE</span>
-          <span class="atag">DevOps</span>
+            <!-- Legend at bottom -->
+            <text
+              x="40"
+              y="470"
+              style="
+                font-family: &quot;IBM Plex Mono&quot;, monospace;
+                font-size: 11px;
+                fill: #666;
+              "
+            >
+              → Data flow direction | Each layer is scalable, monitored, and
+              fault-tolerant
+            </text>
+          </svg>
         </div>
-        <div class="post-nav">
-          <a href="index.html" class="btn-primary">Back to Blog</a>
-          <a href="../index.html" class="btn-secondary">Home</a>
+
+        <p>
+          When user traffic arrives at Cloudflare, it is inspected for threats
+          (WAF), cached if applicable, then forwarded to your ALB's DNS name.
+          The ALB terminates SSL and routes the request to a healthy instance in
+          the target group. The instance processes it and responds. Responses
+          travel back through the same path, with Cloudflare caching if
+          appropriate.
+        </p>
+        <p>
+          This architecture is fault-tolerant: if one instance fails, the ALB
+          routes around it. If traffic spikes, the ASG launches more instances.
+          If you get DDoSed, Cloudflare absorbs it before it reaches your
+          infrastructure.
+        </p>
+
+        <h2>Key Takeaways and Best Practices</h2>
+        <p>
+          <strong>Immutable Infrastructure Mindset:</strong> Your instances
+          should be disposable. Never SSH into an instance to fix something
+          manually. If something is broken, update the AMI, launch new
+          instances, and tear down old ones. This forces you to codify
+          everything and makes scaling predictable.
+        </p>
+        <p>
+          <strong>Always Version Your AMIs:</strong> A year from now, you will
+          want to know which AMI is running in production and why. Use
+          timestamps or semantic versioning. Automate AMI creation in your CI/CD
+          pipeline so every code change produces a new AMI.
+        </p>
+        <p>
+          <strong
+            >Use Cloudflare Orange-Cloud Only After Validating Health:</strong
+          >
+          Going orange before your origin is ready is a common mistake. New
+          engineers enable Cloudflare proxying before instances are healthy,
+          then panic when users see 502s. Validate ASG, ALB, and Target Group
+          health first. Then go orange.
+        </p>
+        <p>
+          <strong>Tag Everything for Cost Visibility:</strong> Every EC2
+          instance, ALB, Target Group, and EIP should have tags:
+          <code>Environment</code>, <code>Application</code>, <code>Team</code>,
+          <code>Cost-Center</code>. Use these tags in your cost allocation
+          reports. You will be surprised how much infrastructure creep costs.
+        </p>
+        <p>
+          <strong>Monitor Target Group Health Metrics:</strong> Check CloudWatch
+          metrics on your Target Group. Watch the count of healthy vs unhealthy
+          targets. Watch latency. If latency is climbing, add capacity or
+          investigate the app. If unhealthy target count is increasing, debug
+          why instances are failing health checks.
+        </p>
+        <p>
+          <strong>Set Appropriate Health Check Grace Periods:</strong> Too short
+          and healthy new instances get killed. Too long and failed instances
+          linger. Test your app startup time and set grace period 20-30% higher.
+        </p>
+        <p>
+          <strong>Use Security Groups Defensively:</strong> Your ALB security
+          group should allow 80/443 from anywhere. Your app security group
+          should allow only port 8080 from the ALB security group. Never allow
+          22 (SSH) except from a bastion or VPN. Never expose your app port
+          directly to the internet.
+        </p>
+        <p>
+          <strong>Cloudflare Certificate Pinning:</strong> If you use Full
+          (Strict) SSL mode, ensure your ALB certificate is from a trusted CA.
+          Cloudflare validates it. Self-signed certificates will cause proxying
+          to fail silently.
+        </p>
+
+        <h2>Conclusion</h2>
+        <p>
+          You now have a production-grade architecture that scales elastically,
+          survives component failures, and sits protected behind a global edge
+          layer. This is the pattern running countless SaaS applications and
+          internal company platforms.
+        </p>
+        <p>
+          The architecture is not magic. It is orchestration. You define the
+          pieces (AMI, Launch Template, ASG, ALB, Cloudflare), and the system
+          handles the boring operational work: spinning instances up and down,
+          distributing traffic, replacing failed components, caching at the
+          edge.
+        </p>
+        <p>
+          The next steps: automate AMI creation in your CI/CD pipeline. Add
+          monitoring and alerting on key metrics. Run chaos engineering
+          exercises to test your architecture under failure. Document runbooks
+          for common incidents.
+        </p>
+        <p>
+          For deeper dives, check out the
+          <a href="https://docs.aws.amazon.com/autoscaling/"
+            >AWS Auto Scaling documentation</a
+          >,
+          <a
+            href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/"
+            >ALB documentation</a
+          >, and
+          <a href="https://developers.cloudflare.com/"
+            >Cloudflare's architecture guides</a
+          >. Build this. Test it. Break it intentionally. Iterate.
+        </p>
+        <p>
+          Your future self will thank you when 3 AM incidents become 10-minute
+          nonproblems.
+        </p>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Tags</div>
+          <div class="article-tags-footer">
+            <span class="atag">AWS</span>
+            <span class="atag">Infrastructure</span>
+            <span class="atag">Auto Scaling</span>
+            <span class="atag">ALB</span>
+            <span class="atag">Cloudflare</span>
+            <span class="atag">SRE</span>
+            <span class="atag">DevOps</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
         </div>
       </div>
-    </div>
-
     </main>
-
 
     <footer>
       <div class="footer-copy">

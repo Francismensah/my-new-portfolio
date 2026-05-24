@@ -1,0 +1,1492 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kubernetes for SREs: What You Actually Need to Know — infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="A practitioner's guide to running Kubernetes in production. Real error scenarios, debugging workflows, and fintech/ecommerce examples with kubectl commands."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/kubernetes-for-sres-production-guide.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/article.css" />
+    <style>
+      .terminal-block {
+        background: var(--bg-muted);
+        border-left: 3px solid var(--accent);
+        padding: 1rem;
+        margin: 1.5rem 0;
+        border-radius: 6px;
+        font-family: "Monaco", "Courier New", monospace;
+        font-size: 0.85rem;
+        overflow-x: auto;
+        line-height: 1.5;
+      }
+      .terminal-block code {
+        display: block;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .terminal-prompt {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .terminal-output {
+        color: var(--text);
+        margin-top: 0.5rem;
+      }
+      .error-box {
+        background: rgba(220, 38, 38, 0.08);
+        border-left: 4px solid #dc2626;
+        padding: 1rem;
+        margin: 1.5rem 0;
+        border-radius: 6px;
+      }
+      .error-box strong {
+        color: #dc2626;
+      }
+      .success-box {
+        background: rgba(34, 197, 94, 0.08);
+        border-left: 4px solid #22c55e;
+        padding: 1rem;
+        margin: 1.5rem 0;
+        border-radius: 6px;
+      }
+      .success-box strong {
+        color: #22c55e;
+      }
+      .scenario-card {
+        background: var(--bg-subtle);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin: 1.5rem 0;
+      }
+      .scenario-card h3 {
+        margin-top: 0;
+        color: var(--accent);
+      }
+      .article-body > h3 {
+        border-left: 4px solid var(--accent);
+        padding-left: 1rem;
+        font-weight: 700;
+        font-size: 1.35rem;
+        margin: 2rem 0 1rem 0;
+        background: var(--bg-subtle);
+        padding: 0.75rem 0.75rem 0.75rem 1rem;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .article-body > h3::before {
+        content: "⚠️";
+        font-size: 1.2rem;
+      }
+      .cause-effect {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+      }
+      .cause-effect div {
+        background: var(--bg-subtle);
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      .cause-effect strong {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--accent);
+      }
+      @media (max-width: 768px) {
+        .cause-effect {
+          grid-template-columns: 1fr;
+        }
+      }
+      .kubectl-tip {
+        background: var(--bg-muted);
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+        border-left: 3px solid var(--accent);
+      }
+      .kubectl-tip strong {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">Kubernetes for SREs</span>
+          </div>
+          <p class="article-category">Kubernetes · Debugging · SRE · Production</p>
+          <h1>
+            Kubernetes for SREs: <em>What You Actually Need to Know</em>
+          </h1>
+          <p class="article-subtitle">
+            Production troubleshooting, error cause-and-effect patterns, and real
+            debugging workflows for fintech and ecommerce systems.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 22 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">Kubernetes</span>
+              <span class="meta-tag">Debugging</span>
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">Production</span>
+              <span class="meta-tag">DevOps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <h2>Introduction: The Kubernetes Gotchas Nobody Warns You About</h2>
+        <p>
+          Kubernetes tutorials show you how to deploy a pod. Production shows you
+          how things break at 3 AM in ways the docs never mentioned.
+        </p>
+        <p>
+          This isn't an introduction to Kubernetes. It's a runbook for the errors
+          that will bite you in production. If you've been paged about
+          <code>CrashLoopBackOff</code>, <code>OOMKilled</code>, or mysterious
+          <code>Pending</code> pods, this is for you.
+        </p>
+        <p>
+          Most of these scenarios come from production systems handling millions
+          in daily transactions (fintech) or serving millions of concurrent
+          shoppers (ecommerce). The debugging patterns are universal.
+        </p>
+
+        <h2>What Makes Kubernetes Fail in Production</h2>
+        <p>
+          Kubernetes failures generally fall into 5 categories that require
+          different debugging approaches:
+        </p>
+        <ul class="body-list">
+          <li>
+            <strong>Pod Lifecycle Issues:</strong> Application crashes,
+            memory exhaustion, scheduler can't place the pod.
+          </li>
+          <li>
+            <strong>Networking:</strong> Services unreachable, DNS failures,
+            egress blocked by policy.
+          </li>
+          <li>
+            <strong>Storage:</strong> Volumes won't mount, permissions errors,
+            access mode conflicts.
+          </li>
+          <li>
+            <strong>Configuration:</strong> Missing secrets/configmaps,
+            invalid image references.
+          </li>
+          <li>
+            <strong>Resource Constraints:</strong> Quota exhaustion, HPA
+            misconfiguration, node pressure.
+          </li>
+        </ul>
+
+        <h2>1. Pod Lifecycle & Scheduling Errors</h2>
+
+        <h3>CrashLoopBackOff: Your First Real Kubernetes War Wound</h3>
+        <p>
+          This is the most common error in production. The pod keeps restarting
+          in a loop. Each restart attempt backs off exponentially (1s, 2s, 4s,
+          8s, etc.) until it gives up and waits 5 minutes.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Payment Processing Pod Crashes in Production</h4>
+          <p>
+            <strong>Situation:</strong> Your fintech platform's payment
+            processor pod enters <code>CrashLoopBackOff</code> at 2 PM.
+            Transactions are backing up. You have 10 minutes to fix it.
+          </p>
+          <p>
+            <strong>Your Investigation:</strong>
+          </p>
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get pods -n payment</span>
+<span class="terminal-output">NAME                READY   STATUS             RESTARTS   AGE
+payment-proc-xyz   0/1     CrashLoopBackOff   12         8m
+
+<span class="terminal-prompt">$ kubectl describe pod payment-proc-xyz -n payment</span>
+<span class="terminal-output">Last State:     Terminated
+  Reason:       ExitCode 1
+  Message:      
+  Started:      Wed, 24 May 09:12:30 +0000
+  Finished:     Wed, 24 May 09:12:35 +0000
+
+Events:
+  Type     Reason              Age    Message
+  ----     ------              ----   -------
+  Warning  BackOff             2m     Back-off restarting failed container
+
+<span class="terminal-prompt">$ kubectl logs payment-proc-xyz -n payment --previous</span>
+<span class="terminal-output">panic: failed to connect to database: connection refused
+goroutine 1 [running]:
+main.main()
+  /app/payment/main.go:42 +0x1234</span>
+            </code>
+          </div>
+
+          <div class="cause-effect">
+            <div>
+              <strong>🔴 Cause</strong>
+              <p>
+                The pod starts but can't connect to its database. The
+                application panics after 5 seconds. kubelet restarts it.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>DB secret not mounted</li>
+                <li>DB host DNS unresolvable</li>
+                <li>DB service down/restarting</li>
+                <li>Network policy blocks egress</li>
+                <li>Auth credentials wrong</li>
+              </ul>
+            </div>
+            <div>
+              <strong>✅ Solution</strong>
+              <p>
+                Check the pod's environment and previous logs to identify the
+                root cause before restarting.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  <code>kubectl logs --previous</code> (you only have a few
+                  seconds of logs before it crashes)
+                </li>
+                <li>
+                  <code>kubectl exec</code> (only if it reaches ready state)
+                </li>
+                <li>
+                  <code>kubectl describe pod</code> (shows pod events/errors)
+                </li>
+                <li>Test connectivity from a debug pod</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="kubectl-tip">
+            <strong>Pro Tip: Debug Pod for Network Testing</strong>
+            <p>
+              When your app crashes due to connection errors, use a debug pod
+              to test from within the cluster:
+            </p>
+            <div class="terminal-block">
+              <code>
+<span class="terminal-prompt">$ kubectl run -it --rm debug --image=ubuntu --restart=Never -n payment -- bash</span>
+<span class="terminal-output">root@debug:/# apt-get update && apt-get install -y dnsutils postgresql-client
+root@debug:/# nslookup postgres.payment.svc.cluster.local</span>
+<span class="terminal-output">Server:    10.0.0.10
+Address:   10.0.0.10#53
+
+Name:  postgres.payment.svc.cluster.local
+Address: 10.0.0.52</span>
+
+<span class="terminal-prompt">root@debug:/# psql -h postgres.payment.svc.cluster.local -U admin -d paymentdb -c "SELECT 1;"</span>
+<span class="terminal-output">SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+(1 row)
+</span>
+              </code>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+              If nslookup fails, CoreDNS is broken. If psql fails, firewall or
+              credentials are wrong.
+            </p>
+          </div>
+        </div>
+
+        <div class="error-box">
+          <strong>Lesson:</strong> CrashLoopBackOff is never a Kubernetes
+          problem—it's an application configuration problem. Your app is
+          starting but failing immediately. Always check <code>--previous</code>
+          logs first. Never restart the pod; fix the root cause.
+        </div>
+
+        <h3>OOMKilled: Running Out of Memory in Production</h3>
+        <p>
+          The Linux kernel's Out-of-Memory killer terminates the process. The
+          pod is evicted. New pod spins up. Same pod dies. This looks similar
+          to <code>CrashLoopBackOff</code> but is more insidious.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Ecommerce Checkout Service Memory Leak</h4>
+          <p>
+            <strong>Situation:</strong> During a flash sale, your ecommerce
+            checkout pods get <code>OOMKilled</code> every 10 minutes. The
+            pod is requested to use 512Mi but keeps exceeding it.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl describe pod checkout-abc123 -n ecommerce</span>
+<span class="terminal-output">State:          Waiting (reason:CrashLoopBackOff)
+Last State:     Terminated
+  Reason:       OOMKilled
+  Exit Code:    137
+Limits:
+  memory:  512Mi
+
+Events:
+  Warning  OOMKilled   1m     The container was OOMKilled
+
+<span class="terminal-prompt">$ kubectl top pod checkout-abc123 -n ecommerce --containers</span>
+<span class="terminal-output">POD NAME          CONTAINER        CPU(cores)   MEMORY(bytes)
+checkout-abc123   checkout         10m          510Mi</span>
+
+<span class="terminal-prompt">$ kubectl logs checkout-abc123 -n ecommerce --tail=50</span>
+<span class="terminal-output">[1:M 24 May 12:15:00.000] * Ready to accept connections
+[1:M 24 May 12:15:15.001] * User connected: order:xyz
+[1:M 24 May 12:15:30.002] * Memory allocated: 100MB
+[1:M 24 May 12:16:00.003] * Memory allocated: 200MB
+[1:M 24 May 12:16:30.004] * Memory allocated: 300MB
+... (continues until 512MB)
+[1:M 24 May 12:17:00.005] * Out of memory, terminating</span>
+            </code>
+          </div>
+
+          <div class="cause-effect">
+            <div>
+              <strong>🔴 Cause</strong>
+              <p>
+                Memory usage is growing over time. This is a memory leak. The
+                pod is holding onto objects it should have released.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>Connection pools not shrinking</li>
+                <li>Cache growing unbounded</li>
+                <li>Goroutine/thread leak</li>
+                <li>Large JSON responses accumulating</li>
+                <li>Buffer reuse not happening</li>
+              </ul>
+            </div>
+            <div>
+              <strong>✅ Solution</strong>
+              <p>
+                Immediate: Increase the memory limit and request temporarily.
+                Permanent: Profile the pod and find the leak.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  Increase <code>resources.limits.memory</code> to 1Gi as a
+                  band-aid
+                </li>
+                <li>
+                  Add memory profiling (pprof for Go,
+                  <code>-XX:+PrintGCDetails</code> for Java)
+                </li>
+                <li>
+                  Set <code>resources.requests</code> to match actual usage
+                </li>
+                <li>
+                  Run load tests locally to reproduce and debug
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="success-box">
+            <strong>Incident Postmortem Note:</strong> Flash sales spike memory
+            usage 10x. Requests and limits were tuned for average load. Add
+            HPA based on memory metrics and set <code>requests</code> correctly
+            to prevent node eviction of other pods.
+          </div>
+        </div>
+
+        <h3>Pending: Pod Stuck Waiting for Resources</h3>
+        <p>
+          The scheduler can't find a node to run the pod. It waits indefinitely
+          in the <code>Pending</code> state. This is often caused by resource
+          constraints or node affinity rules.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Database Migration Pod Can't Schedule</h4>
+          <p>
+            <strong>Situation:</strong> You deploy a database migration job
+            that requests 4 CPUs and 8Gi memory. All nodes are at capacity from
+            regular services. The migration pod stays <code>Pending</code>.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get pods -n db-migration</span>
+<span class="terminal-output">NAME              READY   STATUS    RESTARTS   AGE
+migration-xyz     0/1     Pending   0          15m
+
+<span class="terminal-prompt">$ kubectl describe pod migration-xyz -n db-migration</span>
+<span class="terminal-output">Status: Pending
+
+Events:
+  Type     Reason             Age    Message
+  ----     ------             ----   -------
+  Warning  FailedScheduling   15m    0/5 nodes are available: 5 Insufficient cpu
+
+<span class="terminal-prompt">$ kubectl top nodes</span>
+<span class="terminal-output">NAME              CPU(cores)   CPU%    MEMORY(Mi)   MEMORY%
+node-1            3.9          95%     6200Mi       95%
+node-2            3.85         94%     6050Mi       93%
+node-3            3.92         96%     6100Mi       94%
+node-4            3.88         95%     6010Mi       92%
+node-5            3.9          95%     6150Mi       94%</span>
+            </code>
+          </div>
+
+          <div class="cause-effect">
+            <div>
+              <strong>🔴 Cause</strong>
+              <p>
+                The cluster is fully utilized. No node has 4 contiguous CPUs
+                available. The scheduler refuses to place the pod.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  Over-provisioning resource requests
+                </li>
+                <li>No node selector → pod goes anywhere</li>
+                <li>Taint/toleration mismatch</li>
+                <li>Node affinity too strict</li>
+              </ul>
+            </div>
+            <div>
+              <strong>✅ Solution</strong>
+              <p>
+                Don't scale down critical services. Reduce the migration job's
+                request, or add temporary nodes.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  Reduce <code>resources.requests.cpu</code> to 2 CPU for
+                  migration
+                </li>
+                <li>
+                  Add a preemption policy: other pods get evicted
+                </li>
+                <li>Run migration in a separate cluster</li>
+                <li>
+                  Use a node pool with less memory-intensive workloads
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="kubectl-tip">
+            <strong>Pro Tip: Check Node Allocatable vs. Used</strong>
+            <p>
+              Nodes have overhead (kubelet, system pods). See what's actually
+              available:
+            </p>
+            <div class="terminal-block">
+              <code>
+<span class="terminal-prompt">$ kubectl describe nodes node-1</span>
+<span class="terminal-output">Capacity:
+  cpu:                4
+  memory:             8Gi
+Allocatable:
+  cpu:                3.8
+  memory:             7.5Gi
+
+Allocated resources:
+  (Total limits may exceed 100 percent, if individual containers exceed their limit.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                3.75        3.8
+  memory             7.2Gi       7.5Gi
+
+(No unallocated resources detected)</span>
+              </code>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+              <code>Allocatable</code> is what's actually available for your
+              workloads. Requests consume from it.
+            </p>
+          </div>
+        </div>
+
+        <h3>ImagePullBackOff: Wrong Image or Registry Issues</h3>
+        <p>
+          kubelet tries to pull the image but can't. Reasons vary: wrong tag,
+          private registry credentials missing, registry unreachable.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Deployment Rollout with Wrong ECR Image Tag</h4>
+          <p>
+            <strong>Situation:</strong> You deploy a new version of your payment
+            API but reference the wrong ECR image tag. The old pod is still
+            running (v1.5), but the new deployment tries to pull <code>v2.0-typo</code>.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl describe pod payment-api-new-xyz -n payment</span>
+<span class="terminal-output">Events:
+  Type     Reason                Age                   Message
+  ----     ------                ----                  -------
+  Normal   Scheduled             5m                    Successfully assigned to node-1
+  Normal   BackOff               2m (x3 over 5m)       Back-off pulling image
+  Warning  Failed                2m (x3 over 5m)       Failed to pull image
+  Warning  Failed                2m (x3 over 5m)       Error response from daemon: pull access denied
+
+<span class="terminal-prompt">$ kubectl logs payment-api-new-xyz -n payment</span>
+<span class="terminal-output">Error from server (BadRequest): container "payment-api" in pod "payment-api-new-xyz" is
+waiting to be started: image can't be pulled</span>
+
+<span class="terminal-prompt">$ aws ecr describe-images --repository-name payment-api --region us-east-1</span>
+<span class="terminal-output">IMAGE DETAILS
+
+imageTag: ["v1.5", "v1.4", "v1.3", "latest"]
+imagePushedAt: 2026-05-24
+
+(No v2.0-typo tag found!)</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Debugging Checklist:</strong>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+              <li>Is the tag actually in the registry?</li>
+              <li>Is the registry reachable from the node?</li>
+              <li>
+                Does the node have credentials? (ImagePullSecrets for private
+                registries)
+              </li>
+              <li>
+                Is the image name spelled correctly? (typos, wrong region,
+                wrong account)
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>2. Networking: The Invisible Killer</h2>
+
+        <h3>Service Not Reachable: Connection Refused or Timeout</h3>
+        <p>
+          You have a service. A pod tries to connect to it. Nothing happens.
+          No error. Just silence. This is networking.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Ecommerce: Cart Service Can't Talk to Inventory</h4>
+          <p>
+            <strong>Situation:</strong> Cart service tries to call the inventory
+            service: <code>inventory.ecommerce.svc.cluster.local:8080</code>.
+            Timeouts. Cart operations hang. Customers can't check out.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get svc -n ecommerce</span>
+<span class="terminal-output">NAME        TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)
+cart        ClusterIP   10.0.100.50   <none>        8080/TCP
+inventory   ClusterIP   10.0.100.75   <none>        8080/TCP
+
+<span class="terminal-prompt">$ kubectl get endpoints -n ecommerce inventory</span>
+<span class="terminal-output">NAME        ENDPOINTS          AGE
+inventory   <none>             5m
+
+(No endpoints! Pods are not being added to the service)</span>
+
+<span class="terminal-prompt">$ kubectl get pods -n ecommerce -l app=inventory</span>
+<span class="terminal-output">NAME                READY   STATUS             RESTARTS   AGE
+inventory-abc-1    0/1     CrashLoopBackOff   12         20m
+inventory-abc-2    0/1     CrashLoopBackOff   12         20m
+inventory-abc-3    0/1     CrashLoopBackOff   12         20m
+
+(Ah! The pods aren't ready. That's why no endpoints.)</span>
+
+<span class="terminal-prompt">$ kubectl logs inventory-abc-1 -n ecommerce --previous</span>
+<span class="terminal-output">error: failed to connect to database: timeout connecting to mysql.ecommerce.svc.cluster.local:3306
+(Now we're getting somewhere! The inventory pods can't connect to their DB.)</span>
+            </code>
+          </div>
+
+          <div class="cause-effect">
+            <div>
+              <strong>🔴 Cause</strong>
+              <p>
+                Service exists but has no healthy pods to route to. Kube-proxy
+                won't route traffic to unhealthy pods.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>Backend pods are in CrashLoopBackOff</li>
+                <li>Pod readiness probes are failing</li>
+                <li>Selector doesn't match pod labels</li>
+                <li>Namespace mismatch</li>
+              </ul>
+            </div>
+            <div>
+              <strong>✅ Solution</strong>
+              <p>
+                Debug the backend pods first. Fix the root cause before
+                debugging the service.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  <code>kubectl get endpoints svc-name</code> shows actual
+                  targets
+                </li>
+                <li>
+                  Check pod labels match the service selector:
+                  <code>kubectl describe svc</code>
+                </li>
+                <li>
+                  Check readiness probes:
+                  <code>kubectl get pod -o jsonpath=...</code>
+                </li>
+                <li>Fix the pod issue (usually connectivity or config)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="kubectl-tip">
+            <strong>Pro Tip: Verify Service Routing</strong>
+            <div class="terminal-block">
+              <code>
+<span class="terminal-prompt">$ kubectl get svc inventory -n ecommerce -o jsonpath='{.spec.selector}'</span>
+<span class="terminal-output">map[app:inventory]
+
+<span class="terminal-prompt">$ kubectl get pods -n ecommerce -L app</span>
+<span class="terminal-output">NAME                APP
+inventory-abc-1    inventory
+
+(Labels match. But are the pods ready?)</span>
+
+<span class="terminal-prompt">$ kubectl get pods -n ecommerce inventory-abc-1 -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
+<span class="terminal-output">
+{"lastTransitionTime":"2026-05-24T12:10:00Z","lastUpdateTime":"2026-05-24T12:15:00Z",
+"message":"Readiness probe failed: HTTP probe failed with statuscode: 503","reason":"Failure","status":"False","type":"Ready"}
+
+(Readiness probe is failing! That's why it's not in endpoints.)</span>
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <h3>CoreDNS: When Service Names Disappear</h3>
+        <p>
+          Pods can't resolve <code>svc.cluster.local</code> names. They're
+          trying to reach <code>10.0.0.x</code> ClusterIPs but DNS isn't
+          responding.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: CoreDNS Pod Evicted During Node Pressure</h4>
+          <p>
+            <strong>Situation:</strong> A spike in memory usage causes the node
+            to evict pods. CoreDNS pods (which run on most nodes) get evicted.
+            DNS stops working. Everything times out.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get pods -n kube-system -l k8s-app=kube-dns</span>
+<span class="terminal-output">NAME                       READY   STATUS              RESTARTS   AGE
+coredns-5d78c0854b-xyz1   0/1     Pending             0          8m
+coredns-5d78c0854b-xyz2   0/1     Pending             0          8m
+
+(Both CoreDNS pods are Pending!)</span>
+
+<span class="terminal-prompt">$ kubectl describe nodes | grep MemoryPressure</span>
+<span class="terminal-output">  MemoryPressure              False
+  DiskPressure                False
+  PIDPressure                 False
+
+(Maybe check why pods are pending...)</span>
+
+<span class="terminal-prompt">$ kubectl describe pod coredns-5d78c0854b-xyz1 -n kube-system</span>
+<span class="terminal-output">Events:
+  Warning  FailedScheduling   8m  0/3 nodes are available: 3 nodes are tainted with node-role.master:NoSchedule
+
+(CoreDNS has a nodeAffinity that's too strict!)</span>
+
+<span class="terminal-prompt">$ kubectl scale deployment coredns --replicas=1 -n kube-system</span>
+<span class="terminal-output">deployment.apps/coredns scaled</span>
+
+<span class="terminal-prompt">$ kubectl get pod -n kube-system -l k8s-app=kube-dns</span>
+<span class="terminal-output">NAME                       READY   STATUS    RESTARTS   AGE
+coredns-5d78c0854b-xyz1   1/1     Running   0          2m</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Lesson:</strong> CoreDNS is not special. It can fail like
+            any other pod. If it's evicted, DNS breaks everywhere. Monitor
+            CoreDNS pod count and set strict QoS for it.
+          </div>
+        </div>
+
+        <h3>Ingress 502/504: Backend Not Ready or Timeout</h3>
+        <p>
+          The ingress is routing traffic correctly, but the backend services
+          return 502 (Bad Gateway) or 504 (Timeout). This usually means the
+          pods aren't healthy.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Fintech Payment Portal Returns 502 After Deployment</h4>
+          <p>
+            <strong>Situation:</strong> You deploy a new version of the payment
+            portal. The ingress starts returning 502s. The pod is running but
+            not ready.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ curl -v https://payments.fintech.com/api/check</span>
+<span class="terminal-output">HTTP/2 502
+Content-Length: 0
+
+<span class="terminal-prompt">$ kubectl get pods -n payment-portal</span>
+<span class="terminal-output">NAME                    READY   STATUS    RESTARTS   AGE
+portal-deployment-1    0/1     Running   0          2m
+
+(Pod is Running but not Ready. That's the problem.)</span>
+
+<span class="terminal-prompt">$ kubectl describe pod portal-deployment-1 -n payment-portal</span>
+<span class="terminal-output">Readiness:  http-get http://:8080/healthz port 8080, delay=10s, timeout=5s, period=10s
+  ... (details of readiness probe config)
+
+Last Probe:	Wed, 24 May 12:30:00 +0000
+Probe Failed (exit code 1):
+  HTTP probe failed with statuscode: 503
+
+(Readiness probe is failing. Ingress won't route to it.)</span>
+
+<span class="terminal-prompt">$ kubectl exec portal-deployment-1 -n payment-portal -- curl -v http://localhost:8080/healthz</span>
+<span class="terminal-output">HTTP/1.1 503 Service Unavailable
+X-Error: Cannot connect to config database
+
+(App is running but its dependencies aren't ready yet.)</span>
+
+<span class="terminal-prompt">$ kubectl logs portal-deployment-1 -n payment-portal | head -20</span>
+<span class="terminal-output">2026-05-24 12:25:00 [INFO] Starting application
+2026-05-24 12:25:01 [INFO] Connecting to postgres://config-db.payment-portal.svc.cluster.local:5432
+2026-05-24 12:25:05 [ERROR] Connection timeout after 4s: no response from database
+2026-05-24 12:25:05 [ERROR] Readiness checks failing
+
+(Config database isn't reachable from the portal pod.)</span>
+            </code>
+          </div>
+
+          <div class="cause-effect">
+            <div>
+              <strong>🔴 Cause</strong>
+              <p>
+                Pod is running but readiness probe fails. Ingress routes only
+                to Ready pods. No Ready pods = 502.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>App dependencies not ready</li>
+                <li>Readiness probe timeout too short</li>
+                <li>Database migrations not complete</li>
+                <li>Slow app startup</li>
+              </ul>
+            </div>
+            <div>
+              <strong>✅ Solution</strong>
+              <p>
+                Fix the readiness probe or its timeout. Or ensure dependencies
+                start first.
+              </p>
+              <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+                <li>
+                  Increase <code>initialDelaySeconds</code> to 30s (give app
+                  time to start)
+                </li>
+                <li>
+                  Increase <code>timeoutSeconds</code> to 10s (give check time
+                  to complete)
+                </li>
+                <li>Use init containers to wait for dependencies</li>
+                <li>Check app logs for startup errors</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="success-box">
+            <strong>Fix Applied:</strong> Updated readiness probe delay to 30s
+            and timeout to 10s. Portal reached Ready state. Ingress started
+            routing. 502 errors stopped. Incident resolved in 3 minutes.
+          </div>
+        </div>
+
+        <h2>3. Storage: The Persistent Data Trap</h2>
+
+        <h3>PVC Stuck in Pending: StorageClass or Provisioner Issues</h3>
+        <p>
+          You claim a PersistentVolume (PV) but it's stuck in Pending. The
+          storage provisioner either doesn't exist or is broken.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Database Cluster Can't Start: Storage Provisioner Down</h4>
+          <p>
+            <strong>Situation:</strong> You spin up a Postgres cluster using
+            Helm. The PVCs for data and WAL logs are Pending. The pods are
+            also Pending.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get pvc -n databases</span>
+<span class="terminal-output">NAME                     STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+postgres-data-0          Pending                                      gp3            10m
+postgres-wal-0           Pending                                      gp3            10m
+
+<span class="terminal-prompt">$ kubectl describe pvc postgres-data-0 -n databases</span>
+<span class="terminal-output">Events:
+  Type     Reason                Age                  Message
+  ----     ------                ----                 -------
+  Warning  ProvisioningFailed    5m (x7 over 10m)    failed to provision volume with StorageClass "gp3": 
+    rpc error: code = Unavailable desc = EBS provisioner unavailable
+
+(The EBS provisioner is down or misconfigured!)</span>
+
+<span class="terminal-prompt">$ kubectl get pods -n ebs-csi-driver</span>
+<span class="terminal-output">NAME                             READY   STATUS             RESTARTS   AGE
+ebs-csi-controller-0             1/2     CrashLoopBackOff   15         2h
+ebs-csi-node-xyzab               2/2     Running            0          2h
+ebs-csi-node-abcde               2/2     Running            0          2h
+
+(Controller is in CrashLoopBackOff!)</span>
+
+<span class="terminal-prompt">$ kubectl logs -n ebs-csi-driver ebs-csi-controller-0 -c ebs-plugin</span>
+<span class="terminal-output">failed to mount /var/run/secrets/kubernetes.io/serviceaccount: permission denied
+
+(RBAC issue! Service account doesn't have permission to describe snapshots.)</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Debugging Checklist:</strong>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+              <li>Does the StorageClass exist?</li>
+              <li>
+                Is the provisioner (EBS CSI, GCE PD, Ceph, etc.) running and
+                healthy?
+              </li>
+              <li>Does the provisioner have RBAC permissions?</li>
+              <li>Are cloud provider credentials configured?</li>
+              <li>Check provisioner logs for errors</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Volume Mount Errors: Reference Wrong Secret/ConfigMap</h3>
+        <p>
+          You reference a secret or configmap in a volume that doesn't exist.
+          The pod fails to mount it and enters <code>CreateContainerConfigError</code>.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Application Config Volume References Wrong Secret</h4>
+          <p>
+            <strong>Situation:</strong> Your deployment mounts a secret
+            <code>app-secrets</code> that doesn't exist in the namespace. Pods
+            can't start.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl describe pod app-xyz -n production</span>
+<span class="terminal-output">Status:  Waiting
+Reason:  CreateContainerConfigError
+Message: can't find secret "app-secrets"
+
+Events:
+  Warning  FailedMountSecretVolume   5m  Unable to mount volumes for pod "app-xyz": 
+    "app-secrets" not found
+
+<span class="terminal-prompt">$ kubectl get secrets -n production</span>
+<span class="terminal-output">NAME                    TYPE                 DATA   AGE
+app-secret              Opaque               3      20m
+(Typo! It's "app-secret", not "app-secrets")</span>
+
+<span class="terminal-prompt">$ kubectl patch deployment app -n production --type merge -p '{"spec":{"template":{"spec":{"volumes":[{"name":"config","secret":{"secretName":"app-secret"}}]}}}}'</span>
+<span class="terminal-output">deployment.apps/app patched
+
+<span class="terminal-prompt">$ kubectl get pods -n production -l app=app --field-selector=status.phase=Running</span>
+<span class="terminal-output">NAME           READY   STATUS    RESTARTS   AGE
+app-new-abc    1/1     Running   0          30s</span>
+            </code>
+          </div>
+
+          <div class="kubectl-tip">
+            <strong>Pro Tip: Validate Manifest Before Deploying</strong>
+            <div class="terminal-block">
+              <code>
+<span class="terminal-prompt">$ kubectl apply -f deployment.yaml --dry-run=client -o yaml</span>
+<span class="terminal-output"># This validates the manifest without applying it</span>
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <h3>ReadWriteOnce Conflict: Two Pods on Different Nodes</h3>
+        <p>
+          Two pods on different nodes try to mount the same PVC with RWO (ReadWriteOnce)
+          access mode. Only one node can mount it. The second pod's mounting fails.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: StatefulSet Database Replica Can't Mount PVC</h4>
+          <p>
+            <strong>Situation:</strong> You have a 3-node cluster. A MySQL
+            StatefulSet with 2 replicas tries to mount. Pod-0 is on node-1 (works).
+            Pod-1 tries to attach to node-2 but gets blocked by RWO.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get pvc -n databases</span>
+<span class="terminal-output">NAME           STATUS   VOLUME            CAPACITY   ACCESS MODES
+mysql-data-0   Bound    pv-mysql-0        50Gi       RWO
+mysql-data-1   Pending                              RWO
+
+(PVC for replica-1 is Pending!)</span>
+
+<span class="terminal-prompt">$ kubectl describe pvc mysql-data-1 -n databases</span>
+<span class="terminal-output">Type     Reason              Age    Message
+Warning  FailedAttachVolume  5m     AttachVolume.Attach failed for volume "pv-mysql-0": 
+  "pv-mysql-0" is already in use at node-1
+
+(Same PV can't be attached to node-2 with RWO!)</span>
+
+<span class="terminal-prompt">$ kubectl edit storageclass gp3</span>
+<span class="terminal-output"># Change allowVolumeExpansion and other settings
+# Solution: Each replica needs its own PV (not shared)</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Lesson:</strong> RWO means one node at a time. For
+            multi-node databases, use:
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+              <li>Separate PVs for each replica (replication handles sync)</li>
+              <li>RWX (ReadWriteMany) if the storage backend supports it (NFS, CephFS)</li>
+              <li>
+                Don't try to share a single RWO PVC across multiple pods on
+                different nodes
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>4. Configuration & Secrets</h2>
+
+        <h3>CreateContainerConfigError: Missing ConfigMap or Secret</h3>
+        <p>
+          Pod tries to use a ConfigMap or Secret that doesn't exist in the namespace.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Debugging Pattern</h4>
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl describe pod failing-pod -n production</span>
+<span class="terminal-output">Status: Waiting (reason:CreateContainerConfigError)
+Message: can't find secret "db-password"
+
+<span class="terminal-prompt">$ kubectl get secrets -n production | grep password</span>
+<span class="terminal-output">(No matches)</span>
+
+<span class="terminal-prompt">$ # Check if secret exists in wrong namespace</span>
+<span class="terminal-prompt">$ kubectl get secrets -n default | grep password</span>
+<span class="terminal-output">db-password    Opaque    1         10m
+
+<span class="terminal-prompt">$ # Copy the secret to the right namespace or fix the pod spec</span>
+<span class="terminal-prompt">$ kubectl get secret db-password -n default -o yaml | kubectl apply -f - -n production</span>
+            </code>
+          </div>
+        </div>
+
+        <h2>5. Resource Constraints & Quotas</h2>
+
+        <h3>Forbidden: Exceeded Quota</h3>
+        <p>
+          You try to deploy a pod but hit a namespace ResourceQuota. The quota
+          is exhausted.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Fintech: Canary Deployment Blocked by Quota</h4>
+          <p>
+            <strong>Situation:</strong> You're rolling out a canary deployment
+            that requests 2 CPUs and 2Gi memory. The namespace quota is
+            exhausted.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
+<span class="terminal-output">Error from server (Forbidden): error when creating "canary-deployment.yaml": 
+  pods "canary-abc" is forbidden: exceeded quota: 
+  requests.cpu (requested: "2", used: "18", limited: "20"),
+  requests.memory (requested: "2Gi", used: "18Gi", limited: "20Gi")
+
+<span class="terminal-prompt">$ kubectl describe resourcequota -n payment-prod</span>
+<span class="terminal-output">Name:       prod-quota
+Namespace:  payment-prod
+Resource    Used    Hard
+--------    ----    ----
+pods        45      50
+requests.cpu       18      20
+requests.memory    18Gi    20Gi
+limits.cpu         40      50
+limits.memory      36Gi    50Gi
+
+(CPU and memory requests are exhausted!)</span>
+
+<span class="terminal-prompt">$ # Option 1: Reduce canary resource requests</span>
+<span class="terminal-prompt">$ kubectl edit deployment canary -n payment-prod
+# Change requests.cpu from 2 to 1, requests.memory from 2Gi to 1Gi
+
+<span class="terminal-prompt">$ # Option 2: Increase the quota</span>
+<span class="terminal-prompt">$ kubectl edit resourcequota prod-quota -n payment-prod
+# Change limits to requests.cpu: 30, requests.memory: 30Gi
+
+<span class="terminal-prompt">$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
+<span class="terminal-output">deployment.apps/canary created</span>
+            </code>
+          </div>
+
+          <div class="kubectl-tip">
+            <strong>Pro Tip: Set Reasonable Defaults</strong>
+            <p>
+              Use LimitRange to prevent runaway requests:
+            </p>
+            <div class="terminal-block">
+              <code>
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: resource-limits
+  namespace: payment-prod
+spec:
+  limits:
+  - max:
+      cpu: 2
+      memory: 2Gi
+    min:
+      cpu: 100m
+      memory: 128Mi
+    default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 250m
+      memory: 256Mi
+    type: Container
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <h3>HPA Not Scaling: Metrics Not Available</h3>
+        <p>
+          Your HorizontalPodAutoscaler is stuck at 1 replica. It's not scaling
+          up even when CPU is high. Usually, <code>metrics-server</code> isn't
+          installed or the pod doesn't have resource requests.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Ecommerce: Flash Sale Traffic Not Triggering HPA</h4>
+          <p>
+            <strong>Situation:</strong> A flash sale starts. Traffic spikes to
+            5x normal. Your HPA has a target CPU of 70%. But pods aren't
+            scaling up.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl describe hpa checkout -n ecommerce</span>
+<span class="terminal-output">Status: unknown (metrics not available yet)
+Current Replicas: 1
+Desired Replicas: 1
+Metrics:
+  resource name   current average   target average
+  ----            -------           ------
+  cpu             <unknown>         70%
+
+(Metrics not available!)</span>
+
+<span class="terminal-prompt">$ kubectl get pod checkout-xyz -n ecommerce -o jsonpath='{.spec.containers[0].resources}'</span>
+<span class="terminal-output">{"limits":{"cpu":"1","memory":"512Mi"}}
+
+(No requests! HPA needs requests to calculate percentage. It uses: current CPU / requested CPU)</span>
+
+<span class="terminal-prompt">$ # Fix: Add requests to deployment</span>
+<span class="terminal-prompt">$ kubectl set resources deployment checkout -n ecommerce \
+  --requests=cpu=250m,memory=256Mi \
+  --limits=cpu=1,memory=512Mi</span>
+
+<span class="terminal-prompt">$ # Wait for metrics to populate (30-60s)</span>
+<span class="terminal-prompt">$ kubectl describe hpa checkout -n ecommerce</span>
+<span class="terminal-output">Current Replicas: 1
+Desired Replicas: 4
+Metrics:
+  resource name   current average   target average
+  ----            -------           ------
+  cpu             350m (140%)       175m (70%)</span>
+            </code>
+          </div>
+
+          <div class="success-box">
+            <strong>Result:</strong> HPA scaling kicked in. Pods increased from
+            1 to 4. Load balanced. Checkout latency dropped from 5s to 500ms.
+            Flash sale succeeded.
+          </div>
+        </div>
+
+        <h2>6. Node Issues: When Infrastructure Breaks</h2>
+
+        <h3>NodeNotReady: Kubelet Stopped Reporting</h3>
+        <p>
+          A node is in <code>NotReady</code> state. kubelet crashed or stopped
+          reporting heartbeats. All pods on that node are stuck or evicted.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: EC2 Instance Kernel Panic</h4>
+          <p>
+            <strong>Situation:</strong> One of your 5 nodes enters
+            <code>NotReady</code>. Pods are being evicted. The node's kubelet
+            isn't responding.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl get nodes</span>
+<span class="terminal-output">NAME              STATUS      ROLES    AGE    VERSION
+node-1            Ready       worker   120d   v1.28.0
+node-2            NotReady    worker   120d   v1.28.0
+node-3            Ready       worker   120d   v1.28.0
+node-4            Ready       worker   120d   v1.28.0
+node-5            Ready       worker   120d   v1.28.0
+
+<span class="terminal-prompt">$ kubectl describe node node-2</span>
+<span class="terminal-output">Status: NotReady
+Conditions:
+  Type             Status   LastHeartbeatTime                 Message
+  Ready            False    Wed, 24 May 09:00:00 +0000        Kubelet stopped posting node status.
+
+<span class="terminal-prompt">$ # SSH to the node and check kubelet status</span>
+<span class="terminal-prompt">$ ssh ubuntu@node-2.internal</span>
+<span class="terminal-output">$ sudo systemctl status kubelet</span>
+<span class="terminal-output">● kubelet.service - Kubelet
+     Loaded: loaded (/lib/systemd/system/kubelet.service; enabled)
+     Active: inactive (dead) since Wed 2026-05-24 09:00:00 UTC
+     ...
+     
+(Kubelet is dead!)
+
+$ sudo journalctl -u kubelet -n 50 -e
+May 24 08:59:30 node-2 kernel: [12345.123456] Out of memory: Kill process 1234 (container) score 800
+(Kernel OOM killer killed the container!)
+
+$ sudo systemctl restart kubelet
+$ sudo systemctl status kubelet
+● kubelet.service - Kubelet
+     Loaded: loaded (/lib/systemd/system/kubelet.service; enabled)
+     Active: active (running)
+     
+<span class="terminal-prompt">$ kubectl get nodes</span>
+<span class="terminal-output">NAME              STATUS    ROLES    AGE    VERSION
+node-2            Ready     worker   120d   v1.28.0</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Why This Happened:</strong> A single pod was misconfigured
+            with no memory limits. It grew unbounded, consumed all node memory,
+            kernel OOM-killed it, and kubelet crashed trying to handle the
+            eviction.
+          </div>
+        </div>
+
+        <h3>DiskPressure / MemoryPressure: Node Under Resource Stress</h3>
+        <p>
+          A node has DiskPressure or MemoryPressure. kubelet evicts pods to free resources.
+        </p>
+
+        <div class="terminal-block">
+          <code>
+<span class="terminal-prompt">$ kubectl describe nodes node-1</span>
+<span class="terminal-output">Conditions:
+  MemoryPressure       True    ...    Kubelet has MemoryPressure
+  DiskPressure         False   ...
+  Ready                True    ...
+
+<span class="terminal-prompt">$ kubectl get pods -n production -o json | \
+  jq '.items[] | select(.status.reason=="Evicted") | .metadata.name'</span>
+<span class="terminal-output">cache-pod-1
+cache-pod-2
+cache-pod-3
+
+(Pods are being evicted from node-1!)</span>
+
+<span class="terminal-prompt">$ # Solution: Identify the culprit</span>
+<span class="terminal-prompt">$ kubectl top pod --all-namespaces --sort-by=memory</span>
+<span class="terminal-output">NAMESPACE   POD NAME              CPU(cores)   MEMORY(bytes)
+production  analytics-worker-1    100m         7Gi
+production  cache-redis-1         50m          2Gi
+logging     fluentd-xyz           10m          800Mi
+
+(analytics-worker is using 7Gi! That's probably too much.)</span>
+
+<span class="terminal-prompt">$ # Check if limits are set</span>
+<span class="terminal-prompt">$ kubectl describe pod analytics-worker-1 -n production | grep -A 5 Limits</span>
+<span class="terminal-output">Limits:
+  cpu:    2
+  memory: 8Gi
+
+(Limits are set to 8Gi, but actual usage is 7Gi. The node only has 8Gi total available!)</span>
+
+<span class="terminal-prompt">$ # Fix: Reduce the pod's resources or add memory to the node</span>
+<span class="terminal-prompt">$ kubectl set resources deployment analytics-worker -n production \
+  --limits=memory=4Gi --requests=memory=2Gi</span>
+          </code>
+        </div>
+
+        <h2>7. Rollout & Deployment Issues</h2>
+
+        <h3>Deployment Stuck: Readiness Probes Never Pass</h3>
+        <p>
+          You roll out a new deployment. It spins up new pods but they never
+          reach Ready state. The old ReplicaSet stays up. No progress.
+        </p>
+
+        <div class="scenario-card">
+          <h4>Real Scenario: Fintech: Payment Service Rollout Hangs</h4>
+          <p>
+            <strong>Situation:</strong> You deploy a new version of the payment
+            service. The new ReplicaSet is created but pods are stuck at 0/1
+            Ready. The old version is still serving traffic. Rollout is
+            blocked.
+          </p>
+
+          <div class="terminal-block">
+            <code>
+<span class="terminal-prompt">$ kubectl rollout status deployment payment-service -n payment</span>
+<span class="terminal-output">Waiting for rollout to finish: 1 old replicas, 1 new replicas, 1 updated replicas not ready...
+(Hangs here indefinitely)</span>
+
+<span class="terminal-prompt">$ kubectl get replicasets -n payment</span>
+<span class="terminal-output">NAME                         DESIRED   CURRENT   READY   AGE
+payment-service-v1-xyz123    1         1         1       10m
+payment-service-v2-abc456    1         1         0       2m
+
+(v1 is Ready. v2 is not.)</span>
+
+<span class="terminal-prompt">$ kubectl describe pod payment-service-v2-abc456-pod1 -n payment</span>
+<span class="terminal-output">Conditions:
+  Initialized       True
+  Ready             False
+  ContainersReady   True
+
+(Container is ready but overall pod is not. This is rare. Check readiness probe.)</span>
+
+<span class="terminal-prompt">$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions}'</span>
+<span class="terminal-output">[{"lastProbeTime":"2026-05-24T12:15:00Z","lastTransitionTime":"2026-05-24T12:10:00Z",
+"message":"readiness probe failed: HTTP probe failed with statuscode: 503","reason":"Failure",
+"status":"False","type":"Ready"}]
+
+<span class="terminal-prompt">$ kubectl exec payment-service-v2-abc456-pod1 -n payment -- curl -v http://localhost:8080/ready</span>
+<span class="terminal-output">HTTP/1.1 503 Service Unavailable
+X-Error: Database migrations not complete
+
+(Ah! The new version has pending migrations. The app can't start until they finish.)</span>
+
+<span class="terminal-prompt">$ # Scale the old deployment to 0 to stop taking requests and let new version initialize</span>
+<span class="terminal-prompt">$ kubectl scale deployment payment-service-v1 -n payment --replicas=0
+
+<span class="terminal-prompt">$ # Watch logs of new pod</span>
+<span class="terminal-prompt">$ kubectl logs payment-service-v2-abc456-pod1 -n payment -f</span>
+<span class="terminal-output">2026-05-24 12:20:00 [INFO] Running migrations...
+2026-05-24 12:20:05 [INFO] Migration 0001: Create payment table
+2026-05-24 12:20:15 [INFO] Migration 0002: Add index on transaction_id
+2026-05-24 12:20:25 [INFO] Migrations complete!
+2026-05-24 12:20:25 [INFO] Ready to serve requests
+
+<span class="terminal-prompt">$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
+<span class="terminal-output">{"status":"True"}</span>
+            </code>
+          </div>
+
+          <div class="error-box">
+            <strong>Root Cause:</strong> Readiness probe timeout was too short
+            (10s) for migrations. Pod couldn't reach Ready state in time.
+          </div>
+
+          <div class="success-box">
+            <strong>Solution Applied:</strong>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+              <li>
+                Increased <code>initialDelaySeconds</code> from 10s to 60s
+              </li>
+              <li>
+                Moved migrations to init container (runs before readiness
+                probe)
+              </li>
+              <li>Rollout now completes successfully</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Quick Reference: SRE Debugging Flowchart</h2>
+        <p style="margin-top: 2rem;">
+          When you get paged about a Kubernetes issue, follow this order:
+        </p>
+        <ul class="body-list">
+          <li>
+            <strong>1. Pod Status:</strong>
+            <code>kubectl get pods -n namespace</code> — Is it Running/Pending/Failed?
+          </li>
+          <li>
+            <strong>2. Pod Description:</strong>
+            <code>kubectl describe pod name</code> — What does the event log say?
+          </li>
+          <li>
+            <strong>3. Logs:</strong>
+            <code>kubectl logs name --previous</code> — Why did it crash?
+          </li>
+          <li>
+            <strong>4. Service/Endpoints:</strong>
+            <code>kubectl get endpoints svc</code> — Is traffic routing?
+          </li>
+          <li>
+            <strong>5. Node Health:</strong>
+            <code>kubectl describe nodes</code> — Is the node NotReady?
+          </li>
+          <li>
+            <strong>6. Resources:</strong>
+            <code>kubectl top pods/nodes</code> — OOMKilled? Running out of CPU?
+          </li>
+          <li>
+            <strong>7. Quotas:</strong>
+            <code>kubectl describe resourcequota</code> — Hit a limit?
+          </li>
+        </ul>
+
+        <h2>Closing: The Pattern Behind the Chaos</h2>
+        <p>
+          Most Kubernetes issues boil down to a few patterns:
+        </p>
+        <ul class="body-list">
+          <li>
+            <strong>Configuration mismatch:</strong> Wrong selector, missing
+            secret, wrong namespace.
+          </li>
+          <li>
+            <strong>Resource constraints:</strong> Pod too big for node, OOM,
+            quota exhausted.
+          </li>
+          <li>
+            <strong>Dependency failures:</strong> Database down, service
+            unreachable, CoreDNS broken.
+          </li>
+          <li>
+            <strong>Timing issues:</strong> Readiness probe too strict/fast,
+            initialization incomplete.
+          </li>
+          <li>
+            <strong>Infrastructure problems:</strong> Node not ready, kubelet
+            crashed, storage provisioner down.
+          </li>
+        </ul>
+        <p>
+          When debugging, work backward from the symptom. If pods aren't ready,
+          check their logs. If logs aren't available, check pod description. If
+          the pod is pending, check node capacity. If nodes are full, check if
+          any pod is hoarding memory.
+        </p>
+        <p>
+          The key: <strong>each error tells you exactly where to look next.</strong>
+          Learn to read the error messages and you'll fix 90% of incidents in
+          under 5 minutes.
+        </p>
+
+        <div class="article-footer">
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../assets/site.js"></script>
+  </body>
+</html>

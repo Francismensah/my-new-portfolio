@@ -18,7 +18,7 @@
 }
 
 .article-hero-inner {
-  max-width: var(--prose-max);
+  max-width: var(--content-max);
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -50,8 +50,10 @@
   transition: color var(--duration-fast);
 }
 
-.breadcrumb a:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
 }
 
 .breadcrumb span {
@@ -168,7 +170,7 @@
 
 /* ── Article body (reading experience) ── */
 .article-body {
-  max-width: var(--prose-max);
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 1.75rem var(--space-page-x) 2.5rem;
   width: 100%;
@@ -227,8 +229,23 @@
   text-underline-offset: 0.15em;
 }
 
-.article-body a:hover {
-  text-decoration-thickness: 2px;
+@media (hover: hover) {
+  .article-body a:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+.article-body .btn-primary,
+.article-body .btn-secondary {
+  text-decoration: none;
+}
+
+.article-body .btn-primary {
+  color: #000;
+}
+
+.article-body .btn-secondary {
+  color: var(--muted);
 }
 
 ul.body-list {
@@ -314,16 +331,33 @@ ul.body-list li::before {
   font-weight: 300;
 }
 
-/* Code */
+/* Code and mock terminal window */
 pre {
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1rem;
+  padding-top: 2.25rem; /* Make room for the terminal header bar */
   overflow-x: auto;
   margin: 1rem 0;
   position: relative;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Three macOS style mock terminal window control dots */
+pre::before {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  left: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5f56;
+  box-shadow:
+    14px 0 0 #ffbd2e,
+    28px 0 0 #27c93f;
+  opacity: 0.75;
 }
 
 pre .file-label {
@@ -331,8 +365,8 @@ pre .file-label {
   font-size: 0.58rem;
   color: var(--muted2);
   position: absolute;
-  top: 0.5rem;
-  right: 0.65rem;
+  top: 0.72rem;
+  right: 1rem;
   letter-spacing: 0.06em;
 }
 
@@ -469,6 +503,16 @@ code {
   vertical-align: top;
 }
 
+.article-body tbody tr {
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .article-body tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
 .article-body td.td-dir {
   color: var(--blue);
   font-family: var(--font-mono);
@@ -512,6 +556,18 @@ code {
   height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-fast);
+}
+
+@media (hover: hover) {
+  @media (prefers-reduced-motion: no-preference) {
+    .article-image img:hover {
+      transform: scale(1.01);
+      border-color: var(--accent);
+    }
+  }
 }
 
 .article-image figcaption {
@@ -621,6 +677,8 @@ code {
 .article-body .article-footer .post-nav .btn-secondary {
   width: 100%;
   font-size: 0.65rem;
+  padding: 1rem 2rem;
+  line-height: 1.2;
 }
 
 /* ── Tablet ── */
@@ -725,7 +783,7 @@ code {
   .article-body .article-footer .post-nav .btn-secondary {
     width: auto;
     font-size: inherit;
-    padding: inherit;
+    padding: 0.95rem 2rem;
   }
 }
 

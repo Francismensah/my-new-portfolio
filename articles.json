@@ -99,6 +99,17 @@
       "filters": ["Incident", "SRE"],
       "homePreview": true,
       "homeTag": "Incident · SRE · Culture"
+    },
+    {
+      "href": "kubernetes-for-sres-production-guide.html",
+      "tag": "Kubernetes · Debugging",
+      "title": "Kubernetes for SREs: What You Actually Need to Know",
+      "excerpt": "Production troubleshooting patterns, error cause-and-effect analysis, and real debugging workflows from fintech and ecommerce systems.",
+      "year": "2026",
+      "readMinutes": "22 min",
+      "filters": ["Kubernetes", "SRE"],
+      "homePreview": true,
+      "homeTag": "Kubernetes · Debugging · SRE"
     }
   ],
   "comingSoon": [
@@ -107,12 +118,6 @@
       "title": "Terraform State Management with S3 and DynamoDB",
       "excerpt": "Best practices for managing Terraform remote state safely in a team environment using AWS-native locking.",
       "filters": ["Terraform"]
-    },
-    {
-      "tag": "Kubernetes · DevOps",
-      "title": "Kubernetes for SREs: What You Actually Need to Know",
-      "excerpt": "A practitioner's take on running Kubernetes in production — not the tutorials, the parts they don't tell you.",
-      "filters": ["Kubernetes", "SRE"]
     },
     {
       "tag": "Observability",

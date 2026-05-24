@@ -88,7 +88,7 @@ html[data-theme="light"] .featured-visual::before {
   z-index: 1;
 }
 
-/* Filter bar — horizontal scroll on small screens */
+/* Filter bar — horizontal scroll on small screens with fade out indicator */
 .filter-bar {
   display: flex;
   gap: 0.4rem;
@@ -99,6 +99,8 @@ html[data-theme="light"] .featured-visual::before {
   margin-bottom: 1.25rem;
   padding-bottom: 0.35rem;
   scroll-padding-inline: var(--space-page-x);
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
 .filter-bar::-webkit-scrollbar {
@@ -131,11 +133,18 @@ html[data-theme="light"] .featured-visual::before {
     background var(--duration-fast);
 }
 
-.filter-btn:hover,
 .filter-btn.active {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-dim);
+}
+
+@media (hover: hover) {
+  .filter-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
 }
 
 /* ── Featured article ── */
@@ -167,13 +176,15 @@ html[data-theme="light"] .featured-visual::before {
   z-index: 1;
 }
 
-.featured-article:hover {
-  border-color: var(--border2);
-}
-
-@media (prefers-reduced-motion: no-preference) {
+@media (hover: hover) {
   .featured-article:hover {
-    transform: translateY(-2px);
+    border-color: var(--border2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .featured-article:hover {
+      transform: translateY(-2px);
+    }
   }
 }
 
@@ -341,17 +352,19 @@ html[data-theme="light"] .featured-visual::before {
   transition: transform var(--duration-normal) var(--ease-out);
 }
 
-.article-card:hover::before {
-  transform: scaleX(1);
-}
+@media (hover: hover) {
+  .article-card:hover::before {
+    transform: scaleX(1);
+  }
 
-.article-card:hover {
-  border-color: var(--border2);
-}
-
-@media (prefers-reduced-motion: no-preference) {
   .article-card:hover {
-    transform: translateY(-2px);
+    border-color: var(--border2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .article-card:hover {
+      transform: translateY(-2px);
+    }
   }
 }
 
@@ -478,6 +491,8 @@ html[data-theme="light"] .featured-visual::before {
     flex-wrap: wrap;
     overflow-x: visible;
     margin-bottom: 1.75rem;
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 
   .featured-article {
