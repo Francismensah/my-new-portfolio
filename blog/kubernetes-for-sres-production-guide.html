@@ -22,33 +22,88 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-    <link rel="stylesheet" href="/assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/article.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
     <style>
       .terminal-block {
-        background: var(--bg-muted);
-        border-left: 3px solid var(--accent);
-        padding: 1rem;
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
         margin: 1.5rem 0;
-        border-radius: 6px;
-        font-family: "Monaco", "Courier New", monospace;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        font-family: "Monaco", "Menlo", "Courier New", monospace;
         font-size: 0.85rem;
-        overflow-x: auto;
-        line-height: 1.5;
+        line-height: 1.6;
+        position: relative;
+      }
+      .terminal-block::before {
+        content: "";
+        display: block;
+        height: 28px;
+        background: linear-gradient(180deg, #555 0%, #4a4a4a 100%);
+        border-bottom: 1px solid #333;
+        position: relative;
+        padding-left: 12px;
+        padding-top: 6px;
+      }
+      .terminal-header-buttons {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+      }
+      .terminal-button {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .terminal-button.close {
+        background: #ed6158;
+      }
+      .terminal-button.minimize {
+        background: #fcc02e;
+      }
+      .terminal-button.maximize {
+        background: #5fc038;
       }
       .terminal-block code {
         display: block;
         white-space: pre-wrap;
         word-break: break-word;
+        padding: 1rem;
+        color: #a1efe4;
+        overflow-x: auto;
       }
       .terminal-prompt {
-        color: var(--accent);
+        color: #61dafb;
         font-weight: 600;
       }
       .terminal-output {
-        color: var(--text);
-        margin-top: 0.5rem;
+        color: #a1efe4;
+        display: block;
+      }
+      html[data-theme="light"] .terminal-block {
+        background: #2d2d2d;
+        border-color: #444;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+      html[data-theme="light"] .terminal-block::before {
+        background: linear-gradient(180deg, #666 0%, #555 100%);
+        border-bottom-color: #444;
+      }
+      html[data-theme="light"] .terminal-block code {
+        color: #a1efe4;
+      }
+      html[data-theme="light"] .terminal-prompt {
+        color: #61dafb;
+      }
+      html[data-theme="light"] .terminal-output {
+        color: #a1efe4;
       }
       .error-box {
         background: rgba(220, 38, 38, 0.08);
@@ -272,13 +327,13 @@
           <p>
             <strong>Your Investigation:</strong>
           </p>
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get pods -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n payment</span>
 <span class="terminal-output">NAME                READY   STATUS             RESTARTS   AGE
 payment-proc-xyz   0/1     CrashLoopBackOff   12         8m
 
-<span class="terminal-prompt">$ kubectl describe pod payment-proc-xyz -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod payment-proc-xyz -n payment</span>
 <span class="terminal-output">Last State:     Terminated
   Reason:       ExitCode 1
   Message:      
@@ -290,7 +345,7 @@ Events:
   ----     ------              ----   -------
   Warning  BackOff             2m     Back-off restarting failed container
 
-<span class="terminal-prompt">$ kubectl logs payment-proc-xyz -n payment --previous</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs payment-proc-xyz -n payment --previous</span>
 <span class="terminal-output">panic: failed to connect to database: connection refused
 goroutine 1 [running]:
 main.main()
@@ -341,9 +396,9 @@ main.main()
               When your app crashes due to connection errors, use a debug pod
               to test from within the cluster:
             </p>
-            <div class="terminal-block">
+            <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
               <code>
-<span class="terminal-prompt">$ kubectl run -it --rm debug --image=ubuntu --restart=Never -n payment -- bash</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl run -it --rm debug --image=ubuntu --restart=Never -n payment -- bash</span>
 <span class="terminal-output">root@debug:/# apt-get update && apt-get install -y dnsutils postgresql-client
 root@debug:/# nslookup postgres.payment.svc.cluster.local</span>
 <span class="terminal-output">Server:    10.0.0.10
@@ -387,9 +442,9 @@ Address: 10.0.0.52</span>
             pod is requested to use 512Mi but keeps exceeding it.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl describe pod checkout-abc123 -n ecommerce</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod checkout-abc123 -n ecommerce</span>
 <span class="terminal-output">State:          Waiting (reason:CrashLoopBackOff)
 Last State:     Terminated
   Reason:       OOMKilled
@@ -400,11 +455,11 @@ Limits:
 Events:
   Warning  OOMKilled   1m     The container was OOMKilled
 
-<span class="terminal-prompt">$ kubectl top pod checkout-abc123 -n ecommerce --containers</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl top pod checkout-abc123 -n ecommerce --containers</span>
 <span class="terminal-output">POD NAME          CONTAINER        CPU(cores)   MEMORY(bytes)
 checkout-abc123   checkout         10m          510Mi</span>
 
-<span class="terminal-prompt">$ kubectl logs checkout-abc123 -n ecommerce --tail=50</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs checkout-abc123 -n ecommerce --tail=50</span>
 <span class="terminal-output">[1:M 24 May 12:15:00.000] * Ready to accept connections
 [1:M 24 May 12:15:15.001] * User connected: order:xyz
 [1:M 24 May 12:15:30.002] * Memory allocated: 100MB
@@ -478,13 +533,13 @@ checkout-abc123   checkout         10m          510Mi</span>
             regular services. The migration pod stays <code>Pending</code>.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get pods -n db-migration</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n db-migration</span>
 <span class="terminal-output">NAME              READY   STATUS    RESTARTS   AGE
 migration-xyz     0/1     Pending   0          15m
 
-<span class="terminal-prompt">$ kubectl describe pod migration-xyz -n db-migration</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod migration-xyz -n db-migration</span>
 <span class="terminal-output">Status: Pending
 
 Events:
@@ -492,7 +547,7 @@ Events:
   ----     ------             ----   -------
   Warning  FailedScheduling   15m    0/5 nodes are available: 5 Insufficient cpu
 
-<span class="terminal-prompt">$ kubectl top nodes</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl top nodes</span>
 <span class="terminal-output">NAME              CPU(cores)   CPU%    MEMORY(Mi)   MEMORY%
 node-1            3.9          95%     6200Mi       95%
 node-2            3.85         94%     6050Mi       93%
@@ -546,9 +601,9 @@ node-5            3.9          95%     6150Mi       94%</span>
               Nodes have overhead (kubelet, system pods). See what's actually
               available:
             </p>
-            <div class="terminal-block">
+            <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
               <code>
-<span class="terminal-prompt">$ kubectl describe nodes node-1</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe nodes node-1</span>
 <span class="terminal-output">Capacity:
   cpu:                4
   memory:             8Gi
@@ -587,9 +642,9 @@ Allocated resources:
             running (v1.5), but the new deployment tries to pull <code>v2.0-typo</code>.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl describe pod payment-api-new-xyz -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod payment-api-new-xyz -n payment</span>
 <span class="terminal-output">Events:
   Type     Reason                Age                   Message
   ----     ------                ----                  -------
@@ -598,11 +653,11 @@ Allocated resources:
   Warning  Failed                2m (x3 over 5m)       Failed to pull image
   Warning  Failed                2m (x3 over 5m)       Error response from daemon: pull access denied
 
-<span class="terminal-prompt">$ kubectl logs payment-api-new-xyz -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs payment-api-new-xyz -n payment</span>
 <span class="terminal-output">Error from server (BadRequest): container "payment-api" in pod "payment-api-new-xyz" is
 waiting to be started: image can't be pulled</span>
 
-<span class="terminal-prompt">$ aws ecr describe-images --repository-name payment-api --region us-east-1</span>
+<span class="terminal-prompt">francis@k8s-server$ aws ecr describe-images --repository-name payment-api --region us-east-1</span>
 <span class="terminal-output">IMAGE DETAILS
 
 imageTag: ["v1.5", "v1.4", "v1.3", "latest"]
@@ -645,20 +700,20 @@ imagePushedAt: 2026-05-24
             Timeouts. Cart operations hang. Customers can't check out.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get svc -n ecommerce</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get svc -n ecommerce</span>
 <span class="terminal-output">NAME        TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)
 cart        ClusterIP   10.0.100.50   <none>        8080/TCP
 inventory   ClusterIP   10.0.100.75   <none>        8080/TCP
 
-<span class="terminal-prompt">$ kubectl get endpoints -n ecommerce inventory</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get endpoints -n ecommerce inventory</span>
 <span class="terminal-output">NAME        ENDPOINTS          AGE
 inventory   <none>             5m
 
 (No endpoints! Pods are not being added to the service)</span>
 
-<span class="terminal-prompt">$ kubectl get pods -n ecommerce -l app=inventory</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n ecommerce -l app=inventory</span>
 <span class="terminal-output">NAME                READY   STATUS             RESTARTS   AGE
 inventory-abc-1    0/1     CrashLoopBackOff   12         20m
 inventory-abc-2    0/1     CrashLoopBackOff   12         20m
@@ -666,7 +721,7 @@ inventory-abc-3    0/1     CrashLoopBackOff   12         20m
 
 (Ah! The pods aren't ready. That's why no endpoints.)</span>
 
-<span class="terminal-prompt">$ kubectl logs inventory-abc-1 -n ecommerce --previous</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs inventory-abc-1 -n ecommerce --previous</span>
 <span class="terminal-output">error: failed to connect to database: timeout connecting to mysql.ecommerce.svc.cluster.local:3306
 (Now we're getting somewhere! The inventory pods can't connect to their DB.)</span>
             </code>
@@ -712,18 +767,18 @@ inventory-abc-3    0/1     CrashLoopBackOff   12         20m
 
           <div class="kubectl-tip">
             <strong>Pro Tip: Verify Service Routing</strong>
-            <div class="terminal-block">
+            <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
               <code>
-<span class="terminal-prompt">$ kubectl get svc inventory -n ecommerce -o jsonpath='{.spec.selector}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get svc inventory -n ecommerce -o jsonpath='{.spec.selector}'</span>
 <span class="terminal-output">map[app:inventory]
 
-<span class="terminal-prompt">$ kubectl get pods -n ecommerce -L app</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n ecommerce -L app</span>
 <span class="terminal-output">NAME                APP
 inventory-abc-1    inventory
 
 (Labels match. But are the pods ready?)</span>
 
-<span class="terminal-prompt">$ kubectl get pods -n ecommerce inventory-abc-1 -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n ecommerce inventory-abc-1 -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
 <span class="terminal-output">
 {"lastTransitionTime":"2026-05-24T12:10:00Z","lastUpdateTime":"2026-05-24T12:15:00Z",
 "message":"Readiness probe failed: HTTP probe failed with statuscode: 503","reason":"Failure","status":"False","type":"Ready"}
@@ -749,32 +804,32 @@ inventory-abc-1    inventory
             DNS stops working. Everything times out.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get pods -n kube-system -l k8s-app=kube-dns</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n kube-system -l k8s-app=kube-dns</span>
 <span class="terminal-output">NAME                       READY   STATUS              RESTARTS   AGE
 coredns-5d78c0854b-xyz1   0/1     Pending             0          8m
 coredns-5d78c0854b-xyz2   0/1     Pending             0          8m
 
 (Both CoreDNS pods are Pending!)</span>
 
-<span class="terminal-prompt">$ kubectl describe nodes | grep MemoryPressure</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe nodes | grep MemoryPressure</span>
 <span class="terminal-output">  MemoryPressure              False
   DiskPressure                False
   PIDPressure                 False
 
 (Maybe check why pods are pending...)</span>
 
-<span class="terminal-prompt">$ kubectl describe pod coredns-5d78c0854b-xyz1 -n kube-system</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod coredns-5d78c0854b-xyz1 -n kube-system</span>
 <span class="terminal-output">Events:
   Warning  FailedScheduling   8m  0/3 nodes are available: 3 nodes are tainted with node-role.master:NoSchedule
 
 (CoreDNS has a nodeAffinity that's too strict!)</span>
 
-<span class="terminal-prompt">$ kubectl scale deployment coredns --replicas=1 -n kube-system</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl scale deployment coredns --replicas=1 -n kube-system</span>
 <span class="terminal-output">deployment.apps/coredns scaled</span>
 
-<span class="terminal-prompt">$ kubectl get pod -n kube-system -l k8s-app=kube-dns</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pod -n kube-system -l k8s-app=kube-dns</span>
 <span class="terminal-output">NAME                       READY   STATUS    RESTARTS   AGE
 coredns-5d78c0854b-xyz1   1/1     Running   0          2m</span>
             </code>
@@ -802,19 +857,19 @@ coredns-5d78c0854b-xyz1   1/1     Running   0          2m</span>
             not ready.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ curl -v https://payments.fintech.com/api/check</span>
+<span class="terminal-prompt">francis@k8s-server$ curl -v https://payments.fintech.com/api/check</span>
 <span class="terminal-output">HTTP/2 502
 Content-Length: 0
 
-<span class="terminal-prompt">$ kubectl get pods -n payment-portal</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n payment-portal</span>
 <span class="terminal-output">NAME                    READY   STATUS    RESTARTS   AGE
 portal-deployment-1    0/1     Running   0          2m
 
 (Pod is Running but not Ready. That's the problem.)</span>
 
-<span class="terminal-prompt">$ kubectl describe pod portal-deployment-1 -n payment-portal</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod portal-deployment-1 -n payment-portal</span>
 <span class="terminal-output">Readiness:  http-get http://:8080/healthz port 8080, delay=10s, timeout=5s, period=10s
   ... (details of readiness probe config)
 
@@ -824,13 +879,13 @@ Probe Failed (exit code 1):
 
 (Readiness probe is failing. Ingress won't route to it.)</span>
 
-<span class="terminal-prompt">$ kubectl exec portal-deployment-1 -n payment-portal -- curl -v http://localhost:8080/healthz</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl exec portal-deployment-1 -n payment-portal -- curl -v http://localhost:8080/healthz</span>
 <span class="terminal-output">HTTP/1.1 503 Service Unavailable
 X-Error: Cannot connect to config database
 
 (App is running but its dependencies aren't ready yet.)</span>
 
-<span class="terminal-prompt">$ kubectl logs portal-deployment-1 -n payment-portal | head -20</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs portal-deployment-1 -n payment-portal | head -20</span>
 <span class="terminal-output">2026-05-24 12:25:00 [INFO] Starting application
 2026-05-24 12:25:01 [INFO] Connecting to postgres://config-db.payment-portal.svc.cluster.local:5432
 2026-05-24 12:25:05 [ERROR] Connection timeout after 4s: no response from database
@@ -898,14 +953,14 @@ X-Error: Cannot connect to config database
             also Pending.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get pvc -n databases</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pvc -n databases</span>
 <span class="terminal-output">NAME                     STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 postgres-data-0          Pending                                      gp3            10m
 postgres-wal-0           Pending                                      gp3            10m
 
-<span class="terminal-prompt">$ kubectl describe pvc postgres-data-0 -n databases</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pvc postgres-data-0 -n databases</span>
 <span class="terminal-output">Events:
   Type     Reason                Age                  Message
   ----     ------                ----                 -------
@@ -914,7 +969,7 @@ postgres-wal-0           Pending                                      gp3       
 
 (The EBS provisioner is down or misconfigured!)</span>
 
-<span class="terminal-prompt">$ kubectl get pods -n ebs-csi-driver</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n ebs-csi-driver</span>
 <span class="terminal-output">NAME                             READY   STATUS             RESTARTS   AGE
 ebs-csi-controller-0             1/2     CrashLoopBackOff   15         2h
 ebs-csi-node-xyzab               2/2     Running            0          2h
@@ -922,7 +977,7 @@ ebs-csi-node-abcde               2/2     Running            0          2h
 
 (Controller is in CrashLoopBackOff!)</span>
 
-<span class="terminal-prompt">$ kubectl logs -n ebs-csi-driver ebs-csi-controller-0 -c ebs-plugin</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs -n ebs-csi-driver ebs-csi-controller-0 -c ebs-plugin</span>
 <span class="terminal-output">failed to mount /var/run/secrets/kubernetes.io/serviceaccount: permission denied
 
 (RBAC issue! Service account doesn't have permission to describe snapshots.)</span>
@@ -958,9 +1013,9 @@ ebs-csi-node-abcde               2/2     Running            0          2h
             can't start.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl describe pod app-xyz -n production</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod app-xyz -n production</span>
 <span class="terminal-output">Status:  Waiting
 Reason:  CreateContainerConfigError
 Message: can't find secret "app-secrets"
@@ -969,15 +1024,15 @@ Events:
   Warning  FailedMountSecretVolume   5m  Unable to mount volumes for pod "app-xyz": 
     "app-secrets" not found
 
-<span class="terminal-prompt">$ kubectl get secrets -n production</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get secrets -n production</span>
 <span class="terminal-output">NAME                    TYPE                 DATA   AGE
 app-secret              Opaque               3      20m
 (Typo! It's "app-secret", not "app-secrets")</span>
 
-<span class="terminal-prompt">$ kubectl patch deployment app -n production --type merge -p '{"spec":{"template":{"spec":{"volumes":[{"name":"config","secret":{"secretName":"app-secret"}}]}}}}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl patch deployment app -n production --type merge -p '{"spec":{"template":{"spec":{"volumes":[{"name":"config","secret":{"secretName":"app-secret"}}]}}}}'</span>
 <span class="terminal-output">deployment.apps/app patched
 
-<span class="terminal-prompt">$ kubectl get pods -n production -l app=app --field-selector=status.phase=Running</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n production -l app=app --field-selector=status.phase=Running</span>
 <span class="terminal-output">NAME           READY   STATUS    RESTARTS   AGE
 app-new-abc    1/1     Running   0          30s</span>
             </code>
@@ -985,9 +1040,9 @@ app-new-abc    1/1     Running   0          30s</span>
 
           <div class="kubectl-tip">
             <strong>Pro Tip: Validate Manifest Before Deploying</strong>
-            <div class="terminal-block">
+            <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
               <code>
-<span class="terminal-prompt">$ kubectl apply -f deployment.yaml --dry-run=client -o yaml</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl apply -f deployment.yaml --dry-run=client -o yaml</span>
 <span class="terminal-output"># This validates the manifest without applying it</span>
               </code>
             </div>
@@ -1008,23 +1063,23 @@ app-new-abc    1/1     Running   0          30s</span>
             Pod-1 tries to attach to node-2 but gets blocked by RWO.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get pvc -n databases</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pvc -n databases</span>
 <span class="terminal-output">NAME           STATUS   VOLUME            CAPACITY   ACCESS MODES
 mysql-data-0   Bound    pv-mysql-0        50Gi       RWO
 mysql-data-1   Pending                              RWO
 
 (PVC for replica-1 is Pending!)</span>
 
-<span class="terminal-prompt">$ kubectl describe pvc mysql-data-1 -n databases</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pvc mysql-data-1 -n databases</span>
 <span class="terminal-output">Type     Reason              Age    Message
 Warning  FailedAttachVolume  5m     AttachVolume.Attach failed for volume "pv-mysql-0": 
   "pv-mysql-0" is already in use at node-1
 
 (Same PV can't be attached to node-2 with RWO!)</span>
 
-<span class="terminal-prompt">$ kubectl edit storageclass gp3</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl edit storageclass gp3</span>
 <span class="terminal-output"># Change allowVolumeExpansion and other settings
 # Solution: Each replica needs its own PV (not shared)</span>
             </code>
@@ -1053,21 +1108,21 @@ Warning  FailedAttachVolume  5m     AttachVolume.Attach failed for volume "pv-my
 
         <div class="scenario-card">
           <h4>Debugging Pattern</h4>
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl describe pod failing-pod -n production</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod failing-pod -n production</span>
 <span class="terminal-output">Status: Waiting (reason:CreateContainerConfigError)
 Message: can't find secret "db-password"
 
-<span class="terminal-prompt">$ kubectl get secrets -n production | grep password</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get secrets -n production | grep password</span>
 <span class="terminal-output">(No matches)</span>
 
-<span class="terminal-prompt">$ # Check if secret exists in wrong namespace</span>
-<span class="terminal-prompt">$ kubectl get secrets -n default | grep password</span>
+<span class="terminal-prompt">francis@k8s-server$ # Check if secret exists in wrong namespace</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get secrets -n default | grep password</span>
 <span class="terminal-output">db-password    Opaque    1         10m
 
-<span class="terminal-prompt">$ # Copy the secret to the right namespace or fix the pod spec</span>
-<span class="terminal-prompt">$ kubectl get secret db-password -n default -o yaml | kubectl apply -f - -n production</span>
+<span class="terminal-prompt">francis@k8s-server$ # Copy the secret to the right namespace or fix the pod spec</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get secret db-password -n default -o yaml | kubectl apply -f - -n production</span>
             </code>
           </div>
         </div>
@@ -1088,15 +1143,15 @@ Message: can't find secret "db-password"
             exhausted.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
 <span class="terminal-output">Error from server (Forbidden): error when creating "canary-deployment.yaml": 
   pods "canary-abc" is forbidden: exceeded quota: 
   requests.cpu (requested: "2", used: "18", limited: "20"),
   requests.memory (requested: "2Gi", used: "18Gi", limited: "20Gi")
 
-<span class="terminal-prompt">$ kubectl describe resourcequota -n payment-prod</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe resourcequota -n payment-prod</span>
 <span class="terminal-output">Name:       prod-quota
 Namespace:  payment-prod
 Resource    Used    Hard
@@ -1109,15 +1164,15 @@ limits.memory      36Gi    50Gi
 
 (CPU and memory requests are exhausted!)</span>
 
-<span class="terminal-prompt">$ # Option 1: Reduce canary resource requests</span>
-<span class="terminal-prompt">$ kubectl edit deployment canary -n payment-prod
+<span class="terminal-prompt">francis@k8s-server$ # Option 1: Reduce canary resource requests</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl edit deployment canary -n payment-prod
 # Change requests.cpu from 2 to 1, requests.memory from 2Gi to 1Gi
 
-<span class="terminal-prompt">$ # Option 2: Increase the quota</span>
-<span class="terminal-prompt">$ kubectl edit resourcequota prod-quota -n payment-prod
+<span class="terminal-prompt">francis@k8s-server$ # Option 2: Increase the quota</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl edit resourcequota prod-quota -n payment-prod
 # Change limits to requests.cpu: 30, requests.memory: 30Gi
 
-<span class="terminal-prompt">$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl apply -f canary-deployment.yaml -n payment-prod</span>
 <span class="terminal-output">deployment.apps/canary created</span>
             </code>
           </div>
@@ -1127,7 +1182,7 @@ limits.memory      36Gi    50Gi
             <p>
               Use LimitRange to prevent runaway requests:
             </p>
-            <div class="terminal-block">
+            <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
               <code>
 apiVersion: v1
 kind: LimitRange
@@ -1169,9 +1224,9 @@ spec:
             scaling up.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl describe hpa checkout -n ecommerce</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe hpa checkout -n ecommerce</span>
 <span class="terminal-output">Status: unknown (metrics not available yet)
 Current Replicas: 1
 Desired Replicas: 1
@@ -1182,18 +1237,18 @@ Metrics:
 
 (Metrics not available!)</span>
 
-<span class="terminal-prompt">$ kubectl get pod checkout-xyz -n ecommerce -o jsonpath='{.spec.containers[0].resources}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pod checkout-xyz -n ecommerce -o jsonpath='{.spec.containers[0].resources}'</span>
 <span class="terminal-output">{"limits":{"cpu":"1","memory":"512Mi"}}
 
 (No requests! HPA needs requests to calculate percentage. It uses: current CPU / requested CPU)</span>
 
-<span class="terminal-prompt">$ # Fix: Add requests to deployment</span>
-<span class="terminal-prompt">$ kubectl set resources deployment checkout -n ecommerce \
+<span class="terminal-prompt">francis@k8s-server$ # Fix: Add requests to deployment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl set resources deployment checkout -n ecommerce \
   --requests=cpu=250m,memory=256Mi \
   --limits=cpu=1,memory=512Mi</span>
 
-<span class="terminal-prompt">$ # Wait for metrics to populate (30-60s)</span>
-<span class="terminal-prompt">$ kubectl describe hpa checkout -n ecommerce</span>
+<span class="terminal-prompt">francis@k8s-server$ # Wait for metrics to populate (30-60s)</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe hpa checkout -n ecommerce</span>
 <span class="terminal-output">Current Replicas: 1
 Desired Replicas: 4
 Metrics:
@@ -1226,9 +1281,9 @@ Metrics:
             isn't responding.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl get nodes</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get nodes</span>
 <span class="terminal-output">NAME              STATUS      ROLES    AGE    VERSION
 node-1            Ready       worker   120d   v1.28.0
 node-2            NotReady    worker   120d   v1.28.0
@@ -1236,14 +1291,14 @@ node-3            Ready       worker   120d   v1.28.0
 node-4            Ready       worker   120d   v1.28.0
 node-5            Ready       worker   120d   v1.28.0
 
-<span class="terminal-prompt">$ kubectl describe node node-2</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe node node-2</span>
 <span class="terminal-output">Status: NotReady
 Conditions:
   Type             Status   LastHeartbeatTime                 Message
   Ready            False    Wed, 24 May 09:00:00 +0000        Kubelet stopped posting node status.
 
-<span class="terminal-prompt">$ # SSH to the node and check kubelet status</span>
-<span class="terminal-prompt">$ ssh ubuntu@node-2.internal</span>
+<span class="terminal-prompt">francis@k8s-server$ # SSH to the node and check kubelet status</span>
+<span class="terminal-prompt">francis@k8s-server$ ssh ubuntu@node-2.internal</span>
 <span class="terminal-output">$ sudo systemctl status kubelet</span>
 <span class="terminal-output">● kubelet.service - Kubelet
      Loaded: loaded (/lib/systemd/system/kubelet.service; enabled)
@@ -1262,7 +1317,7 @@ $ sudo systemctl status kubelet
      Loaded: loaded (/lib/systemd/system/kubelet.service; enabled)
      Active: active (running)
      
-<span class="terminal-prompt">$ kubectl get nodes</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get nodes</span>
 <span class="terminal-output">NAME              STATUS    ROLES    AGE    VERSION
 node-2            Ready     worker   120d   v1.28.0</span>
             </code>
@@ -1281,15 +1336,15 @@ node-2            Ready     worker   120d   v1.28.0</span>
           A node has DiskPressure or MemoryPressure. kubelet evicts pods to free resources.
         </p>
 
-        <div class="terminal-block">
+        <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
           <code>
-<span class="terminal-prompt">$ kubectl describe nodes node-1</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe nodes node-1</span>
 <span class="terminal-output">Conditions:
   MemoryPressure       True    ...    Kubelet has MemoryPressure
   DiskPressure         False   ...
   Ready                True    ...
 
-<span class="terminal-prompt">$ kubectl get pods -n production -o json | \
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pods -n production -o json | \
   jq '.items[] | select(.status.reason=="Evicted") | .metadata.name'</span>
 <span class="terminal-output">cache-pod-1
 cache-pod-2
@@ -1297,8 +1352,8 @@ cache-pod-3
 
 (Pods are being evicted from node-1!)</span>
 
-<span class="terminal-prompt">$ # Solution: Identify the culprit</span>
-<span class="terminal-prompt">$ kubectl top pod --all-namespaces --sort-by=memory</span>
+<span class="terminal-prompt">francis@k8s-server$ # Solution: Identify the culprit</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl top pod --all-namespaces --sort-by=memory</span>
 <span class="terminal-output">NAMESPACE   POD NAME              CPU(cores)   MEMORY(bytes)
 production  analytics-worker-1    100m         7Gi
 production  cache-redis-1         50m          2Gi
@@ -1306,16 +1361,16 @@ logging     fluentd-xyz           10m          800Mi
 
 (analytics-worker is using 7Gi! That's probably too much.)</span>
 
-<span class="terminal-prompt">$ # Check if limits are set</span>
-<span class="terminal-prompt">$ kubectl describe pod analytics-worker-1 -n production | grep -A 5 Limits</span>
+<span class="terminal-prompt">francis@k8s-server$ # Check if limits are set</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod analytics-worker-1 -n production | grep -A 5 Limits</span>
 <span class="terminal-output">Limits:
   cpu:    2
   memory: 8Gi
 
 (Limits are set to 8Gi, but actual usage is 7Gi. The node only has 8Gi total available!)</span>
 
-<span class="terminal-prompt">$ # Fix: Reduce the pod's resources or add memory to the node</span>
-<span class="terminal-prompt">$ kubectl set resources deployment analytics-worker -n production \
+<span class="terminal-prompt">francis@k8s-server$ # Fix: Reduce the pod's resources or add memory to the node</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl set resources deployment analytics-worker -n production \
   --limits=memory=4Gi --requests=memory=2Gi</span>
           </code>
         </div>
@@ -1337,20 +1392,20 @@ logging     fluentd-xyz           10m          800Mi
             blocked.
           </p>
 
-          <div class="terminal-block">
+          <div class="terminal-block"><div class="terminal-header-buttons"><span class="terminal-button close"></span><span class="terminal-button minimize"></span><span class="terminal-button maximize"></span></div>
             <code>
-<span class="terminal-prompt">$ kubectl rollout status deployment payment-service -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl rollout status deployment payment-service -n payment</span>
 <span class="terminal-output">Waiting for rollout to finish: 1 old replicas, 1 new replicas, 1 updated replicas not ready...
 (Hangs here indefinitely)</span>
 
-<span class="terminal-prompt">$ kubectl get replicasets -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get replicasets -n payment</span>
 <span class="terminal-output">NAME                         DESIRED   CURRENT   READY   AGE
 payment-service-v1-xyz123    1         1         1       10m
 payment-service-v2-abc456    1         1         0       2m
 
 (v1 is Ready. v2 is not.)</span>
 
-<span class="terminal-prompt">$ kubectl describe pod payment-service-v2-abc456-pod1 -n payment</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl describe pod payment-service-v2-abc456-pod1 -n payment</span>
 <span class="terminal-output">Conditions:
   Initialized       True
   Ready             False
@@ -1358,29 +1413,29 @@ payment-service-v2-abc456    1         1         0       2m
 
 (Container is ready but overall pod is not. This is rare. Check readiness probe.)</span>
 
-<span class="terminal-prompt">$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions}'</span>
 <span class="terminal-output">[{"lastProbeTime":"2026-05-24T12:15:00Z","lastTransitionTime":"2026-05-24T12:10:00Z",
 "message":"readiness probe failed: HTTP probe failed with statuscode: 503","reason":"Failure",
 "status":"False","type":"Ready"}]
 
-<span class="terminal-prompt">$ kubectl exec payment-service-v2-abc456-pod1 -n payment -- curl -v http://localhost:8080/ready</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl exec payment-service-v2-abc456-pod1 -n payment -- curl -v http://localhost:8080/ready</span>
 <span class="terminal-output">HTTP/1.1 503 Service Unavailable
 X-Error: Database migrations not complete
 
 (Ah! The new version has pending migrations. The app can't start until they finish.)</span>
 
-<span class="terminal-prompt">$ # Scale the old deployment to 0 to stop taking requests and let new version initialize</span>
-<span class="terminal-prompt">$ kubectl scale deployment payment-service-v1 -n payment --replicas=0
+<span class="terminal-prompt">francis@k8s-server$ # Scale the old deployment to 0 to stop taking requests and let new version initialize</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl scale deployment payment-service-v1 -n payment --replicas=0
 
-<span class="terminal-prompt">$ # Watch logs of new pod</span>
-<span class="terminal-prompt">$ kubectl logs payment-service-v2-abc456-pod1 -n payment -f</span>
+<span class="terminal-prompt">francis@k8s-server$ # Watch logs of new pod</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl logs payment-service-v2-abc456-pod1 -n payment -f</span>
 <span class="terminal-output">2026-05-24 12:20:00 [INFO] Running migrations...
 2026-05-24 12:20:05 [INFO] Migration 0001: Create payment table
 2026-05-24 12:20:15 [INFO] Migration 0002: Add index on transaction_id
 2026-05-24 12:20:25 [INFO] Migrations complete!
 2026-05-24 12:20:25 [INFO] Ready to serve requests
 
-<span class="terminal-prompt">$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
+<span class="terminal-prompt">francis@k8s-server$ kubectl get pod payment-service-v2-abc456-pod1 -n payment -o jsonpath='{.status.conditions[?(@.type=="Ready")]}'</span>
 <span class="terminal-output">{"status":"True"}</span>
             </code>
           </div>
@@ -1487,6 +1542,6 @@ X-Error: Database migrations not complete
       </div>
     </main>
 
-    <script src="/assets/site.js?v=1779622165"></script>
+    <script src="../assets/site.js?v=1779622165"></script>
   </body>
 </html>

@@ -32,6 +32,7 @@ html[data-theme="light"] .featured-visual::before {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -57,6 +58,7 @@ html[data-theme="light"] .featured-visual::before {
   line-height: var(--leading-tight);
   letter-spacing: -0.02em;
   margin-bottom: 0.75rem;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -72,6 +74,7 @@ html[data-theme="light"] .featured-visual::before {
   font-weight: 300;
   line-height: 1.7;
   max-width: 36rem;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -101,6 +104,7 @@ html[data-theme="light"] .featured-visual::before {
   scroll-padding-inline: var(--space-page-x);
   mask-image: linear-gradient(to right, black 85%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  opacity: 1;
 }
 
 .filter-bar::-webkit-scrollbar {

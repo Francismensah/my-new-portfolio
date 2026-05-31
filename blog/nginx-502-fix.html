@@ -8,7 +8,10 @@
       name="description"
       content="How a tiny Nginx proxy buffer misconfiguration caused a production login outage — and the four-line fix that resolved it."
     />
-    <link rel="canonical" href="https://infrabyfrancis.me/blog/nginx-502-fix.html" />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/nginx-502-fix.html"
+    />
     <script>
       (function () {
         const stored = localStorage.getItem("theme");
@@ -19,15 +22,15 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-    <link rel="stylesheet" href="/assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/article.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
-            <nav id="nav" class="nav-solid">
+    <nav id="nav" class="nav-solid">
       <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
       <div class="nav-controls">
         <button
@@ -54,168 +57,168 @@
         </button>
       </div>
       <div class="nav-panel" id="navMenu">
-          <ul class="nav-links">
-            <li><a href="../index.html#about">About</a></li>
-            <li><a href="../index.html#experience">Experience</a></li>
-            <li><a href="../index.html#skills">Skills</a></li>
-            <li><a href="../index.html#projects">Projects</a></li>
-            <li><a href="index.html" class="active">Blog</a></li>
-            <li><a href="../index.html#contact">Contact</a></li>
-          </ul>
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
       </div>
     </nav>
 
     <main id="main">
-
-
-    <div class="article-hero">
-      <div class="article-hero-bg"></div>
-      <div class="article-hero-inner">
-        <div class="breadcrumb">
-          <a href="../index.html">Home</a><span>/</span>
-          <a href="index.html">Blog</a><span>/</span>
-          <span style="color: var(--text)">Nginx 502 Fix</span>
-        </div>
-        <p class="article-category">Nginx · SRE · Incident Writeup</p>
-        <h1>
-          Fixing the Nginx <em>502 Bad Gateway</em> — upstream sent too big
-          header
-        </h1>
-        <p class="article-subtitle">
-          Users couldn't log in across multiple internal services. No code had
-          changed. The fix was four lines of Nginx config.
-        </p>
-        <div class="article-meta-bar">
-          <span class="meta-item">📅 2025</span>
-          <span class="meta-item">⏱ 8 min read</span>
-          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
-          <div class="meta-tags">
-            <span class="meta-tag">Nginx</span>
-            <span class="meta-tag">SRE</span>
-            <span class="meta-tag">Production</span>
-            <span class="meta-tag">Incident</span>
-            <span class="meta-tag">DevOps</span>
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">Nginx 502 Fix</span>
+          </div>
+          <p class="article-category">Nginx · SRE · Incident Writeup</p>
+          <h1>
+            Fixing the Nginx <em>502 Bad Gateway</em> — upstream sent too big
+            header
+          </h1>
+          <p class="article-subtitle">
+            Users couldn't log in across multiple internal services. No code had
+            changed. The fix was four lines of Nginx config.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2025</span>
+            <span class="meta-item">⏱ 8 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">Nginx</span>
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">Production</span>
+              <span class="meta-tag">Incident</span>
+              <span class="meta-tag">DevOps</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="article-body">
-      <h2>Overview</h2>
-      <p>
-        Authentication failures started appearing across several internal
-        services simultaneously. Users attempting to log in were met with a
-        blank page or an error screen. No application code had changed. No
-        deployments had gone out. The infrastructure hadn't been touched.
-      </p>
-      <p>Checking the Nginx error logs told the story immediately:</p>
-      <div class="error-box">
-        <div class="box-label">nginx error.log</div>
-        upstream sent too big header while reading response header from upstream
-      </div>
-      <p>
-        This is a classic reverse proxy misconfiguration — one that's easy to
-        miss until your headers grow large enough to trigger it.
-      </p>
-
-      <h2>Root Cause</h2>
-      <p>
-        Nginx acts as a reverse proxy, sitting between the client (browser) and
-        the upstream application server. When the upstream returns a response,
-        Nginx reads the headers into an internal memory buffer before forwarding
-        to the client.
-      </p>
-      <p>
-        By default, these buffers are intentionally small — designed for the era
-        of simple HTTP responses with minimal headers. Modern web applications
-        are a different beast. They often return:
-      </p>
-      <ul class="body-list">
-        <li>Large JWT tokens or OAuth tokens set as cookies</li>
-        <li>Multiple session cookies from authentication providers</li>
-        <li>Feature flag headers from A/B testing frameworks</li>
-        <li>Verbose security headers (CSP, CORS, HSTS policies)</li>
-        <li>Multiple <code>Set-Cookie</code> directives from SSO systems</li>
-      </ul>
-      <p>
-        When the combined size of these headers exceeds Nginx's proxy buffer,
-        Nginx fails — returning a <code>502 Bad Gateway</code> to the client.
-      </p>
-
-      <h3>Request Flow — Before Fix</h3>
-      <div class="diagram">
-        <div class="diagram-label">What was happening</div>
-        <div class="flow-row">
-          <div class="box client">Browser</div>
-          <span class="arr">→</span>
-          <div class="box nginx">Nginx</div>
-          <span class="arr">→</span>
-          <div class="box up">App Server</div>
+      <div class="article-body">
+        <h2>Overview</h2>
+        <p>
+          Authentication failures started appearing across several internal
+          services simultaneously. Users attempting to log in were met with a
+          blank page or an error screen. No application code had changed. No
+          deployments had gone out. The infrastructure hadn't been touched.
+        </p>
+        <p>Checking the Nginx error logs told the story immediately:</p>
+        <div class="error-box">
+          <div class="box-label">nginx error.log</div>
+          upstream sent too big header while reading response header from
+          upstream
         </div>
-        <div class="flow-row" style="padding-left: 1rem; margin-top: 0.25rem">
-          <span class="arr r">←</span
-          ><span style="color: #444; font-size: 0.78rem">
-            Response with large auth headers</span
-          >
+        <p>
+          This is a classic reverse proxy misconfiguration — one that's easy to
+          miss until your headers grow large enough to trigger it.
+        </p>
+
+        <h2>Root Cause</h2>
+        <p>
+          Nginx acts as a reverse proxy, sitting between the client (browser)
+          and the upstream application server. When the upstream returns a
+          response, Nginx reads the headers into an internal memory buffer
+          before forwarding to the client.
+        </p>
+        <p>
+          By default, these buffers are intentionally small — designed for the
+          era of simple HTTP responses with minimal headers. Modern web
+          applications are a different beast. They often return:
+        </p>
+        <ul class="body-list">
+          <li>Large JWT tokens or OAuth tokens set as cookies</li>
+          <li>Multiple session cookies from authentication providers</li>
+          <li>Feature flag headers from A/B testing frameworks</li>
+          <li>Verbose security headers (CSP, CORS, HSTS policies)</li>
+          <li>Multiple <code>Set-Cookie</code> directives from SSO systems</li>
+        </ul>
+        <p>
+          When the combined size of these headers exceeds Nginx's proxy buffer,
+          Nginx fails — returning a <code>502 Bad Gateway</code> to the client.
+        </p>
+
+        <h3>Request Flow — Before Fix</h3>
+        <div class="diagram">
+          <div class="diagram-label">What was happening</div>
+          <div class="flow-row">
+            <div class="box client">Browser</div>
+            <span class="arr">→</span>
+            <div class="box nginx">Nginx</div>
+            <span class="arr">→</span>
+            <div class="box up">App Server</div>
+          </div>
+          <div class="flow-row" style="padding-left: 1rem; margin-top: 0.25rem">
+            <span class="arr r">←</span
+            ><span style="color: #444; font-size: 0.78rem">
+              Response with large auth headers</span
+            >
+          </div>
+          <div class="flow-row" style="padding-left: 1rem">
+            <div class="box fail">Buffer overflow → 502</div>
+            <span class="arr r">←</span>
+            <div class="box nginx">Nginx</div>
+          </div>
         </div>
-        <div class="flow-row" style="padding-left: 1rem">
-          <div class="box fail">Buffer overflow → 502</div>
-          <span class="arr r">←</span>
-          <div class="box nginx">Nginx</div>
+
+        <h2>Nginx Default Buffer Limits</h2>
+        <p>
+          To understand why this happens, it helps to know what Nginx's defaults
+          actually are:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Directive</th>
+              <th>Default</th>
+              <th>What It Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-dir">proxy_buffer_size</td>
+              <td class="td-old">4k / 8k</td>
+              <td>Buffer for the first part of the response (headers)</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_buffers</td>
+              <td class="td-old">8 × 4k/8k</td>
+              <td>Number and size of buffers for the response body</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_busy_buffers_size</td>
+              <td class="td-old">8k / 16k</td>
+              <td>Max size of buffers busy sending to the client</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_max_temp_file_size</td>
+              <td class="td-old">1024m</td>
+              <td>Max size of temp file when buffers are full</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="info-box">
+          💡 <strong>Note:</strong> <code>proxy_buffer_size</code> specifically
+          handles the response <em>header</em>. At 4–8 KB, a single large JWT
+          cookie can exceed this limit.
         </div>
-      </div>
 
-      <h2>Nginx Default Buffer Limits</h2>
-      <p>
-        To understand why this happens, it helps to know what Nginx's defaults
-        actually are:
-      </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Directive</th>
-            <th>Default</th>
-            <th>What It Controls</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="td-dir">proxy_buffer_size</td>
-            <td class="td-old">4k / 8k</td>
-            <td>Buffer for the first part of the response (headers)</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_buffers</td>
-            <td class="td-old">8 × 4k/8k</td>
-            <td>Number and size of buffers for the response body</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_busy_buffers_size</td>
-            <td class="td-old">8k / 16k</td>
-            <td>Max size of buffers busy sending to the client</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_max_temp_file_size</td>
-            <td class="td-old">1024m</td>
-            <td>Max size of temp file when buffers are full</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="info-box">
-        💡 <strong>Note:</strong> <code>proxy_buffer_size</code> specifically
-        handles the response <em>header</em>. At 4–8 KB, a single large JWT
-        cookie can exceed this limit.
-      </div>
+        <h2>The Fix</h2>
+        <p>
+          The solution is to increase the proxy buffer sizes in the
+          <code>location /</code> block of each affected server block, and to
+          disable temp file offloading — which can introduce disk I/O under
+          load.
+        </p>
 
-      <h2>The Fix</h2>
-      <p>
-        The solution is to increase the proxy buffer sizes in the
-        <code>location /</code> block of each affected server block, and to
-        disable temp file offloading — which can introduce disk I/O under load.
-      </p>
-
-      <h3>Configuration Change</h3>
-      <pre><span class="file-label">nginx.conf / site config</span><code><span class="cm"># Inside the relevant server block</span>
+        <h3>Configuration Change</h3>
+        <pre><span class="file-label">nginx.conf / site config</span><code><span class="cm"># Inside the relevant server block</span>
 server {
     ...
 
@@ -230,196 +233,194 @@ server {
     }
 }</code></pre>
 
-      <h3>What Each Directive Does</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Directive</th>
-            <th>Old</th>
-            <th>New</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="td-dir">proxy_buffer_size</td>
-            <td class="td-old">8k</td>
-            <td class="td-new">128k</td>
-            <td>Handles large response headers including auth tokens</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_buffers</td>
-            <td class="td-old">8 × 4k</td>
-            <td class="td-new">4 × 256k</td>
-            <td>1MB total buffer capacity for response bodies</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_busy_buffers_size</td>
-            <td class="td-old">16k</td>
-            <td class="td-new">256k</td>
-            <td>More data in-flight to the client at once</td>
-          </tr>
-          <tr>
-            <td class="td-dir">proxy_max_temp_file_size</td>
-            <td class="td-old">1024m</td>
-            <td class="td-new">0 (off)</td>
-            <td>Eliminates disk I/O fallback; keep in memory</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="warn-box">
-        ⚠️ <strong>On proxy_max_temp_file_size 0:</strong> Setting this to
-        <code>0</code> disables disk spilling entirely. Appropriate when
-        upstream responses fit in your configured buffers. If you serve large
-        file downloads, consider leaving temp files enabled and only increasing
-        <code>proxy_buffer_size</code>.
-      </div>
+        <h3>What Each Directive Does</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Directive</th>
+              <th>Old</th>
+              <th>New</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-dir">proxy_buffer_size</td>
+              <td class="td-old">8k</td>
+              <td class="td-new">128k</td>
+              <td>Handles large response headers including auth tokens</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_buffers</td>
+              <td class="td-old">8 × 4k</td>
+              <td class="td-new">4 × 256k</td>
+              <td>1MB total buffer capacity for response bodies</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_busy_buffers_size</td>
+              <td class="td-old">16k</td>
+              <td class="td-new">256k</td>
+              <td>More data in-flight to the client at once</td>
+            </tr>
+            <tr>
+              <td class="td-dir">proxy_max_temp_file_size</td>
+              <td class="td-old">1024m</td>
+              <td class="td-new">0 (off)</td>
+              <td>Eliminates disk I/O fallback; keep in memory</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="warn-box">
+          ⚠️ <strong>On proxy_max_temp_file_size 0:</strong> Setting this to
+          <code>0</code> disables disk spilling entirely. Appropriate when
+          upstream responses fit in your configured buffers. If you serve large
+          file downloads, consider leaving temp files enabled and only
+          increasing <code>proxy_buffer_size</code>.
+        </div>
 
-      <h2>Applying the Change Safely</h2>
-      <p>
-        Always validate your Nginx config before reloading. A syntax error will
-        take down your server.
-      </p>
-      <pre><code><span class="bp">$ </span><span class="cp">sudo nginx -t</span>
+        <h2>Applying the Change Safely</h2>
+        <p>
+          Always validate your Nginx config before reloading. A syntax error
+          will take down your server.
+        </p>
+        <pre><code><span class="bp">$ </span><span class="cp">sudo nginx -t</span>
 <span style="color:var(--green)">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful</span>
 
 <span class="bp">$ </span><span class="cp">sudo systemctl reload nginx</span></code></pre>
-      <p>
-        Using <code>reload</code> instead of <code>restart</code> is important —
-        it performs a graceful reload that finishes in-flight requests with zero
-        downtime.
-      </p>
-
-      <h3>Request Flow — After Fix</h3>
-      <div class="diagram">
-        <div class="diagram-label">After the fix</div>
-        <div class="flow-row">
-          <div class="box client">Browser</div>
-          <span class="arr">→</span>
-          <div class="box nginx">Nginx</div>
-          <span class="arr">→</span>
-          <div class="box up">App Server</div>
-        </div>
-        <div class="flow-row" style="padding-left: 1rem">
-          <div class="box ok">Buffered → 200 OK</div>
-          <span class="arr g">←</span>
-          <div class="box nginx">Nginx (128k buffer)</div>
-          <span class="arr g">←</span
-          ><span style="color: #444; font-size: 0.78rem">Large headers</span>
-        </div>
-      </div>
-      <div class="success-box">
-        <strong>✅ Result:</strong> Login restored immediately across all
-        affected services. No application changes required. Zero downtime during
-        the fix.
-      </div>
-
-      <h2>Prevention & Best Practices</h2>
-      <ul class="body-list">
-        <li>
-          <strong>Set sensible buffer defaults globally</strong> — Add proxy
-          buffer sizes to your base Nginx template so all new server blocks
-          inherit them.
-        </li>
-        <li>
-          <strong>Monitor header sizes</strong> — Periodically inspect
-          auth-heavy response headers with <code>curl -I</code> or log
-          <code>$upstream_http_*</code> variables.
-        </li>
-        <li>
-          <strong>Scope changes to affected locations</strong> — Apply increased
-          buffers only to <code>location /</code> blocks that need them. Don't
-          waste memory on static asset endpoints.
-        </li>
-        <li>
-          <strong>Keep auth tokens lean</strong> — Audit what's in your cookies
-          and JWT claims. Large tokens with redundant data are often the
-          upstream root cause.
-        </li>
-        <li>
-          <strong>Alert on 502 spike rates</strong> — A sudden increase in Nginx
-          502s is often the first signal of buffer exhaustion. Set thresholds
-          before users notice.
-        </li>
-      </ul>
-
-      <div class="takeaway">
-        <h3>💡 Key Engineering Takeaway</h3>
         <p>
-          Not every 502 is an application crash. Nginx's default proxy buffer
-          sizes were designed for a simpler era of HTTP. As authentication
-          systems have grown more sophisticated — SSO, JWTs, OAuth — response
-          headers have grown with them. Infrastructure defaults need to keep
-          pace. A four-line config change resolved a production incident that
-          looked, on the surface, like a broken login system.
+          Using <code>reload</code> instead of <code>restart</code> is important
+          — it performs a graceful reload that finishes in-flight requests with
+          zero downtime.
         </p>
-      </div>
 
-      <h2>References</h2>
-      <ul class="body-list">
-        <li>
-          <a
-            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffer_size"
-            target="_blank"
-            >Nginx Docs — proxy_buffer_size</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffers"
-            target="_blank"
-            >Nginx Docs — proxy_buffers</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_busy_buffers_size"
-            target="_blank"
-            >Nginx Docs — proxy_busy_buffers_size</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_max_temp_file_size"
-            target="_blank"
-            >Nginx Docs — proxy_max_temp_file_size</a
-          >
-        </li>
-      </ul>
-
-      <div class="article-footer">
-        <div class="article-footer-label">Written by</div>
-        <div class="author-card">
-          <div class="author-avatar">F</div>
-          <div class="author-details">
-            <div class="author-name">Francis Morkeh Mensah</div>
-            <div class="author-title">
-              Site Reliability Engineer · AWS Community Builder
-            </div>
-            <div class="author-bio">
-              Building and operating cloud-native production systems at Hubtel.
-              Writing about SRE, infrastructure, and the lessons learned from
-              production failures.
-            </div>
+        <h3>Request Flow — After Fix</h3>
+        <div class="diagram">
+          <div class="diagram-label">After the fix</div>
+          <div class="flow-row">
+            <div class="box client">Browser</div>
+            <span class="arr">→</span>
+            <div class="box nginx">Nginx</div>
+            <span class="arr">→</span>
+            <div class="box up">App Server</div>
+          </div>
+          <div class="flow-row" style="padding-left: 1rem">
+            <div class="box ok">Buffered → 200 OK</div>
+            <span class="arr g">←</span>
+            <div class="box nginx">Nginx (128k buffer)</div>
+            <span class="arr g">←</span
+            ><span style="color: #444; font-size: 0.78rem">Large headers</span>
           </div>
         </div>
-        <div class="article-tags-footer">
-          <span class="atag">#Nginx</span><span class="atag">#SRE</span
-          ><span class="atag">#DevOps</span><span class="atag">#502</span
-          ><span class="atag">#ReverseProxy</span
-          ><span class="atag">#IncidentResponse</span
-          ><span class="atag">#WebInfrastructure</span>
+        <div class="success-box">
+          <strong>✅ Result:</strong> Login restored immediately across all
+          affected services. No application changes required. Zero downtime
+          during the fix.
         </div>
-        <div class="post-nav">
-          <a href="index.html" class="btn-secondary">← Back to Blog</a>
-          <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+
+        <h2>Prevention & Best Practices</h2>
+        <ul class="body-list">
+          <li>
+            <strong>Set sensible buffer defaults globally</strong> — Add proxy
+            buffer sizes to your base Nginx template so all new server blocks
+            inherit them.
+          </li>
+          <li>
+            <strong>Monitor header sizes</strong> — Periodically inspect
+            auth-heavy response headers with <code>curl -I</code> or log
+            <code>$upstream_http_*</code> variables.
+          </li>
+          <li>
+            <strong>Scope changes to affected locations</strong> — Apply
+            increased buffers only to <code>location /</code> blocks that need
+            them. Don't waste memory on static asset endpoints.
+          </li>
+          <li>
+            <strong>Keep auth tokens lean</strong> — Audit what's in your
+            cookies and JWT claims. Large tokens with redundant data are often
+            the upstream root cause.
+          </li>
+          <li>
+            <strong>Alert on 502 spike rates</strong> — A sudden increase in
+            Nginx 502s is often the first signal of buffer exhaustion. Set
+            thresholds before users notice.
+          </li>
+        </ul>
+
+        <div class="takeaway">
+          <h3>💡 Key Engineering Takeaway</h3>
+          <p>
+            Not every 502 is an application crash. Nginx's default proxy buffer
+            sizes were designed for a simpler era of HTTP. As authentication
+            systems have grown more sophisticated — SSO, JWTs, OAuth — response
+            headers have grown with them. Infrastructure defaults need to keep
+            pace. A four-line config change resolved a production incident that
+            looked, on the surface, like a broken login system.
+          </p>
+        </div>
+
+        <h2>References</h2>
+        <ul class="body-list">
+          <li>
+            <a
+              href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffer_size"
+              target="_blank"
+              >Nginx Docs — proxy_buffer_size</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffers"
+              target="_blank"
+              >Nginx Docs — proxy_buffers</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_busy_buffers_size"
+              target="_blank"
+              >Nginx Docs — proxy_busy_buffers_size</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_max_temp_file_size"
+              target="_blank"
+              >Nginx Docs — proxy_max_temp_file_size</a
+            >
+          </li>
+        </ul>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Written by</div>
+          <div class="author-card">
+            <div class="author-avatar">F</div>
+            <div class="author-details">
+              <div class="author-name">Francis Morkeh Mensah</div>
+              <div class="author-title">
+                Site Reliability Engineer · AWS Community Builder
+              </div>
+              <div class="author-bio">
+                Building and operating cloud-native production systems at
+                Hubtel. Writing about SRE, infrastructure, and the lessons
+                learned from production failures.
+              </div>
+            </div>
+          </div>
+          <div class="article-tags-footer">
+            <span class="atag">#Nginx</span><span class="atag">#SRE</span
+            ><span class="atag">#DevOps</span><span class="atag">#502</span
+            ><span class="atag">#ReverseProxy</span
+            ><span class="atag">#IncidentResponse</span
+            ><span class="atag">#WebInfrastructure</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
         </div>
       </div>
-    </div>
-
     </main>
-
 
     <footer>
       <div class="footer-copy">
@@ -429,6 +430,6 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful</span>
         Built with intention. <span>Reliable by design.</span>
       </div>
     </footer>
-    <script src="/assets/site.js?v=1779622165" defer></script>
+    <script src="../assets/site.js?v=1779622165" defer></script>
   </body>
 </html>

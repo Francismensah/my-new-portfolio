@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Writing Postmortems That Drive Real Change — infrabyfrancis.me</title>
+    <title>
+      Writing Postmortems That Drive Real Change — infrabyfrancis.me
+    </title>
     <meta
       name="description"
       content="A practical SRE framework for blameless postmortems that produce owned action items, prevent repeat incidents, and actually change how teams operate."
@@ -22,15 +24,15 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-    <link rel="stylesheet" href="/assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/article.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
-            <nav id="nav" class="nav-solid">
+    <nav id="nav" class="nav-solid">
       <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
       <div class="nav-controls">
         <button
@@ -57,258 +59,259 @@
         </button>
       </div>
       <div class="nav-panel" id="navMenu">
-          <ul class="nav-links">
-            <li><a href="../index.html#about">About</a></li>
-            <li><a href="../index.html#experience">Experience</a></li>
-            <li><a href="../index.html#skills">Skills</a></li>
-            <li><a href="../index.html#projects">Projects</a></li>
-            <li><a href="index.html" class="active">Blog</a></li>
-            <li><a href="../index.html#contact">Contact</a></li>
-          </ul>
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
       </div>
     </nav>
 
     <main id="main">
-
-
-    <div class="article-hero">
-      <div class="article-hero-bg"></div>
-      <div class="article-hero-inner">
-        <div class="breadcrumb">
-          <a href="../index.html">Home</a><span>/</span>
-          <a href="index.html">Blog</a><span>/</span>
-          <span style="color: var(--text)">Postmortems</span>
-        </div>
-        <p class="article-category">SRE · Incident · Culture</p>
-        <h1>
-          Writing Postmortems That <em>Drive Real Change</em>
-        </h1>
-        <p class="article-subtitle">
-          Blameless is not the same as inconclusive. A good postmortem names what
-          broke, assigns owned follow-ups, and makes the next incident cheaper —
-          or impossible.
-        </p>
-        <div class="article-meta-bar">
-          <span class="meta-item">📅 2026</span>
-          <span class="meta-item">⏱ 11 min read</span>
-          <span class="meta-item">✍️ Francis Morkeh Mensah</span>
-          <div class="meta-tags">
-            <span class="meta-tag">SRE</span>
-            <span class="meta-tag">Incident</span>
-            <span class="meta-tag">Postmortem</span>
-            <span class="meta-tag">Reliability</span>
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">Postmortems</span>
+          </div>
+          <p class="article-category">SRE · Incident · Culture</p>
+          <h1>Writing Postmortems That <em>Drive Real Change</em></h1>
+          <p class="article-subtitle">
+            Blameless is not the same as inconclusive. A good postmortem names
+            what broke, assigns owned follow-ups, and makes the next incident
+            cheaper — or impossible.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 11 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">Incident</span>
+              <span class="meta-tag">Postmortem</span>
+              <span class="meta-tag">Reliability</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="article-body">
-      <h2>Why Most Postmortems Fail</h2>
-      <p>
-        I have read hundreds of incident documents titled “postmortem” that were
-        really just polished timelines with a closing paragraph that said “we will
-        do better.” Nobody owned anything. Nothing shipped. Six months later the
-        same failure mode returned with a different error message.
-      </p>
-      <p>
-        Teams adopt “blameless culture” and accidentally produce
-        <strong>accountability-less culture</strong>. The writeup becomes a
-        performance of empathy instead of a contract for improvement.
-      </p>
-      <p>
-        A postmortem that drives change does three things well:
-      </p>
-      <ul class="body-list">
-        <li>It explains the incident in terms a new engineer can understand.</li>
-        <li>
-          It separates symptoms, proximate causes, and systemic contributing
-          factors.
-        </li>
-        <li>
-          It ends with tracked action items — each with an owner, a priority, and
-          a verification method.
-        </li>
-      </ul>
+      <div class="article-body">
+        <h2>Why Most Postmortems Fail</h2>
+        <p>
+          I have read hundreds of incident documents titled “postmortem” that
+          were really just polished timelines with a closing paragraph that said
+          “we will do better.” Nobody owned anything. Nothing shipped. Six
+          months later the same failure mode returned with a different error
+          message.
+        </p>
+        <p>
+          Teams adopt “blameless culture” and accidentally produce
+          <strong>accountability-less culture</strong>. The writeup becomes a
+          performance of empathy instead of a contract for improvement.
+        </p>
+        <p>A postmortem that drives change does three things well:</p>
+        <ul class="body-list">
+          <li>
+            It explains the incident in terms a new engineer can understand.
+          </li>
+          <li>
+            It separates symptoms, proximate causes, and systemic contributing
+            factors.
+          </li>
+          <li>
+            It ends with tracked action items — each with an owner, a priority,
+            and a verification method.
+          </li>
+        </ul>
 
-      <div class="info-box">
-        💡 <strong>Rule of thumb:</strong> If your postmortem could be published
-        without embarrassing anyone but also without changing any process, it is
-        not finished.
-      </div>
-
-      <h2>When to Write It</h2>
-      <p>
-        Start within <strong>48 hours</strong> of resolution while memories are
-        fresh. Do not wait for perfect data — waiting is how incidents become
-        folklore.
-      </p>
-      <p>
-        Timebox the meeting to <strong>60–90 minutes</strong>. Longer sessions
-        decay into therapy. Shorter ones skip the systemic layer.
-      </p>
-      <ul class="body-list">
-        <li><strong>SEV-1 / customer-visible:</strong> full postmortem required.</li>
-        <li>
-          <strong>SEV-2 / major internal impact:</strong> full postmortem or
-          lightweight review — pick one standard and stick to it.
-        </li>
-        <li>
-          <strong>Near-miss:</strong> short writeup still worth it; prevention is
-          cheaper than outage.
-        </li>
-      </ul>
-
-      <h2>The Structure That Works</h2>
-      <p>
-        I use the same skeleton for every serious incident. Consistency makes
-        reviews faster and comparisons across incidents possible.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Section</th>
-            <th>Purpose</th>
-            <th>Common mistake</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="td-dir">Summary</td>
-            <td>What happened, who was affected, how long</td>
-            <td>Burying the lede in technical detail</td>
-          </tr>
-          <tr>
-            <td class="td-dir">Impact</td>
-            <td>Users, revenue, SLO burn, toil hours</td>
-            <td>“Some users were affected” with no numbers</td>
-          </tr>
-          <tr>
-            <td class="td-dir">Timeline</td>
-            <td>UTC timestamps, detection → mitigation → recovery</td>
-            <td>Narrative prose with no times</td>
-          </tr>
-          <tr>
-            <td class="td-dir">Root cause</td>
-            <td>The failure chain, not the first alert</td>
-            <td>Stopping at “human error”</td>
-          </tr>
-          <tr>
-            <td class="td-dir">Contributing factors</td>
-            <td>Process, design, capacity, observability gaps</td>
-            <td>Treating as optional appendix</td>
-          </tr>
-          <tr>
-            <td class="td-dir">What went well</td>
-            <td>Reinforce behaviors to keep</td>
-            <td>Skipping entirely (morale matters)</td>
-          </tr>
-          <tr>
-            <td class="td-dir">Action items</td>
-            <td>Owned, prioritized, ticket-linked</td>
-            <td>“Improve monitoring” with no owner</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2>Blameless, Not Vague</h2>
-      <p>
-        Blameless means we optimize for <strong>learning</strong>, not for
-        protecting egos. It does not mean we avoid naming decisions.
-      </p>
-      <p>Replace blame language with systems language:</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Weak (blame-adjacent)</th>
-            <th>Strong (systems-focused)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="td-old">“Alice deployed the wrong config.”</td>
-            <td class="td-new">
-              “Production config lacked schema validation; invalid values were
-              accepted and propagated.”
-            </td>
-          </tr>
-          <tr>
-            <td class="td-old">“The on-call missed the alert.”</td>
-            <td class="td-new">
-              “Alert routed to a low-signal channel; no paging policy matched
-              SEV-1 latency burn.”
-            </td>
-          </tr>
-          <tr>
-            <td class="td-old">“Team B did not communicate.”</td>
-            <td class="td-new">
-              “Incident commander role was undefined; status updates had no
-              required cadence or template.”
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="warn-box">
-        If your root cause is only “operator mistake,” keep asking why the system
-        allowed that mistake to reach production.
-      </div>
-
-      <h2>Root Cause vs. Contributing Factors</h2>
-      <p>
-        <strong>Root cause</strong> is the earliest point in the chain where a
-        different decision or guardrail would have prevented harm — or reduced it
-        materially.
-      </p>
-      <p>
-        <strong>Contributing factors</strong> are conditions that made the incident
-        worse or slower to resolve: missing dashboards, unclear runbooks, on-call
-        fatigue, dependency without timeout, change freeze ignored.
-      </p>
-
-      <h3>Example failure chain</h3>
-      <div class="diagram">
-        <div class="diagram-label">Payment timeout incident (simplified)</div>
-        <div class="flow-row">
-          <div class="box client">Traffic spike</div>
-          <span class="arr">→</span>
-          <div class="box up">DB connection pool exhausted</div>
-          <span class="arr">→</span>
-          <div class="box nginx">Retries amplified load</div>
+        <div class="info-box">
+          💡 <strong>Rule of thumb:</strong> If your postmortem could be
+          published without embarrassing anyone but also without changing any
+          process, it is not finished.
         </div>
-        <div class="flow-row" style="padding-left: 1rem; margin-top: 0.25rem">
-          <span class="arr r">←</span>
-          <div class="box fail">Checkout errors · SLO burn</div>
+
+        <h2>When to Write It</h2>
+        <p>
+          Start within <strong>48 hours</strong> of resolution while memories
+          are fresh. Do not wait for perfect data — waiting is how incidents
+          become folklore.
+        </p>
+        <p>
+          Timebox the meeting to <strong>60–90 minutes</strong>. Longer sessions
+          decay into therapy. Shorter ones skip the systemic layer.
+        </p>
+        <ul class="body-list">
+          <li>
+            <strong>SEV-1 / customer-visible:</strong> full postmortem required.
+          </li>
+          <li>
+            <strong>SEV-2 / major internal impact:</strong> full postmortem or
+            lightweight review — pick one standard and stick to it.
+          </li>
+          <li>
+            <strong>Near-miss:</strong> short writeup still worth it; prevention
+            is cheaper than outage.
+          </li>
+        </ul>
+
+        <h2>The Structure That Works</h2>
+        <p>
+          I use the same skeleton for every serious incident. Consistency makes
+          reviews faster and comparisons across incidents possible.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>Purpose</th>
+              <th>Common mistake</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-dir">Summary</td>
+              <td>What happened, who was affected, how long</td>
+              <td>Burying the lede in technical detail</td>
+            </tr>
+            <tr>
+              <td class="td-dir">Impact</td>
+              <td>Users, revenue, SLO burn, toil hours</td>
+              <td>“Some users were affected” with no numbers</td>
+            </tr>
+            <tr>
+              <td class="td-dir">Timeline</td>
+              <td>UTC timestamps, detection → mitigation → recovery</td>
+              <td>Narrative prose with no times</td>
+            </tr>
+            <tr>
+              <td class="td-dir">Root cause</td>
+              <td>The failure chain, not the first alert</td>
+              <td>Stopping at “human error”</td>
+            </tr>
+            <tr>
+              <td class="td-dir">Contributing factors</td>
+              <td>Process, design, capacity, observability gaps</td>
+              <td>Treating as optional appendix</td>
+            </tr>
+            <tr>
+              <td class="td-dir">What went well</td>
+              <td>Reinforce behaviors to keep</td>
+              <td>Skipping entirely (morale matters)</td>
+            </tr>
+            <tr>
+              <td class="td-dir">Action items</td>
+              <td>Owned, prioritized, ticket-linked</td>
+              <td>“Improve monitoring” with no owner</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Blameless, Not Vague</h2>
+        <p>
+          Blameless means we optimize for <strong>learning</strong>, not for
+          protecting egos. It does not mean we avoid naming decisions.
+        </p>
+        <p>Replace blame language with systems language:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Weak (blame-adjacent)</th>
+              <th>Strong (systems-focused)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-old">“Alice deployed the wrong config.”</td>
+              <td class="td-new">
+                “Production config lacked schema validation; invalid values were
+                accepted and propagated.”
+              </td>
+            </tr>
+            <tr>
+              <td class="td-old">“The on-call missed the alert.”</td>
+              <td class="td-new">
+                “Alert routed to a low-signal channel; no paging policy matched
+                SEV-1 latency burn.”
+              </td>
+            </tr>
+            <tr>
+              <td class="td-old">“Team B did not communicate.”</td>
+              <td class="td-new">
+                “Incident commander role was undefined; status updates had no
+                required cadence or template.”
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warn-box">
+          If your root cause is only “operator mistake,” keep asking why the
+          system allowed that mistake to reach production.
         </div>
-      </div>
-      <p>
-        Symptom: checkout errors. Proximate cause: pool exhaustion. Systemic
-        causes: no autoscaling signal on pool wait time, retry policy without
-        jitter, load test never covered peak + retry scenario.
-      </p>
 
-      <h2>Action Items That Actually Ship</h2>
-      <p>
-        Every action item needs four fields. If one is missing, it will not ship.
-      </p>
-      <ul class="body-list">
-        <li><strong>Owner</strong> — one person, not a team mailing list.</li>
-        <li>
-          <strong>Priority</strong> — P0 (prevent recurrence) vs P1 (reduce
-          detection time) vs P2 (hygiene).
-        </li>
-        <li>
-          <strong>Ticket link</strong> — Jira, Linear, GitHub issue; visible in
-          your incident tracker.
-        </li>
-        <li>
-          <strong>Done means</strong> — measurable: “alert fires within 2 min of
-          pool &gt; 80%,” not “improve docs.”
-        </li>
-      </ul>
+        <h2>Root Cause vs. Contributing Factors</h2>
+        <p>
+          <strong>Root cause</strong> is the earliest point in the chain where a
+          different decision or guardrail would have prevented harm — or reduced
+          it materially.
+        </p>
+        <p>
+          <strong>Contributing factors</strong> are conditions that made the
+          incident worse or slower to resolve: missing dashboards, unclear
+          runbooks, on-call fatigue, dependency without timeout, change freeze
+          ignored.
+        </p>
 
-      <pre><span class="file-label">action-item template</span><code><span class="cm"># Example — good action item</span>
+        <h3>Example failure chain</h3>
+        <div class="diagram">
+          <div class="diagram-label">Payment timeout incident (simplified)</div>
+          <div class="flow-row">
+            <div class="box client">Traffic spike</div>
+            <span class="arr">→</span>
+            <div class="box up">DB connection pool exhausted</div>
+            <span class="arr">→</span>
+            <div class="box nginx">Retries amplified load</div>
+          </div>
+          <div class="flow-row" style="padding-left: 1rem; margin-top: 0.25rem">
+            <span class="arr r">←</span>
+            <div class="box fail">Checkout errors · SLO burn</div>
+          </div>
+        </div>
+        <p>
+          Symptom: checkout errors. Proximate cause: pool exhaustion. Systemic
+          causes: no autoscaling signal on pool wait time, retry policy without
+          jitter, load test never covered peak + retry scenario.
+        </p>
+
+        <h2>Action Items That Actually Ship</h2>
+        <p>
+          Every action item needs four fields. If one is missing, it will not
+          ship.
+        </p>
+        <ul class="body-list">
+          <li><strong>Owner</strong> — one person, not a team mailing list.</li>
+          <li>
+            <strong>Priority</strong> — P0 (prevent recurrence) vs P1 (reduce
+            detection time) vs P2 (hygiene).
+          </li>
+          <li>
+            <strong>Ticket link</strong> — Jira, Linear, GitHub issue; visible
+            in your incident tracker.
+          </li>
+          <li>
+            <strong>Done means</strong> — measurable: “alert fires within 2 min
+            of pool &gt; 80%,” not “improve docs.”
+          </li>
+        </ul>
+
+        <pre><span class="file-label">action-item template</span><code><span class="cm"># Example — good action item</span>
 <span class="cd">Title:</span>     Page when payment DB pool wait p95 &gt; 500ms for 3m
 <span class="cd">Owner:</span>     @platform-oncall
 <span class="cd">Priority:</span>  P0
@@ -322,121 +325,120 @@
 <span class="cd">Ticket:</span>    —
 <span class="cd">Done when:</span> —</code></pre>
 
-      <h3>Cap action items</h3>
-      <p>
-        More than <strong>five</strong> P0 items means nothing is P0. Prefer three
-        high-leverage fixes over twelve aspirational ones. Defer hygiene to the
-        backlog with honest priority.
-      </p>
-
-      <h2>Facilitation Tips</h2>
-      <p>Whoever runs the meeting sets the tone.</p>
-      <ul class="body-list">
-        <li>
-          Send the draft timeline and impact summary <em>before</em> the meeting.
-        </li>
-        <li>
-          Use a single notetaker; rotate the role so it is not always the incident
-          commander.
-        </li>
-        <li>
-          Ask “what would have made this impossible?” not only “what broke?”
-        </li>
-        <li>
-          End with a read-aloud of action items and owners — verbal commitment
-          matters.
-        </li>
-        <li>
-          Schedule a <strong>30-day follow-up</strong> review in the same calendar
-          series as the incident.
-        </li>
-      </ul>
-
-      <div class="success-box">
-        <strong>What good looks like:</strong> In the next quarterly review, you
-        can point to closed tickets traced directly to postmortems — and incident
-        recurrence rate for the same category drops.
-      </div>
-
-      <h2>Anti-Patterns to Reject</h2>
-      <ul class="body-list">
-        <li>
-          <strong>The novel</strong> — 40 pages nobody reads. Link deep dives;
-          keep the core doc scannable.
-        </li>
-        <li>
-          <strong>The verdict</strong> — disguised performance review language in
-          a “blameless” doc.
-        </li>
-        <li>
-          <strong>The infinite timeline</strong> — millisecond precision on
-          irrelevant events; missing detection and customer impact times.
-        </li>
-        <li>
-          <strong>The ritual</strong> — postmortem filed because policy requires
-          it, with no attendance from decision-makers.
-        </li>
-        <li>
-          <strong>The graveyard</strong> — 200 open action items, zero closed;
-          team learns postmortems are theater.
-        </li>
-      </ul>
-
-      <h2>Closing the Loop</h2>
-      <p>
-        Publish internally (and externally when appropriate). Tag the service,
-        the failure category, and the quarter. Build a simple dashboard: open vs
-        closed postmortem actions, age, repeat incidents by category.
-      </p>
-      <p>
-        Leadership signal matters. When an exec asks “what did we change after
-        INC-4821?” and someone answers with a merged PR and a new alert, the
-        culture sticks. When the answer is silence, the next postmortem will be
-        thinner.
-      </p>
-
-      <div class="takeaway">
-        <h3>Key Lesson</h3>
+        <h3>Cap action items</h3>
         <p>
-          A blameless postmortem is not a mood. It is a delivery mechanism for
-          owned, verified improvements. Write less fluff, name the system, assign
-          the work, and review the receipts in 30 days.
+          More than <strong>five</strong> P0 items means nothing is P0. Prefer
+          three high-leverage fixes over twelve aspirational ones. Defer hygiene
+          to the backlog with honest priority.
         </p>
-      </div>
 
-      <div class="article-footer">
-        <div class="article-footer-label">Written by</div>
-        <div class="author-card">
-          <div class="author-avatar">F</div>
-          <div class="author-details">
-            <div class="author-name">Francis Morkeh Mensah</div>
-            <div class="author-title">
-              Site Reliability Engineer · AWS Community Builder
-            </div>
-            <div class="author-bio">
-              Building and operating cloud-native production systems at Hubtel.
-              Writing about incidents, reliability culture, and what actually
-              works after the outage ends.
+        <h2>Facilitation Tips</h2>
+        <p>Whoever runs the meeting sets the tone.</p>
+        <ul class="body-list">
+          <li>
+            Send the draft timeline and impact summary <em>before</em> the
+            meeting.
+          </li>
+          <li>
+            Use a single notetaker; rotate the role so it is not always the
+            incident commander.
+          </li>
+          <li>
+            Ask “what would have made this impossible?” not only “what broke?”
+          </li>
+          <li>
+            End with a read-aloud of action items and owners — verbal commitment
+            matters.
+          </li>
+          <li>
+            Schedule a <strong>30-day follow-up</strong> review in the same
+            calendar series as the incident.
+          </li>
+        </ul>
+
+        <div class="success-box">
+          <strong>What good looks like:</strong> In the next quarterly review,
+          you can point to closed tickets traced directly to postmortems — and
+          incident recurrence rate for the same category drops.
+        </div>
+
+        <h2>Anti-Patterns to Reject</h2>
+        <ul class="body-list">
+          <li>
+            <strong>The novel</strong> — 40 pages nobody reads. Link deep dives;
+            keep the core doc scannable.
+          </li>
+          <li>
+            <strong>The verdict</strong> — disguised performance review language
+            in a “blameless” doc.
+          </li>
+          <li>
+            <strong>The infinite timeline</strong> — millisecond precision on
+            irrelevant events; missing detection and customer impact times.
+          </li>
+          <li>
+            <strong>The ritual</strong> — postmortem filed because policy
+            requires it, with no attendance from decision-makers.
+          </li>
+          <li>
+            <strong>The graveyard</strong> — 200 open action items, zero closed;
+            team learns postmortems are theater.
+          </li>
+        </ul>
+
+        <h2>Closing the Loop</h2>
+        <p>
+          Publish internally (and externally when appropriate). Tag the service,
+          the failure category, and the quarter. Build a simple dashboard: open
+          vs closed postmortem actions, age, repeat incidents by category.
+        </p>
+        <p>
+          Leadership signal matters. When an exec asks “what did we change after
+          INC-4821?” and someone answers with a merged PR and a new alert, the
+          culture sticks. When the answer is silence, the next postmortem will
+          be thinner.
+        </p>
+
+        <div class="takeaway">
+          <h3>Key Lesson</h3>
+          <p>
+            A blameless postmortem is not a mood. It is a delivery mechanism for
+            owned, verified improvements. Write less fluff, name the system,
+            assign the work, and review the receipts in 30 days.
+          </p>
+        </div>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Written by</div>
+          <div class="author-card">
+            <div class="author-avatar">F</div>
+            <div class="author-details">
+              <div class="author-name">Francis Morkeh Mensah</div>
+              <div class="author-title">
+                Site Reliability Engineer · AWS Community Builder
+              </div>
+              <div class="author-bio">
+                Building and operating cloud-native production systems at
+                Hubtel. Writing about incidents, reliability culture, and what
+                actually works after the outage ends.
+              </div>
             </div>
           </div>
-        </div>
-        <div class="article-tags-footer">
-          <span class="atag">#SRE</span>
-          <span class="atag">#Postmortem</span>
-          <span class="atag">#IncidentResponse</span>
-          <span class="atag">#Blameless</span>
-          <span class="atag">#Reliability</span>
-          <span class="atag">#Production</span>
-        </div>
-        <div class="post-nav">
-          <a href="index.html" class="btn-secondary">← Back to Blog</a>
-          <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          <div class="article-tags-footer">
+            <span class="atag">#SRE</span>
+            <span class="atag">#Postmortem</span>
+            <span class="atag">#IncidentResponse</span>
+            <span class="atag">#Blameless</span>
+            <span class="atag">#Reliability</span>
+            <span class="atag">#Production</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
         </div>
       </div>
-    </div>
-
     </main>
-
 
     <footer>
       <div class="footer-copy">
@@ -446,6 +448,6 @@
         Built with intention. <span>Reliable by design.</span>
       </div>
     </footer>
-    <script src="/assets/site.js?v=1779622165" defer></script>
+    <script src="../assets/site.js?v=1779622165" defer></script>
   </body>
 </html>

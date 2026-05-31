@@ -18,9 +18,9 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-    <link rel="stylesheet" href="/assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="/assets/blog.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/blog.css?v=1779622165" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -65,179 +65,288 @@
     </nav>
 
     <main id="main">
-
-
-    <div class="page-header">
-      <p class="page-header-label">Engineering Blog</p>
-      <h1>Infra. Reliability.<br />Production lessons.</h1>
-      <p class="page-header-sub">
-        Real-world writeups from the trenches of SRE and cloud infrastructure.
-      </p>
-    </div>
-
-    <div class="blog-wrap">
-      <div class="filter-bar reveal">
-        <!-- build:filters -->
-        <button type="button" class="filter-btn active" data-filter="All">All</button>
-        <button type="button" class="filter-btn" data-filter="SRE">SRE</button>
-        <button type="button" class="filter-btn" data-filter="Deployment">Deployment</button>
-        <button type="button" class="filter-btn" data-filter="Nginx">Nginx</button>
-        <button type="button" class="filter-btn" data-filter="Terraform">Terraform</button>
-        <button type="button" class="filter-btn" data-filter="Kubernetes">Kubernetes</button>
-        <button type="button" class="filter-btn" data-filter="Observability">Observability</button>
-        <button type="button" class="filter-btn" data-filter="Incident">Incident</button>
-      <!-- /build:filters -->
+      <div class="page-header">
+        <p class="page-header-label">Engineering Blog</p>
+        <h1>Infra. Reliability.<br />Production lessons.</h1>
+        <p class="page-header-sub">
+          Real-world writeups from the trenches of SRE and cloud infrastructure.
+        </p>
       </div>
 
-      <!-- Featured -->
-      <!-- build:featured -->
-      <a
-        href="building-and-deploying-my-portfolio.html"
-        class="featured-article reveal"
-      >
-        <span class="featured-label">Featured</span>
-        <div class="featured-content">
-          <div class="featured-meta">2026 · 10 min read · AWS · Deployment</div>
-          <div class="featured-title">How I Finally Built and Deployed My Personal Portfolio</div>
-          <div class="featured-excerpt">A reflective build log covering EC2 provisioning, Nginx setup, Cloudflare DNS mapping, SSL with Certbot, and what I will automate next.</div>
-          <div class="featured-tags">
-            <span class="featured-tag">AWS</span>
-            <span class="featured-tag">DevOps</span>
-            <span class="featured-tag">Deployment</span>
-            <span class="featured-tag">Nginx</span>
-            <span class="featured-tag">Cloudflare</span>
-          </div>
-          <div class="featured-read">Read Article →</div>
+      <div class="blog-wrap">
+        <div class="filter-bar reveal">
+          <!-- build:filters -->
+          <button type="button" class="filter-btn active" data-filter="All">
+            All
+          </button>
+          <button type="button" class="filter-btn" data-filter="SRE">
+            SRE
+          </button>
+          <button type="button" class="filter-btn" data-filter="Deployment">
+            Deployment
+          </button>
+          <button type="button" class="filter-btn" data-filter="Nginx">
+            Nginx
+          </button>
+          <button type="button" class="filter-btn" data-filter="Terraform">
+            Terraform
+          </button>
+          <button type="button" class="filter-btn" data-filter="Kubernetes">
+            Kubernetes
+          </button>
+          <button type="button" class="filter-btn" data-filter="Observability">
+            Observability
+          </button>
+          <button type="button" class="filter-btn" data-filter="Incident">
+            Incident
+          </button>
+          <!-- /build:filters -->
         </div>
-        <div class="featured-visual">
-          <div class="featured-visual-inner">
-            <div>EC2 <span>provisioned</span></div>
-            <div>Nginx <span>configured</span></div>
-            <div>Cloudflare <span>mapped</span></div>
-            <div>SSL via <span>Certbot</span></div>
-          </div>
-        </div>
-      </a>
-      <!-- /build:featured -->
 
-      <!-- All articles -->
-      <div class="articles-section-title reveal">
-        All Articles — 8 published · more coming soon
-      </div>
-      <div class="articles-grid reveal">
-        <!-- build:articles-grid -->
-        <a href="building-and-deploying-my-portfolio.html" class="article-card" data-filter="Deployment SRE">
-          <div class="article-tag">AWS · Deployment</div>
-          <div class="article-title">How I Finally Built and Deployed My Personal Portfolio</div>
-          <div class="article-excerpt">A personal, step-by-step walkthrough of shipping my portfolio with AWS EC2, Nginx, Cloudflare DNS, and SSL via Certbot.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>10 min</span>
+        <!-- Featured -->
+        <!-- build:featured -->
+        <a
+          href="building-and-deploying-my-portfolio.html"
+          class="featured-article reveal"
+        >
+          <span class="featured-label">Featured</span>
+          <div class="featured-content">
+            <div class="featured-meta">
+              2026 · 10 min read · AWS · Deployment
+            </div>
+            <div class="featured-title">
+              How I Finally Built and Deployed My Personal Portfolio
+            </div>
+            <div class="featured-excerpt">
+              A reflective build log covering EC2 provisioning, Nginx setup,
+              Cloudflare DNS mapping, SSL with Certbot, and what I will automate
+              next.
+            </div>
+            <div class="featured-tags">
+              <span class="featured-tag">AWS</span>
+              <span class="featured-tag">DevOps</span>
+              <span class="featured-tag">Deployment</span>
+              <span class="featured-tag">Nginx</span>
+              <span class="featured-tag">Cloudflare</span>
+            </div>
+            <div class="featured-read">Read Article →</div>
           </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="cloudflare-522-ec2-public-ip-change.html" class="article-card" data-filter="Incident Terraform Deployment">
-          <div class="article-tag">AWS · Terraform · Cloudflare</div>
-          <div class="article-title">Cloudflare 522 Caused by an EC2 Public IP Change</div>
-          <div class="article-excerpt">How an instance restart changed the public IP, broke the origin, and was fixed by moving to a stable Elastic IP.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>7 min</span>
+          <div class="featured-visual">
+            <div class="featured-visual-inner">
+              <div>EC2 <span>provisioned</span></div>
+              <div>Nginx <span>configured</span></div>
+              <div>Cloudflare <span>mapped</span></div>
+              <div>SSL via <span>Certbot</span></div>
+            </div>
           </div>
-          <div class="article-read">Read →</div>
         </a>
-        <a href="building-scalable-elastic-infrastructure-aws-cloudflare.html" class="article-card" data-filter="Deployment Terraform SRE">
-          <div class="article-tag">AWS · Terraform · Deployment</div>
-          <div class="article-title">Building Scalable and Elastic Infrastructure on AWS with Cloudflare: From AMI to ALB</div>
-          <div class="article-excerpt">A complete guide to designing immutable infrastructure using EC2 AMIs, Launch Templates, Auto Scaling, ALB, and Cloudflare as your edge.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>18 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="nginx-502-fix.html" class="article-card" data-filter="Nginx Incident SRE">
-          <div class="article-tag">Nginx · Incident</div>
-          <div class="article-title">Fixing the Nginx 502 Bad Gateway — upstream sent too big header</div>
-          <div class="article-excerpt">How a tiny proxy buffer config resolved a production login outage across multiple services.</div>
-          <div class="article-meta">
-            <span>2025</span><span>·</span><span>8 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="systemd-decommission-fix.html" class="article-card" data-filter="Incident SRE">
-          <div class="article-tag">Systemd · Incident</div>
-          <div class="article-title">A decommissioned service ruined my Easter holiday and the fix was a single command.</div>
-          <div class="article-excerpt">An old service restarted after reboot, stole the port, and crashed the replacement with EADDRINUSE. The resolution was proper systemd decommissioning.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>6 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="slo-alerting-framework.html" class="article-card" data-filter="Observability SRE">
-          <div class="article-tag">SRE · Observability</div>
-          <div class="article-title">Building an SLI/SLO Alerting Framework for Microservices</div>
-          <div class="article-excerpt">A comprehensive observability strategy using SLIs, SLOs, error budgets, and Grafana dashboards for real-time service health.</div>
-          <div class="article-meta">
-            <span>2025</span><span>·</span><span>12 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="writing-postmortems-that-drive-real-change.html" class="article-card" data-filter="Incident SRE">
-          <div class="article-tag">Incident · SRE</div>
-          <div class="article-title">Writing Postmortems That Drive Real Change</div>
-          <div class="article-excerpt">Blameless is not the same as inconclusive. A practical framework for timelines, root cause analysis, and action items that actually ship.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>11 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <a href="kubernetes-for-sres-production-guide.html" class="article-card" data-filter="Kubernetes SRE">
-          <div class="article-tag">Kubernetes · Debugging</div>
-          <div class="article-title">Kubernetes for SREs: What You Actually Need to Know</div>
-          <div class="article-excerpt">Production troubleshooting patterns, error cause-and-effect analysis, and real debugging workflows from fintech and ecommerce systems.</div>
-          <div class="article-meta">
-            <span>2026</span><span>·</span><span>22 min</span>
-          </div>
-          <div class="article-read">Read →</div>
-        </a>
-        <div class="article-card coming-soon" data-filter="Terraform">
-          <div class="article-tag">Terraform · IaC</div>
-          <div class="article-title">Terraform State Management with S3 and DynamoDB</div>
-          <div class="article-excerpt">Best practices for managing Terraform remote state safely in a team environment using AWS-native locking.</div>
-          <div class="article-meta"><span>Coming soon</span></div>
-        </div>
-        <div class="article-card coming-soon" data-filter="Observability">
-          <div class="article-tag">Observability</div>
-          <div class="article-title">Building a Grafana Dashboard That Actually Gets Used</div>
-          <div class="article-excerpt">Most dashboards end up ignored. Here's how to design observability that engineers actually trust and act on.</div>
-          <div class="article-meta"><span>Coming soon</span></div>
-        </div>
-      <!-- /build:articles-grid -->
-      </div>
+        <!-- /build:featured -->
 
-      <div class="newsletter reveal">
-        <div class="newsletter-text">
-          <h3>Get notified when I publish</h3>
-          <p>
-            New articles on SRE, infrastructure, and production engineering — no
-            spam.
-          </p>
+        <!-- All articles -->
+        <div class="articles-section-title reveal">
+          All Articles — 8 published · more coming soon
         </div>
-        <div class="newsletter-cta">
+        <div class="articles-grid reveal">
+          <!-- build:articles-grid -->
           <a
-            href="https://dev.to/francis_morkehmensah_24c"
-            target="_blank"
-            class="btn-primary"
-            >Follow on Dev.to</a
+            href="building-and-deploying-my-portfolio.html"
+            class="article-card"
+            data-filter="Deployment SRE"
           >
+            <div class="article-tag">AWS · Deployment</div>
+            <div class="article-title">
+              How I Finally Built and Deployed My Personal Portfolio
+            </div>
+            <div class="article-excerpt">
+              A personal, step-by-step walkthrough of shipping my portfolio with
+              AWS EC2, Nginx, Cloudflare DNS, and SSL via Certbot.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>10 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
           <a
-            href="https://www.linkedin.com/in/francis-morkeh-mensah"
-            target="_blank"
-            class="btn-secondary"
-            >Follow on LinkedIn</a
+            href="cloudflare-522-ec2-public-ip-change.html"
+            class="article-card"
+            data-filter="Incident Terraform Deployment"
           >
+            <div class="article-tag">AWS · Terraform · Cloudflare</div>
+            <div class="article-title">
+              Cloudflare 522 Caused by an EC2 Public IP Change
+            </div>
+            <div class="article-excerpt">
+              How an instance restart changed the public IP, broke the origin,
+              and was fixed by moving to a stable Elastic IP.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>7 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="building-scalable-elastic-infrastructure-aws-cloudflare.html"
+            class="article-card"
+            data-filter="Deployment Terraform SRE"
+          >
+            <div class="article-tag">AWS · Terraform · Deployment</div>
+            <div class="article-title">
+              Building Scalable and Elastic Infrastructure on AWS with
+              Cloudflare: From AMI to ALB
+            </div>
+            <div class="article-excerpt">
+              A complete guide to designing immutable infrastructure using EC2
+              AMIs, Launch Templates, Auto Scaling, ALB, and Cloudflare as your
+              edge.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>18 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="nginx-502-fix.html"
+            class="article-card"
+            data-filter="Nginx Incident SRE"
+          >
+            <div class="article-tag">Nginx · Incident</div>
+            <div class="article-title">
+              Fixing the Nginx 502 Bad Gateway — upstream sent too big header
+            </div>
+            <div class="article-excerpt">
+              How a tiny proxy buffer config resolved a production login outage
+              across multiple services.
+            </div>
+            <div class="article-meta">
+              <span>2025</span><span>·</span><span>8 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="systemd-decommission-fix.html"
+            class="article-card"
+            data-filter="Incident SRE"
+          >
+            <div class="article-tag">Systemd · Incident</div>
+            <div class="article-title">
+              A decommissioned service ruined my Easter holiday and the fix was
+              a single command.
+            </div>
+            <div class="article-excerpt">
+              An old service restarted after reboot, stole the port, and crashed
+              the replacement with EADDRINUSE. The resolution was proper systemd
+              decommissioning.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>6 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="slo-alerting-framework.html"
+            class="article-card"
+            data-filter="Observability SRE"
+          >
+            <div class="article-tag">SRE · Observability</div>
+            <div class="article-title">
+              Building an SLI/SLO Alerting Framework for Microservices
+            </div>
+            <div class="article-excerpt">
+              A comprehensive observability strategy using SLIs, SLOs, error
+              budgets, and Grafana dashboards for real-time service health.
+            </div>
+            <div class="article-meta">
+              <span>2025</span><span>·</span><span>12 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="writing-postmortems-that-drive-real-change.html"
+            class="article-card"
+            data-filter="Incident SRE"
+          >
+            <div class="article-tag">Incident · SRE</div>
+            <div class="article-title">
+              Writing Postmortems That Drive Real Change
+            </div>
+            <div class="article-excerpt">
+              Blameless is not the same as inconclusive. A practical framework
+              for timelines, root cause analysis, and action items that actually
+              ship.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>11 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <a
+            href="kubernetes-for-sres-production-guide.html"
+            class="article-card"
+            data-filter="Kubernetes SRE"
+          >
+            <div class="article-tag">Kubernetes · Debugging</div>
+            <div class="article-title">
+              Kubernetes for SREs: What You Actually Need to Know
+            </div>
+            <div class="article-excerpt">
+              Production troubleshooting patterns, error cause-and-effect
+              analysis, and real debugging workflows from fintech and ecommerce
+              systems.
+            </div>
+            <div class="article-meta">
+              <span>2026</span><span>·</span><span>22 min</span>
+            </div>
+            <div class="article-read">Read →</div>
+          </a>
+          <div class="article-card coming-soon" data-filter="Terraform">
+            <div class="article-tag">Terraform · IaC</div>
+            <div class="article-title">
+              Terraform State Management with S3 and DynamoDB
+            </div>
+            <div class="article-excerpt">
+              Best practices for managing Terraform remote state safely in a
+              team environment using AWS-native locking.
+            </div>
+            <div class="article-meta"><span>Coming soon</span></div>
+          </div>
+          <div class="article-card coming-soon" data-filter="Observability">
+            <div class="article-tag">Observability</div>
+            <div class="article-title">
+              Building a Grafana Dashboard That Actually Gets Used
+            </div>
+            <div class="article-excerpt">
+              Most dashboards end up ignored. Here's how to design observability
+              that engineers actually trust and act on.
+            </div>
+            <div class="article-meta"><span>Coming soon</span></div>
+          </div>
+          <!-- /build:articles-grid -->
+        </div>
+
+        <div class="newsletter reveal">
+          <div class="newsletter-text">
+            <h3>Get notified when I publish</h3>
+            <p>
+              New articles on SRE, infrastructure, and production engineering —
+              no spam.
+            </p>
+          </div>
+          <div class="newsletter-cta">
+            <a
+              href="https://dev.to/francis_morkehmensah_24c"
+              target="_blank"
+              class="btn-primary"
+              >Follow on Dev.to</a
+            >
+            <a
+              href="https://www.linkedin.com/in/francis-morkeh-mensah"
+              target="_blank"
+              class="btn-secondary"
+              >Follow on LinkedIn</a
+            >
+          </div>
         </div>
       </div>
-    </div>
-
     </main>
     <footer>
       <div class="footer-copy">
@@ -247,6 +356,6 @@
         Built with intention. <span>Reliable by design.</span>
       </div>
     </footer>
-    <script src="/assets/site.js?v=1779622165" defer></script>
+    <script src="../assets/site.js?v=1779622165" defer></script>
   </body>
 </html>
