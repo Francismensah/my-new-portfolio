@@ -105,6 +105,61 @@
       html[data-theme="light"] .terminal-output {
         color: #a1efe4;
       }
+      /* Mobile responsive */
+      @media (max-width: 768px) {
+        .terminal-block {
+          margin: 1rem 0;
+          border-radius: 6px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+          font-size: 0.75rem;
+          line-height: 1.5;
+        }
+        .terminal-block::before {
+          height: 24px;
+          padding-left: 8px;
+          padding-top: 4px;
+        }
+        .terminal-header-buttons {
+          top: 6px;
+          left: 8px;
+          gap: 6px;
+        }
+        .terminal-button {
+          width: 10px;
+          height: 10px;
+        }
+        .terminal-block code {
+          padding: 0.75rem;
+          font-size: 0.7rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .terminal-block {
+          margin: 0.75rem 0;
+          border-radius: 4px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+          font-size: 0.65rem;
+          line-height: 1.4;
+        }
+        .terminal-block::before {
+          height: 22px;
+          padding-left: 6px;
+          padding-top: 3px;
+        }
+        .terminal-header-buttons {
+          top: 5px;
+          left: 6px;
+          gap: 5px;
+        }
+        .terminal-button {
+          width: 8px;
+          height: 8px;
+        }
+        .terminal-block code {
+          padding: 0.5rem;
+          font-size: 0.6rem;
+        }
+      }
       .error-box {
         background: rgba(220, 38, 38, 0.08);
         border-left: 4px solid #dc2626;
@@ -173,6 +228,57 @@
       @media (max-width: 768px) {
         .cause-effect {
           grid-template-columns: 1fr;
+        }
+        .scenario-card {
+          padding: 1rem;
+          margin: 1rem 0;
+        }
+        .article-body > h3 {
+          font-size: 1.1rem;
+          margin: 1.5rem 0 0.75rem 0;
+          padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+        }
+        .error-box,
+        .success-box,
+        .kubectl-tip {
+          padding: 0.75rem;
+          margin: 1rem 0;
+          font-size: 0.9rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .cause-effect {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+          margin: 1rem 0;
+        }
+        .cause-effect div {
+          padding: 0.75rem;
+        }
+        .scenario-card {
+          padding: 0.75rem;
+          margin: 0.75rem 0;
+        }
+        .scenario-card h4 {
+          font-size: 1rem;
+          margin-bottom: 0.5rem;
+        }
+        .article-body > h3 {
+          font-size: 1rem;
+          margin: 1.25rem 0 0.5rem 0;
+          padding: 0.4rem 0.4rem 0.4rem 0.6rem;
+          border-left-width: 3px;
+        }
+        .error-box,
+        .success-box,
+        .kubectl-tip {
+          padding: 0.5rem;
+          margin: 0.75rem 0;
+          font-size: 0.8rem;
+          border-left-width: 3px;
+        }
+        .kubectl-tip {
+          border-left-width: 3px;
         }
       }
       .kubectl-tip {
