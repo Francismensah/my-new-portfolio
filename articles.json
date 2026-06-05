@@ -110,6 +110,17 @@
       "filters": ["Kubernetes", "SRE"],
       "homePreview": true,
       "homeTag": "Kubernetes · Debugging · SRE"
+    },
+    {
+      "href": "observability-google-sre-otel-grafana.html",
+      "tag": "Observability · SRE · Enterprise",
+      "title": "Observability, the SRE Way: From Metrics to Root Cause in Minutes",
+      "excerpt": "An enterprise observability architecture powered by OpenTelemetry, Grafana, and SRE principles. Learn to correlate metrics, logs, and traces at scale.",
+      "year": "2026",
+      "readMinutes": "22 min",
+      "filters": ["Observability", "SRE"],
+      "homePreview": true,
+      "homeTag": "Observability · OpenTelemetry · Enterprise"
     }
   ],
   "comingSoon": [
