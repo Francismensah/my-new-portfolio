@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="80" viewBox="0 0 680 80">
+  <rect x="10" y="18" width="300" height="36" fill="#eef2ff" stroke="#c7d2fe" rx="6"/>
+  <text x="24" y="40" font-family="sans-serif" font-size="12" fill="#0f172a">Synchronous replication (low RPO)</text>
+
+  <rect x="340" y="18" width="320" height="36" fill="#ecfdf5" stroke="#bbf7d0" rx="6"/>
+  <text x="354" y="32" font-family="sans-serif" font-size="11" fill="#064e3b">Snapshots / Async replication</text>
+  <text x="354" y="46" font-family="sans-serif" font-size="11" fill="#064e3b">(higher RPO)</text>
+</svg>

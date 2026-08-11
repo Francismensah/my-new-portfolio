@@ -24,6 +24,17 @@
   },
   "published": [
     {
+      "href": "practical-enterprise-storage-and-resilience-engineering.html",
+      "tag": "Storage · SRE",
+      "title": "A practical guide to enterprise storage & resilience engineering",
+      "excerpt": "Practical guidance on Linux storage, capacity planning, DR/BC, monitoring, and AWS storage tradeoffs for resilient systems.",
+      "year": "2026",
+      "readMinutes": "11 min",
+      "filters": ["SRE", "Storage"],
+      "homePreview": true,
+      "homeTag": "Storage · SRE"
+    },
+    {
       "href": "building-and-deploying-my-portfolio.html",
       "tag": "AWS · Deployment",
       "title": "How I Finally Built and Deployed My Personal Portfolio",

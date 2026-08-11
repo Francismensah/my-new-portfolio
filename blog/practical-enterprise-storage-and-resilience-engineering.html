@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      A practical guide to enterprise storage & resilience engineering —
+      infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="Practical guidance on Linux storage, capacity planning, DR/BC, monitoring, and AWS storage tradeoffs for resilient systems."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/practical-enterprise-storage-and-resilience-engineering.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <header class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)"
+              >Enterprise Storage & Resilience</span
+            >
+          </div>
+          <p class="article-category">Storage · SRE · DR</p>
+          <h1>
+            A practical guide to enterprise storage & resilience engineering
+          </h1>
+          <p class="article-subtitle">
+            Storage decisions look boring until you need them to restore
+            service. Practical patterns for Linux, capacity planning, DR/BC and
+            AWS storage.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 11 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">Storage</span>
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">DR</span>
+              <span class="meta-tag">AWS</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <article class="article-body">
+        <section>
+          <h2>
+            A practical guide to enterprise storage & resilience engineering
+          </h2>
+          <p>
+            Storage decisions are easy to defer and painfully expensive to fix
+            later. I’ll walk through the Linux, operational, and cloud storage
+            primitives I use when designing systems that survive both
+            predictable growth and catastrophic failure. Each section has a
+            concrete scenario and an illustration so you can map theory to the
+            trenches.
+          </p>
+        </section>
+
+        <section>
+          <h2>SRE monitoring checklist: what to watch for</h2>
+          <p>
+            Storage monitoring should focus on symptoms, not components. Track
+            user-visible signals, leading indicators, and the low-level device
+            signals that help diagnose root cause.
+          </p>
+          <ul class="body-list">
+            <li>
+              <strong>User-facing SLIs:</strong> successful request rate,
+              request latency percentiles (p50/p95/p99) for operations that
+              depend on storage (reads/writes). These drive SLOs and alerts.
+            </li>
+            <li>
+              <strong>Latency and error percentiles:</strong> monitor p95/p99
+              latency separately for reads and writes; alert on sustained
+              deviations vs baseline.
+            </li>
+            <li>
+              <strong>Throughput and IOPS:</strong> separate read vs write IOPS
+              and bytes/s; track per-volume and per-LV rates so noisy jobs are
+              visible.
+            </li>
+            <li>
+              <strong>Queue depth and device stalls:</strong> rising queue
+              depth is an early warning of saturation; investigate before
+              latency increases.
+            </li>
+            <li>
+              <strong>Free space and growth rate:</strong> alert on free space
+              percentage and on burn rate (delta bytes/day). Use projection to
+              trigger procurement or cleanup earlier than hard thresholds.
+            </li>
+            <li>
+              <strong>SMART/kernel errors:</strong> track SMART failures, media
+              errors, and <code>dmesg</code> I/O errors — these predict hardware
+              failure and should surface to paging alerts.
+            </li>
+            <li>
+              <strong>Snapshot and backup health:</strong> failed snapshots or
+              backups, long rehydrate times, and growing backup queues are
+              critical SRE signals.
+            </li>
+            <li>
+              <strong>Noisy neighbor detection:</strong> correlate per-process
+              I/O (via exporters or host-level tools) with device metrics to
+              rapidly identify background jobs to reschedule.
+            </li>
+            <li>
+              <strong>Capacity headroom:</strong> keep a rolling safety margin
+              that accounts for snapshot retention and replication overhead.
+            </li>
+            <li>
+              <strong>Alert quality:</strong> prefer symptom-based alerts (high
+              user latency, error rate) combined with tooling alerts (device
+              errors, SMART) to avoid alert fatigue.
+            </li>
+            <li>
+              <strong>Runbooks & automation:</strong> every pageable alert should
+              link to a concise runbook with clear next steps and rollback
+              instructions. Automate low-risk remediation when safe.
+            </li>
+          </ul>
+
+          <h3>Example Prometheus alerts</h3>
+          <pre><code># p99 write latency above 200ms for 5m
+expr: histogram_quantile(0.99, sum(rate(node_disk_io_time_seconds_bucket{job="node"}[5m])) by (le, device)) > 0.2
+
+# low free space on a filesystem for 10m
+expr: (node_filesystem_avail_bytes{mountpoint="/data"} / node_filesystem_size_bytes{mountpoint="/data"}) < 0.15
+</code></pre>
+
+          <p>
+            Use alerting as a conversation starter between SRE and platform
+            teams: alerts should be actionable and include context (recent
+            changes, top consumers, and suggested mitigations).
+          </p>
+        </section>
+
+
+        <section>
+          <h2>Storage choices become tomorrow’s DR headache</h2>
+          <p>
+            Decisions you make today—filesystem layout, how you measure
+            capacity, snapshot cadence, or whether applications write directly
+            to block storage—drive how recoverable and affordable your service
+            is. I treat storage design as risk engineering: what failure modes
+            exist, how much data can we lose, and how long will it take to
+            restore service?
+          </p>
+        </section>
+
+        <section>
+          <h2>Linux storage fundamentals: LVM, filesystems, multipath, RAID</h2>
+          <p>
+            Linux gives you many layers: physical media → RAID/multipath → LVM →
+            filesystem. Knowing when to use each is practical, not ideological.
+          </p>
+          <ul class="body-list">
+            <li>
+              Practical rule: use LVM when you expect to resize volumes, but
+              don’t use LVM to paper over unreliable hardware.
+            </li>
+            <li>
+              Filesystems: XFS for large filesystems and sustained high I/O,
+              ext4 for general-purpose, and avoid frequent metadata-heavy
+              workloads on XFS without tuning.
+            </li>
+            <li>
+              Multipath: mandatory on hosts with SAN/NVMe-oF to avoid IO path
+              single points of failure. Test path failover under load.
+            </li>
+          </ul>
+          <p>
+            Example: a database host with two controllers and four paths — we
+            use RAID1 on arrays, enable multipathd with
+            <code>failback=immediate=false</code>, create LVM PVs and LV per DB,
+            then format with XFS with <code>noatime</code>, logbsize tuned. That
+            layout lets us snapshot LVs without stopping the DB briefly.
+          </p>
+
+          <figure class="article-image">
+            <img
+              src="../images/storage-stack.svg"
+              alt="Storage stack diagram"
+            />
+            <figcaption>Illustration — simplified storage stack</figcaption>
+          </figure>
+        </section>
+
+        <section>
+          <h2>Monitoring disk I/O and utilization</h2>
+          <p>
+            You cannot protect what you don’t measure. Track IOPS, latency
+            (p50/p95/p99), queue depth, throughput, and percent utilization
+            (both device and filesystem). Correlate with active workloads to
+            separate noisy neighbors.
+          </p>
+          <p>
+            Tools & metrics: <code>iostat</code>, <code>sar</code>,
+            <code>blktrace</code>, <code>pidstat</code>, <code>atop</code>, and
+            Prometheus exporters. Alert on p99 latency over baseline and
+            sustained device utilization &gt;70% for more than 10 minutes.
+          </p>
+          <p>
+            Scenario: After a traffic spike, p99 write latency jumps and device
+            utilization hits 95%. Because we track queue depth and per-LV IOPS,
+            we identify a backup job that overlapped with a compaction
+            job—reschedule backups to low-traffic windows.
+          </p>
+        </section>
+
+        <section>
+          <h2>Capacity planning (forecasting, thresholds, right‑sizing)</h2>
+          <p>
+            Capacity planning is trend math plus a policy. Build three
+            forecasts: conservative (95th percentile growth), expected (median),
+            and optimistic (min). Convert storage growth into operational
+            thresholds: warning (70–80%), action (85–90%), and emergency (95%+).
+          </p>
+          <p>
+            Concrete approach: use rolling windows (daily snapshots of used
+            bytes) and fit a simple exponential smoothing or linear regression
+            to project 3, 6, 12 months. Define headroom for snapshots and
+            replication: if your snapshot retention requires 1.5× active data,
+            include it in projection.
+          </p>
+          <p>
+            Example: An analytics dataset grows 20% month-over-month. With 30
+            days retention and daily snapshots, effective capacity needs are
+            ~30× daily change plus base; plan procurement cycles to buy 40%
+            extra usable capacity to avoid emergency migrations.
+          </p>
+        </section>
+
+        <section>
+          <h2>Disaster Recovery (RTO/RPO, backups, testing)</h2>
+          <p>
+            RTO and RPO must come from business requirements, not infrastructure
+            comfort. Map recovery steps to measurable times and data windows.
+          </p>
+          <ul class="body-list">
+            <li>
+              <strong>RPO</strong> = how much data you can lose. RPO = 0
+              requires synchronous replication to a remote site—costly.
+            </li>
+            <li>
+              <strong>RTO</strong> = how quickly you must restore service. This
+              dictates automation level: scripted recovery vs manual.
+            </li>
+            <li>
+              Backup strategies: snapshot-based (fast), object-based (S3,
+              durable), archive (cold storage).
+            </li>
+            <li>
+              Failover testing: run realistic restore drills to uncover missing
+              secrets and ordering assumptions.
+            </li>
+          </ul>
+          <p>
+            Scenario: We assumed EBS snapshots alone were sufficient for DR.
+            During a region outage, restoring thousands of volumes from
+            snapshots sequentially would have taken days. We reduced RTO by
+            maintaining a smaller Hot-Standby AMI set (pre-warmed) and automated
+            parallel attach/boot steps—snapshots remained our cold-tier.
+          </p>
+          <figure class="article-image">
+            <img src="../images/dr-tradeoffs.svg" alt="DR tradeoffs" />
+            <figcaption>Illustration: DR decision tradeoff</figcaption>
+          </figure>
+          <p>
+            Common DR mistakes: not testing restores, relying solely on
+            snapshots, and ignoring application-level ordering.
+          </p>
+        </section>
+
+        <section>
+          <h2>Business continuity vs Disaster Recovery</h2>
+          <p>
+            BC is broader than DR: it includes operations, people, processes,
+            and runbooks. A DR plan that restores machines but leaves teams
+            without communication, credentials, or supplier access is not
+            BC-ready.
+          </p>
+          <ul class="body-list">
+            <li>
+              Runbooks: concise, tested, and assume zero institutional memory.
+            </li>
+            <li>
+              "Zero data loss" implies synchronous replication or WAL shipping
+              and should be scoped to critical streams only.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Cloud storage on AWS: EBS vs EFS vs S3</h2>
+          <p>
+            Make the decision by access pattern, durability, and cost: EBS for
+            block I/O, EFS for POSIX shared access, S3 for immutable objects and
+            backups. Use lifecycle policies and cross-region replication for DR.
+          </p>
+          <p>
+            Example: hot logs on EFS for real-time processing, archive to S3
+            with lifecycle (30d → IA → Glacier), and nightly EBS snapshots for
+            DB backups with a 7-day fast-restore pool.
+          </p>
+        </section>
+
+        <section>
+          <h2>How these pillars connect</h2>
+          <p>
+            Capacity planning informs snapshot retention and RTO planning.
+            Filesystem and LVM choices affect how straightforward restores are.
+            Monitoring drives when to run DR playbooks and when to provision new
+            capacity.
+          </p>
+        </section>
+
+        <section>
+          <h2>
+            Practical Linux admin: partitions, mounting, and troubleshooting
+          </h2>
+          <p>Commands I reach for during storage work and incidents.</p>
+          <h3>Adding a disk and extending a volume</h3>
+          <pre><code>sudo lsblk -f
+sudo parted /dev/nvme1n1 --script mklabel gpt mkpart primary 0% 100%
+sudo pvcreate /dev/nvme1n1p1
+sudo vgextend vg_data /dev/nvme1n1p1
+sudo lvextend -L +200G /dev/vg_data/lv_data
+sudo xfs_growfs /mnt/data
+</code></pre>
+
+          <h3>Mounting and <code>/etc/fstab</code></h3>
+          <p>Prefer mounting by UUID; example fstab entry:</p>
+          <pre><code>UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx /data xfs defaults,noatime 0 2
+</code></pre>
+
+          <h3>Snapshots & quick restores</h3>
+          <pre><code>sudo lvcreate -s -L 5G -n snap-20260811 /dev/vg_data/lv_data
+sudo mkdir -p /mnt/snap && sudo mount /dev/vg_data/snap-20260811 /mnt/snap -o ro
+</code></pre>
+
+          <h3>Triage & troubleshooting</h3>
+          <ul class="body-list">
+            <li>
+              <code>lsblk -f</code>, <code>blkid</code>, <code>df -h</code>
+            </li>
+            <li><code>dmesg | tail</code> — kernel I/O errors</li>
+            <li><code>smartctl -a /dev/sdX</code> — SMART health</li>
+            <li><code>iotop</code>, <code>iostat -x 1 10</code></li>
+            <li>
+              <code>multipath -ll</code>, <code>mdadm --detail /dev/md0</code>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Recovery playbook: full disk failure (annotated)</h2>
+          <ol class="body-list">
+            <li>
+              <strong>Detect & isolate</strong>: confirm with
+              <code>dmesg</code> and <code>smartctl</code>.
+            </li>
+            <li>
+              <strong>Failover or unmount</strong>: fail traffic to replica or
+              remount read-only.
+            </li>
+            <li>
+              <strong>Replace media</strong>: partition and provision
+              replacement disk.
+            </li>
+            <li>
+              <strong>Reintroduce</strong>: add to VG/RAID and restore from
+              snapshot/replica.
+            </li>
+            <li>
+              <strong>Validate</strong>: mount read-only and run app checks.
+            </li>
+            <li><strong>Post-incident</strong>: update runbooks and alerts.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Final practical checklist</h2>
+          <ul class="body-list">
+            <li>
+              Measure first: collect p99 latency, utilization, snapshot
+              overhead.
+            </li>
+            <li>Model capacity including snapshot and replication overhead.</li>
+            <li>Define RTO/RPO from business needs and map to technology.</li>
+            <li>Automate restores and test them regularly.</li>
+            <li>Use lifecycle policies to balance cost and durability.</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>

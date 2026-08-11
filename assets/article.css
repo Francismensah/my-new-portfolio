@@ -429,6 +429,13 @@ code {
   margin-bottom: 0.65rem;
 }
 
+/* Ensure embedded diagram images scale responsively inside the diagram box */
+.diagram img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 .flow-row {
   display: flex;
   align-items: center;
