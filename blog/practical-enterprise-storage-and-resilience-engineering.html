@@ -144,9 +144,9 @@
               visible.
             </li>
             <li>
-              <strong>Queue depth and device stalls:</strong> rising queue
-              depth is an early warning of saturation; investigate before
-              latency increases.
+              <strong>Queue depth and device stalls:</strong> rising queue depth
+              is an early warning of saturation; investigate before latency
+              increases.
             </li>
             <li>
               <strong>Free space and growth rate:</strong> alert on free space
@@ -178,9 +178,9 @@
               errors, SMART) to avoid alert fatigue.
             </li>
             <li>
-              <strong>Runbooks & automation:</strong> every pageable alert should
-              link to a concise runbook with clear next steps and rollback
-              instructions. Automate low-risk remediation when safe.
+              <strong>Runbooks & automation:</strong> every pageable alert
+              should link to a concise runbook with clear next steps and
+              rollback instructions. Automate low-risk remediation when safe.
             </li>
           </ul>
 
@@ -198,7 +198,6 @@ expr: (node_filesystem_avail_bytes{mountpoint="/data"} / node_filesystem_size_by
             changes, top consumers, and suggested mitigations).
           </p>
         </section>
-
 
         <section>
           <h2>Storage choices become tomorrow’s DR headache</h2>
