@@ -46,6 +46,17 @@
       "homeTag": "AWS · DevOps · Deployment"
     },
     {
+      "href": "migrating-portfolio-ec2-cloudflare-workers.html",
+      "tag": "Cloudflare · Deployment",
+      "title": "Migrating My Portfolio from EC2 to Cloudflare Workers (and the 126 MiB File That Almost Stopped Me)",
+      "excerpt": "How I moved a static portfolio from EC2 and Nginx to Cloudflare Workers, then fixed a failed deployment caused by a 126 MiB build dependency.",
+      "year": "2026",
+      "readMinutes": "10 min",
+      "filters": ["Deployment", "SRE"],
+      "homePreview": true,
+      "homeTag": "Cloudflare · Workers · Deployment"
+    },
+    {
       "href": "cloudflare-522-ec2-public-ip-change.html",
       "tag": "AWS · Terraform · Cloudflare",
       "title": "Cloudflare 522 Caused by an EC2 Public IP Change",

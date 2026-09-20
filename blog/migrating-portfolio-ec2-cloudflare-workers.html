@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Migrating My Portfolio from EC2 to Cloudflare Workers — infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="How I moved my static portfolio from EC2 and Nginx to Cloudflare Workers, and fixed a failed deployment caused by a 126 MiB build dependency."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/migrating-portfolio-ec2-cloudflare-workers.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">Cloudflare Workers</span>
+          </div>
+          <p class="article-category">
+            Cloudflare · Deployment · Build Systems
+          </p>
+          <h1>
+            Migrating My Portfolio from EC2 to Cloudflare Workers
+            <em>(and the 126 MiB File That Almost Stopped Me)</em>
+          </h1>
+          <p class="article-subtitle">
+            A static site does not need a server just because it started on one.
+            Here is how I moved my portfolio off EC2, and why a successful build
+            still ended in a failed deployment.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 10 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">Cloudflare</span>
+              <span class="meta-tag">Workers</span>
+              <span class="meta-tag">Deployment</span>
+              <span class="meta-tag">SRE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <h2>Why I moved from EC2</h2>
+        <p>
+          My portfolio at <strong>infrabyfrancis.me</strong> is a static site:
+          HTML, CSS, JavaScript, images, and blog pages. For a while, it lived
+          on an EC2 instance behind Nginx, with Cloudflare in front for DNS and
+          caching.
+        </p>
+        <p>
+          That setup worked, but it was a lot of infrastructure for a site that
+          did not need a server. There was no dynamic backend, no database, and
+          no long-running process to keep alive. I was paying the operational
+          tax of running and patching a machine just to serve files that could
+          be delivered from the edge.
+        </p>
+        <p>
+          The goal was simple: remove EC2 from the serving path and deploy the
+          site directly to Cloudflare Workers.
+        </p>
+
+        <h2>The architecture before the move</h2>
+        <pre><code>GitHub
+   ↓
+EC2
+   ↓
+Nginx
+   ↓
+Cloudflare
+   ↓
+infrabyfrancis.me</code></pre>
+        <p>
+          GitHub held the source, EC2 ran Nginx, and Cloudflare sat in front as
+          the edge and DNS layer. EC2 was effectively a file server with extra
+          steps.
+        </p>
+
+        <h2>Preparing the Cloudflare deployment</h2>
+        <p>
+          The repository already had a small Node build script that generates
+          the blog listings from <code>articles.json</code>:
+        </p>
+        <pre><code>npm run build
+
+# runs
+node scripts/build.mjs</code></pre>
+        <p>
+          The Cloudflare build environment picked up Node.js 24.18.0 and npm
+          10.9.2. Dependencies installed successfully with
+          <code>npm clean-install --progress=false</code>, and the build output
+          was exactly what I expected:
+        </p>
+        <pre><code>Built blog listings: 10 published, 7 home previews</code></pre>
+        <p>
+          That was the first useful checkpoint. The source could build in the
+          new environment. The deployment failure came later.
+        </p>
+
+        <h2>The 126 MiB deployment failure</h2>
+        <p>
+          Wrangler auto-detected the project as a static Worker and chose the
+          repository root as the output directory:
+        </p>
+        <pre><code>Worker Name: my-new-portfolio
+Framework: Static
+Output Directory: .</code></pre>
+        <p>
+          In practical terms, Wrangler was treating the entire repository as the
+          static asset directory. That included the generated website, but also
+          the dependencies and scripts used to build it.
+        </p>
+        <p>Eventually the asset scan reached this file:</p>
+        <pre><code>node_modules/workerd/bin/workerd</code></pre>
+        <p>
+          The binary was 126 MiB. Cloudflare Workers allows individual static
+          assets up to 25 MiB, so the deployment stopped with an asset-too-large
+          error.
+        </p>
+        <div class="warn-box">
+          <strong>The important distinction:</strong> the build succeeded. The
+          asset scan failed. Those are separate stages with separate failure
+          modes, and a green build did not mean the site was ready to ship.
+        </div>
+
+        <h2>Finding the root cause</h2>
+        <p>
+          The clue was in the Wrangler output: <code>Output Directory: .</code>.
+          Because the output directory was the repository root, Wrangler was
+          scanning everything under it, including <code>node_modules</code>.
+        </p>
+        <p>The website only needed these files and directories at runtime:</p>
+        <pre><code>index.html
+blog/
+assets/
+images/
+articles.json</code></pre>
+        <p>It did not need the following to serve a page:</p>
+        <pre><code>node_modules/
+scripts/
+package.json
+package-lock.json
+.git/
+.wrangler/
+*.md</code></pre>
+        <p>
+          Those are build-time inputs and repository metadata, not deployment
+          assets. Wrangler could not infer that distinction from a repository
+          root on its own.
+        </p>
+
+        <h2>The .assetsignore fix</h2>
+        <p>I added a <code>.assetsignore</code> file at the repository root:</p>
+        <pre><code>node_modules
+.git
+.wrangler
+scripts
+package.json
+package-lock.json
+*.md</code></pre>
+        <p>
+          The file serves the same purpose for Wrangler's asset upload that
+          <code>.gitignore</code> serves for Git. It defines what should not be
+          included in the static asset set.
+        </p>
+        <p>
+          The repository structure did not need to change. Cloudflare still had
+          access to the source, scripts, and dependencies during the build. The
+          ignore file only stopped Wrangler from trying to publish build-time
+          material as part of the website.
+        </p>
+
+        <h2>Deployment succeeded</h2>
+        <p>The build command remained the same and produced the same result:</p>
+        <pre><code>Executing user build command: npm run build
+
+&gt; build
+&gt; node scripts/build.mjs
+
+Built blog listings: 10 published, 7 home previews
+
+Success: Build command completed</code></pre>
+        <p>
+          Wrangler still reported the repository root as the output directory,
+          but <code>.assetsignore</code> filtered the upload down to the files
+          that mattered:
+        </p>
+        <pre><code>Found 27 new or modified static assets to upload.
+Uploaded 27 files
+Success: Deploy command completed</code></pre>
+        <p>
+          The asset list now looked like a website rather than a development
+          environment:
+        </p>
+        <pre><code>/index.html
+/blog/index.html
+/blog/cloudflare-522-ec2-public-ip-change.html
+/blog/nginx-502-fix.html
+/assets/home.css
+/assets/base.css
+/assets/site.js
+/images/SLO.png
+/images/systemd.jpeg
+/articles.json</code></pre>
+        <div class="info-box">
+          <strong>Build dependencies are not deployment assets.</strong> The
+          same repository can contain everything needed to generate a site and
+          only a small subset of what should be served publicly.
+        </div>
+
+        <h2>Moving the custom domain</h2>
+        <p>
+          Cloudflare provided default Worker hostnames for production and
+          previews. I wanted the public URL to remain
+          <strong>infrabyfrancis.me</strong>, so I pointed the existing custom
+          domain at the Worker instead.
+        </p>
+        <p>
+          After confirming that the custom domain served the site correctly, I
+          disabled the default <code>workers.dev</code> URL. The public identity
+          of the portfolio stayed the same; only the compute and delivery path
+          changed underneath it.
+        </p>
+
+        <h2>The architecture after the move</h2>
+        <pre><code>GitHub
+   │
+   ▼
+Cloudflare Build
+   │
+   ├── npm clean-install
+   │
+   ├── npm run build
+   │      │
+   │      └── scripts/build.mjs
+   │
+   ▼
+Wrangler
+   │
+   ├── assets directory = .
+   └── .assetsignore
+   │
+   ▼
+Cloudflare Worker
+   │
+   ▼
+Custom Domain
+   │
+   ▼
+Static Portfolio</code></pre>
+        <p>
+          Compared with the original setup, there is no EC2 instance to patch,
+          no Nginx configuration to maintain, and no server to pay for simply
+          serving static files.
+        </p>
+
+        <h2>What I learned</h2>
+        <p>
+          The lesson I keep coming back to is that a successful build does not
+          necessarily mean a successful deployment. Build, asset scanning, and
+          deployment are separate stages, so each needs its own success check.
+        </p>
+        <pre><code>Before the fix:
+Build:       SUCCESS
+Asset scan:  FAILURE
+Deployment:  FAILURE
+
+After the fix:
+Build:       SUCCESS
+Asset scan:  SUCCESS
+Deployment:  SUCCESS</code></pre>
+        <p>
+          The broader lesson is about boundaries. Build dependencies, build
+          scripts, generated static files, and deployment assets are different
+          categories. When a deploy tool uses the repository root as its output
+          directory, that boundary must be made explicit.
+        </p>
+        <div class="takeaway">
+          <h3>Practical takeaway</h3>
+          <p>
+            If your deployment output directory is the repository root, assume
+            the deploy tool can see everything in that root. Use an explicit
+            ignore file such as <code>.assetsignore</code> to separate what the
+            build needs from what the edge should serve.
+          </p>
+        </div>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Tags</div>
+          <div class="article-tags-footer">
+            <span class="atag">Cloudflare</span>
+            <span class="atag">Workers</span>
+            <span class="atag">Deployment</span>
+            <span class="atag">SRE</span>
+            <span class="atag">EC2</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>
