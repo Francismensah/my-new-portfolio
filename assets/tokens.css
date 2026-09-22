@@ -24,6 +24,7 @@
   --inline-code-text: #f3f3f4;
   --pre-code-text: #d6d6d8;
   --info-text: #e8c9a8;
+  --warn-text: #fed7aa;
   --takeaway-text: #bbe7cb;
   --focus-ring: rgba(249, 115, 22, 0.55);
 
@@ -83,6 +84,7 @@ html[data-theme="light"] {
   --inline-code-text: #1f2329;
   --pre-code-text: #2a2d33;
   --info-text: #5b3c1f;
+  --warn-text: #8a3f0d;
   --takeaway-text: #1f5e3a;
   --focus-ring: rgba(221, 100, 19, 0.45);
 }
