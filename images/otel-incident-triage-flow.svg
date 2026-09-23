@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Incident triage using OpenTelemetry resource attributes</title>
+  <desc id="desc">A fintech responder starts from a payments or ledger alert, filters the blast radius with service.visibility, then uses isAsg to choose between waiting for autoscaling and manual intervention.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316"/>
+    </marker>
+    <style>
+      .title { font: 600 24px 'IBM Plex Mono', monospace; fill: #f5f3ee; }
+      .section { font: 600 14px 'IBM Plex Mono', monospace; fill: #f97316; letter-spacing: 1px; }
+      .label { font: 500 15px 'IBM Plex Mono', monospace; fill: #e2e0db; }
+      .small { font: 400 13px 'IBM Plex Mono', monospace; fill: #9a9aa0; }
+      .micro { font: 400 12px 'IBM Plex Mono', monospace; fill: #8a8a92; }
+      .box { fill: #141416; stroke: #2c2c32; stroke-width: 2; }
+      .decision { fill: #1b1713; stroke: #f97316; stroke-width: 2; }
+      .outcome { fill: #101012; stroke: #5c6675; stroke-width: 2; }
+      .line { stroke: #f97316; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="650" fill="#090909"/>
+  <path d="M0 92H1200" stroke="#222226"/>
+  <text x="52" y="56" class="title">Two attributes, one shorter triage path</text>
+  <text x="52" y="80" class="small">Use visibility to bound impact; use ASG state to choose the response.</text>
+
+  <text x="52" y="132" class="section">RESPONDER FLOW</text>
+  <rect x="52" y="160" width="215" height="116" rx="7" class="box"/>
+  <text x="76" y="196" class="section">01 / ALERT</text>
+  <text x="76" y="225" class="label">payments or ledger degrades</text>
+  <text x="76" y="250" class="micro">dashboard links to tagged service</text>
+
+  <path d="M267 218H335" class="line"/>
+
+  <rect x="335" y="160" width="250" height="116" rx="7" class="decision"/>
+  <text x="359" y="196" class="section">02 / SCOPE IMPACT</text>
+  <text x="359" y="225" class="label">service.visibility</text>
+  <text x="359" y="250" class="micro">public first; internal separately</text>
+
+  <path d="M585 218H654" class="line"/>
+
+  <rect x="654" y="160" width="250" height="116" rx="7" class="decision"/>
+  <text x="678" y="196" class="section">03 / CHECK CAPACITY</text>
+  <text x="678" y="225" class="label">isAsg</text>
+  <text x="678" y="250" class="micro">is scaling a valid response?</text>
+
+  <path d="M904 218H1000" class="line"/>
+  <line x1="1000" y1="218" x2="1000" y2="156" stroke="#f97316" stroke-width="2"/>
+  <line x1="1000" y1="218" x2="1000" y2="345" stroke="#f97316" stroke-width="2"/>
+  <path d="M1000 156H1034" class="line"/>
+  <path d="M1000 345H1034" class="line"/>
+
+  <text x="948" y="145" class="micro">true</text>
+  <text x="948" y="338" class="micro">false</text>
+  <rect x="1034" y="102" width="114" height="108" rx="7" class="outcome"/>
+  <text x="1052" y="137" class="section">WAIT</text>
+  <text x="1052" y="166" class="label">scaling</text>
+  <text x="1052" y="188" class="micro">watch cycle</text>
+  <rect x="1034" y="291" width="114" height="108" rx="7" class="outcome"/>
+  <text x="1052" y="326" class="section">ACT</text>
+  <text x="1052" y="355" class="label">manual</text>
+  <text x="1052" y="377" class="micro">capacity / config</text>
+
+  <line x1="52" y1="451" x2="1148" y2="451" stroke="#222226"/>
+  <text x="52" y="490" class="section">WHAT THE FILTERS CHANGE</text>
+  <rect x="52" y="515" width="328" height="84" rx="6" fill="#101012" stroke="#f97316"/>
+  <text x="74" y="548" class="label">public + isAsg:true</text>
+  <text x="74" y="574" class="small">payment blast radius; allow a scale cycle</text>
+  <rect x="404" y="515" width="328" height="84" rx="6" fill="#101012" stroke="#5c6675"/>
+  <text x="426" y="548" class="label">public + isAsg:false</text>
+  <text x="426" y="574" class="small">payment blast radius; intervene now</text>
+  <rect x="756" y="515" width="392" height="84" rx="6" fill="#101012" stroke="#2c2c32"/>
+  <text x="778" y="548" class="label">internal + either value</text>
+  <text x="778" y="574" class="small">separate customer money flow from ops</text>
+</svg>

@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      What We Tag and Why: Custom OpenTelemetry Attributes Across a Fintech
+      Fleet — infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="A practical guide to rolling out service.visibility and isAsg as OpenTelemetry resource attributes across a fintech microservices fleet."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/what-we-tag-and-why-otel-rollout.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        document.documentElement.setAttribute(
+          "data-theme",
+          stored || (preferredDark ? "dark" : "light"),
+        );
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span><span class="nav-menu-bar"></span
+          ><span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span
+          ><span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span
+            ><a href="index.html">Blog</a><span>/</span
+            ><span style="color: var(--text)">Custom OTel Attributes</span>
+          </div>
+          <p class="article-category">Observability · SRE · Fintech</p>
+          <h1>
+            What We Tag and Why: Rolling Out Custom
+            <em>OpenTelemetry Attributes</em> Across a Microservices Fleet
+          </h1>
+          <p class="article-subtitle">
+            Standard telemetry identifies a service. Two small resource
+            attributes tell an on-call engineer how urgent the service is and
+            what kind of capacity response is valid.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span
+            ><span class="meta-item">⏱ 8 min read</span
+            ><span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">OpenTelemetry</span
+              ><span class="meta-tag">SRE</span
+              ><span class="meta-tag">Fintech</span
+              ><span class="meta-tag">Incident Response</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <p>
+          Most OpenTelemetry writeups walk through instrumenting a single
+          service: add the SDK, export some spans, and look at a trace in a UI.
+          That is the easy part. The harder problem appears when dozens of
+          services span payments, identity, accounts, risk, ledger, and
+          settlement, and someone triaging an incident at 2am needs to make
+          sense of the telemetry quickly.
+        </p>
+        <p>
+          That is where custom resource attributes earn their keep. In this
+          rollout, the two useful questions are simple:
+          <strong>is the service public or private?</strong> And
+          <strong>is it backed by an Auto Scaling Group?</strong>
+        </p>
+
+        <h2>The problem with default OTel attributes alone</h2>
+        <p>
+          OpenTelemetry semantic conventions give us a solid baseline:
+          <code>service.name</code>, <code>service.namespace</code>,
+          <code>deployment.environment</code>, and more. That is enough to
+          identify what emitted a signal. It is not enough to answer the
+          questions an on-call engineer asks first:
+        </p>
+        <ul class="body-list">
+          <li>
+            Is this payment or identity service customer-facing, or is it a
+            private back-office dependency?
+          </li>
+          <li>
+            Is it running on infrastructure that can scale, or is it fixed
+            capacity?
+          </li>
+          <li>
+            Should this alert wait through a scaling cycle, or does it need
+            manual intervention now?
+          </li>
+        </ul>
+        <p>
+          Without that context in the telemetry, engineers cross-reference a
+          wiki, a runbook, or someone's memory. Those are slow dependencies
+          during an incident.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/otel-fleet-attributes.svg"
+            alt="Diagram of public fintech APIs and private ledger, risk, settlement, and operations services tagged with service.visibility and isAsg"
+          />
+          <figcaption>
+            A shared resource contract makes fleet-wide service context
+            queryable.
+          </figcaption>
+        </figure>
+
+        <h2><code>service.visibility</code>: public versus private</h2>
+        <p>
+          Across a fintech fleet, not every alert deserves the same urgency. A
+          latency spike on a public payments or identity API has a different
+          blast radius from a private reporting or operations job, even if the
+          raw numbers look similar.
+        </p>
+        <p>
+          Tagging each service with <code>service.visibility</code>, using
+          controlled values such as <code>public</code> and
+          <code>private</code>, lets teams filter dashboards by blast radius,
+          tier alerting, and prioritize investigation. Public service alerts can
+          follow the faster escalation path while private service degradation is
+          assessed separately.
+        </p>
+        <p>
+          The attribute is simple. The value comes from applying it consistently
+          across every service, rather than retrofitting it after the next
+          payments incident exposes the gap.
+        </p>
+
+        <h2><code>isAsg</code>: knowing what scaling actually means</h2>
+        <p>
+          Some services sit behind an Auto Scaling Group and can absorb load by
+          adding instances. Others run as a fixed set of instances or pods,
+          where a traffic spike means resource pressure until someone
+          intervenes.
+        </p>
+        <p>
+          Tagging services with <code>isAsg</code> as <code>true</code> or
+          <code>false</code> gives the responder an immediate operational cue. A
+          CPU alert on an ASG-backed payments API can reasonably wait through a
+          scaling cycle. The same alert on a fixed-capacity ledger or risk
+          service probably should not.
+        </p>
+        <p>
+          This distinction also feeds alerting logic: a threshold alert can use
+          the attribute to delay or suppress escalation for a known scaling
+          window, while fixed-capacity services can page immediately.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/otel-incident-triage-flow.svg"
+            alt="Incident triage flow using service.visibility to scope impact and isAsg to choose between waiting for scaling and manual action"
+          />
+          <figcaption>
+            Visibility narrows the blast radius; ASG state narrows the response.
+          </figcaption>
+        </figure>
+
+        <h2>Put the attributes on the resource</h2>
+        <p>
+          These are properties of the service, not of an individual request. Set
+          them once in the OpenTelemetry resource during service startup so
+          traces, metrics, logs, and events inherit the same context.
+        </p>
+        <p>
+          Do not repeat them on every span. That adds noise, increases payload
+          size, and makes it easier for different instrumentation paths to
+          disagree.
+        </p>
+        <figure class="article-image">
+          <img
+            src="../images/otel-resource-attribute-schema.svg"
+            alt="OpenTelemetry resource schema showing service.name, deployment.environment, service.visibility, and isAsg inherited by traces, metrics, and logs"
+          />
+          <figcaption>
+            Custom service context sits beside standard OTel resource identity.
+          </figcaption>
+        </figure>
+
+        <h2>Roll it out across a fleet, not just one service</h2>
+        <ol class="body-list">
+          <li>
+            <strong>Define the schema centrally.</strong> Pin down allowed
+            values before instrumentation starts. Do not let each team invent
+            its own spelling for visibility or autoscaling state.
+          </li>
+          <li>
+            <strong>Set attributes at startup.</strong> Put service properties
+            on the OTel resource, not individual spans.
+          </li>
+          <li>
+            <strong>Roll out domain by domain.</strong> Prioritize public
+            payments, identity, and account APIs so the highest-value dashboards
+            become useful first.
+          </li>
+          <li>
+            <strong>Track gaps explicitly.</strong> Maintain a coverage
+            checklist for every service. “We tag everything” should be a
+            measurable state, not a team assumption.
+          </li>
+        </ol>
+
+        <div class="takeaway">
+          <h3>💡 Key Engineering Takeaway</h3>
+          <p>
+            Standard OpenTelemetry attributes tell you what emitted a signal.
+            Custom attributes such as <code>service.visibility</code> and
+            <code>isAsg</code> tell you what to do about it. The attributes are
+            cheap to add; the payoff comes from consistent rollout and using
+            them to drive alerting and triage.
+          </p>
+        </div>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Written by</div>
+          <div class="author-card">
+            <div class="author-avatar">F</div>
+            <div class="author-details">
+              <div class="author-name">Francis Morkeh Mensah</div>
+              <div class="author-title">
+                Site Reliability Engineer · AWS Community Builder
+              </div>
+              <div class="author-bio">
+                Building and operating cloud-native production systems at
+                Hubtel. Writing about SRE, infrastructure, and lessons learned
+                from production systems.
+              </div>
+            </div>
+          </div>
+          <div class="article-tags-footer">
+            <span class="atag">#OpenTelemetry</span
+            ><span class="atag">#SRE</span><span class="atag">#Fintech</span
+            ><span class="atag">#Observability</span
+            ><span class="atag">#IncidentResponse</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a
+            ><a href="../index.html#contact" class="btn-primary"
+              >Get in Touch</a
+            >
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>

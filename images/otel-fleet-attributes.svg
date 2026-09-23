@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">OpenTelemetry attributes across a microservices fleet</title>
+  <desc id="desc">Public payments, identity, and account services and private ledger, risk, settlement, and operations services emit telemetry tagged with service.visibility and isAsg.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316"/>
+    </marker>
+    <style>
+      .label { font: 500 15px 'IBM Plex Mono', monospace; fill: #e2e0db; }
+      .small { font: 400 13px 'IBM Plex Mono', monospace; fill: #9a9aa0; }
+      .micro { font: 400 12px 'IBM Plex Mono', monospace; fill: #8a8a92; }
+      .title { font: 600 24px 'IBM Plex Mono', monospace; fill: #f5f3ee; }
+      .section { font: 600 14px 'IBM Plex Mono', monospace; fill: #f97316; letter-spacing: 1px; }
+      .service { fill: #141416; stroke-width: 2; }
+      .public { stroke: #f97316; }
+      .internal { stroke: #5c6675; }
+      .tag { fill: #0d0d0f; stroke: #2c2c32; }
+      .true { fill: #f97316; }
+      .false { fill: #25252a; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="760" fill="#090909"/>
+  <path d="M0 92H1200" stroke="#222226"/>
+  <text x="52" y="56" class="title">A fleet-wide resource contract</text>
+  <text x="52" y="80" class="small">Every service emits the same two operational questions with its telemetry.</text>
+
+  <text x="52" y="132" class="section">SERVICE DOMAINS</text>
+  <rect x="52" y="150" width="1096" height="438" rx="8" fill="#101012" stroke="#222226"/>
+
+  <text x="82" y="191" class="section">CUSTOMER-FACING</text>
+  <text x="82" y="214" class="small">service.visibility = public</text>
+  <text x="625" y="191" class="section">PRIVATE / BACKGROUND</text>
+  <text x="625" y="214" class="small">service.visibility = private</text>
+
+  <line x1="600" y1="174" x2="600" y2="555" stroke="#222226" stroke-dasharray="5 8"/>
+
+  <g transform="translate(82 248)">
+    <rect class="service public" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">payments-api</text>
+    <text x="18" y="54" class="micro">authorize / capture</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: true</text>
+    <circle cx="183" cy="88" r="5" class="true"/>
+  </g>
+  <g transform="translate(332 248)">
+    <rect class="service public" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">identity-api</text>
+    <text x="18" y="54" class="micro">login / tokens</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: true</text>
+    <circle cx="183" cy="88" r="5" class="true"/>
+  </g>
+  <g transform="translate(82 408)">
+    <rect class="service public" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">accounts-api</text>
+    <text x="18" y="54" class="micro">balances / profile</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: false</text>
+    <circle cx="183" cy="88" r="5" class="false"/>
+  </g>
+  <g transform="translate(332 408)">
+    <rect class="service public" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">checkout-web</text>
+    <text x="18" y="54" class="micro">payment experience</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: false</text>
+    <circle cx="183" cy="88" r="5" class="false"/>
+  </g>
+
+  <g transform="translate(625 248)">
+    <rect class="service internal" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">ledger-service</text>
+    <text x="18" y="54" class="micro">postings / balances</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: true</text>
+    <circle cx="183" cy="88" r="5" class="true"/>
+  </g>
+  <g transform="translate(875 248)">
+    <rect class="service internal" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">risk-engine</text>
+    <text x="18" y="54" class="micro">rules / decisions</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: false</text>
+    <circle cx="183" cy="88" r="5" class="false"/>
+  </g>
+  <g transform="translate(625 408)">
+    <rect class="service internal" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">settlement-worker</text>
+    <text x="18" y="54" class="micro">payouts / reconciliation</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: true</text>
+    <circle cx="183" cy="88" r="5" class="true"/>
+  </g>
+  <g transform="translate(875 408)">
+    <rect class="service internal" width="218" height="128" rx="6"/>
+    <text x="18" y="29" class="label">ops-console</text>
+    <text x="18" y="54" class="micro">support / audit</text>
+    <rect class="tag" x="18" y="76" width="177" height="24" rx="3"/>
+    <text x="28" y="93" class="micro">isAsg: false</text>
+    <circle cx="183" cy="88" r="5" class="false"/>
+  </g>
+
+  <line x1="52" y1="630" x2="1148" y2="630" stroke="#222226"/>
+  <text x="52" y="670" class="section">OTEL RESOURCE ATTRIBUTES</text>
+  <text x="52" y="700" class="small">service.visibility: public | internal</text>
+  <text x="385" y="700" class="small">isAsg: true | false</text>
+  <text x="720" y="700" class="small">set once at startup, not per span</text>
+  <rect x="52" y="721" width="12" height="12" rx="2" fill="#f97316"/>
+  <text x="73" y="732" class="micro">public</text>
+  <rect x="145" y="721" width="12" height="12" rx="2" fill="#5c6675"/>
+  <text x="166" y="732" class="micro">private</text>
+  <circle cx="258" cy="727" r="6" class="true"/>
+  <text x="272" y="732" class="micro">ASG-backed</text>
+</svg>

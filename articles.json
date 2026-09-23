@@ -7,7 +7,8 @@
     "Terraform",
     "Kubernetes",
     "Observability",
-    "Incident"
+    "Incident",
+    "Fintech"
   ],
   "featured": {
     "href": "building-and-deploying-my-portfolio.html",
@@ -23,6 +24,17 @@
     ]
   },
   "published": [
+    {
+      "href": "what-we-tag-and-why-otel-rollout.html",
+      "tag": "OpenTelemetry · SRE · Fintech",
+      "title": "What We Tag and Why: Rolling Out Custom OpenTelemetry Attributes Across a Microservices Fleet",
+      "excerpt": "A practical guide to using service.visibility and isAsg as OpenTelemetry resource attributes across public and private fintech services.",
+      "year": "2026",
+      "readMinutes": "8 min",
+      "filters": ["Observability", "SRE", "Fintech"],
+      "homePreview": true,
+      "homeTag": "OpenTelemetry · Fintech · SRE"
+    },
     {
       "href": "practical-enterprise-storage-and-resilience-engineering.html",
       "tag": "Storage · SRE",

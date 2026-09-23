@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">OpenTelemetry resource attribute schema</title>
+  <desc id="desc">Standard OpenTelemetry resource attributes and two custom service attributes are set together on the service resource at startup and inherited by emitted telemetry.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316"/>
+    </marker>
+    <style>
+      .title { font: 600 24px 'IBM Plex Mono', monospace; fill: #f5f3ee; }
+      .section { font: 600 14px 'IBM Plex Mono', monospace; fill: #f97316; letter-spacing: 1px; }
+      .label { font: 500 15px 'IBM Plex Mono', monospace; fill: #e2e0db; }
+      .small { font: 400 13px 'IBM Plex Mono', monospace; fill: #9a9aa0; }
+      .micro { font: 400 12px 'IBM Plex Mono', monospace; fill: #8a8a92; }
+      .outer { fill: #101012; stroke: #2c2c32; stroke-width: 2; }
+      .standard { fill: #141416; stroke: #5c6675; stroke-width: 2; }
+      .custom { fill: #1b1713; stroke: #f97316; stroke-width: 2; }
+      .line { stroke: #f97316; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="520" fill="#090909"/>
+  <path d="M0 92H1200" stroke="#222226"/>
+  <text x="52" y="56" class="title">Resource scope is the right scope</text>
+  <text x="52" y="80" class="small">Set service identity and operational context once at startup; let every signal inherit it.</text>
+
+  <text x="52" y="132" class="section">OTEL RESOURCE</text>
+  <rect x="52" y="160" width="760" height="248" rx="8" class="outer"/>
+  <text x="84" y="198" class="label">service resource</text>
+  <text x="84" y="222" class="micro">constructed by the SDK / instrumentation bootstrap</text>
+
+  <rect x="84" y="250" width="320" height="64" rx="5" class="standard"/>
+  <text x="106" y="277" class="label">service.name</text>
+  <text x="106" y="298" class="micro">payments-api</text>
+  <rect x="424" y="250" width="320" height="64" rx="5" class="standard"/>
+  <text x="446" y="277" class="label">deployment.environment</text>
+  <text x="446" y="298" class="micro">production</text>
+  <rect x="84" y="330" width="320" height="64" rx="5" class="custom"/>
+  <text x="106" y="357" class="label">service.visibility</text>
+  <text x="106" y="378" class="micro">public | internal</text>
+  <rect x="424" y="330" width="320" height="64" rx="5" class="custom"/>
+  <text x="446" y="357" class="label">isAsg</text>
+  <text x="446" y="378" class="micro">true | false</text>
+
+  <path d="M812 284H906" class="line"/>
+  <rect x="906" y="214" width="242" height="140" rx="8" fill="#141416" stroke="#f97316" stroke-width="2"/>
+  <text x="932" y="252" class="section">INHERITED BY</text>
+  <text x="932" y="283" class="label">traces</text>
+  <text x="932" y="307" class="label">metrics</text>
+  <text x="932" y="331" class="label">logs / events</text>
+
+  <line x1="52" y1="452" x2="1148" y2="452" stroke="#222226"/>
+  <text x="52" y="486" class="micro">Custom attributes describe the service, so they belong on the resource, not repeated on individual spans.</text>
+</svg>
