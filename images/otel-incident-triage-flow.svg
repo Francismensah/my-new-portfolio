@@ -26,22 +26,34 @@
   <text x="52" y="132" class="section">RESPONDER FLOW</text>
   <rect x="52" y="160" width="215" height="116" rx="7" class="box"/>
   <text x="76" y="196" class="section">01 / ALERT</text>
-  <text x="76" y="225" class="label">payments or ledger degrades</text>
-  <text x="76" y="250" class="micro">dashboard links to tagged service</text>
+  <text x="76" y="220" class="label">
+    <tspan x="76" dy="0">payments or ledger</tspan>
+    <tspan x="76" dy="20">degrades</tspan>
+  </text>
+  <text x="76" y="252" class="micro">
+    <tspan x="76" dy="0">dashboard links to</tspan>
+    <tspan x="76" dy="15">tagged service</tspan>
+  </text>
 
   <path d="M267 218H335" class="line"/>
 
   <rect x="335" y="160" width="250" height="116" rx="7" class="decision"/>
   <text x="359" y="196" class="section">02 / SCOPE IMPACT</text>
   <text x="359" y="225" class="label">service.visibility</text>
-  <text x="359" y="250" class="micro">public first; internal separately</text>
+  <text x="359" y="244" class="micro">
+    <tspan x="359" dy="0">public first;</tspan>
+    <tspan x="359" dy="16">internal separately</tspan>
+  </text>
 
   <path d="M585 218H654" class="line"/>
 
   <rect x="654" y="160" width="250" height="116" rx="7" class="decision"/>
   <text x="678" y="196" class="section">03 / CHECK CAPACITY</text>
   <text x="678" y="225" class="label">isAsg</text>
-  <text x="678" y="250" class="micro">is scaling a valid response?</text>
+  <text x="678" y="244" class="micro">
+    <tspan x="678" dy="0">is scaling a</tspan>
+    <tspan x="678" dy="16">valid response?</tspan>
+  </text>
 
   <path d="M904 218H1000" class="line"/>
   <line x1="1000" y1="218" x2="1000" y2="156" stroke="#f97316" stroke-width="2"/>
@@ -58,16 +70,25 @@
   <rect x="1034" y="291" width="114" height="108" rx="7" class="outcome"/>
   <text x="1052" y="326" class="section">ACT</text>
   <text x="1052" y="355" class="label">manual</text>
-  <text x="1052" y="377" class="micro">capacity / config</text>
+  <text x="1052" y="373" class="micro">
+    <tspan x="1052" dy="0">capacity /</tspan>
+    <tspan x="1052" dy="15">config</tspan>
+  </text>
 
   <line x1="52" y1="451" x2="1148" y2="451" stroke="#222226"/>
   <text x="52" y="490" class="section">WHAT THE FILTERS CHANGE</text>
   <rect x="52" y="515" width="328" height="84" rx="6" fill="#101012" stroke="#f97316"/>
   <text x="74" y="548" class="label">public + isAsg:true</text>
-  <text x="74" y="574" class="small">payment blast radius; allow a scale cycle</text>
+  <text x="74" y="570" class="small">
+    <tspan x="74" dy="0">payment blast radius; allow a</tspan>
+    <tspan x="74" dy="16">scale cycle</tspan>
+  </text>
   <rect x="404" y="515" width="328" height="84" rx="6" fill="#101012" stroke="#5c6675"/>
   <text x="426" y="548" class="label">public + isAsg:false</text>
-  <text x="426" y="574" class="small">payment blast radius; intervene now</text>
+  <text x="426" y="570" class="small">
+    <tspan x="426" dy="0">payment blast radius;</tspan>
+    <tspan x="426" dy="16">intervene now</tspan>
+  </text>
   <rect x="756" y="515" width="392" height="84" rx="6" fill="#101012" stroke="#2c2c32"/>
   <text x="778" y="548" class="label">internal + either value</text>
   <text x="778" y="574" class="small">separate customer money flow from ops</text>
