@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Alert hierarchy</title>
+<desc id="desc">A pyramid places Alert at the top, followed by Monitor, Dashboard, and Log at the base.</desc>
+<rect width="1600" height="900" fill="#0d1b2a"/><g font-family="Arial, sans-serif" text-anchor="middle" font-weight="bold" fill="#0d1b2a"><path d="M800 100 L1040 300 H560 Z" fill="#e05252"/><text x="800" y="235" font-size="42">ALERT</text><path d="M560 300 H1040 L1190 500 H410 Z" fill="#e2ad58"/><text x="800" y="425" font-size="42">MONITOR</text><path d="M410 500 H1190 L1340 700 H260 Z" fill="#54d6c7"/><text x="800" y="625" font-size="42">DASHBOARD</text><path d="M260 700 H1340 L1450 820 H150 Z" fill="#708b9b"/><text x="800" y="785" font-size="42">LOG</text></g><g font-family="Arial, sans-serif" font-size="26" fill="#e8f0f2"><text x="1090" y="220">requires action</text><text x="1210" y="440">watches state</text><text x="1370" y="620">helps investigate</text><text x="1470" y="770" text-anchor="end">provides context</text></g>
+</svg>

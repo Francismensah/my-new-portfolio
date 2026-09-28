@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      The SRE Trap: When Monitoring Creates More Noise Than Signal -
+      infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="Stop treating every metric as an incident. Learn how SRE teams turn noisy alerts into signals tied to user impact, action, and healthier on-call decisions."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/the-sre-trap-monitoring-noise-signal.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (preferredDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">The SRE Trap</span>
+          </div>
+          <p class="article-category">Observability · SRE · Monitoring</p>
+          <h1>
+            The SRE Trap: When Monitoring Creates More
+            <em>Noise Than Signal</em>
+          </h1>
+          <p class="article-subtitle">
+            More telemetry does not automatically make a system easier to
+            operate. The useful signal is the part that helps someone understand
+            what matters and act on it.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 9 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">Observability</span>
+              <span class="meta-tag">Monitoring</span>
+              <span class="meta-tag">Alerting</span>
+              <span class="meta-tag">DevOps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <p>
+          More dashboards, more monitors, more metrics, and more alerts are
+          often treated as proof that observability is improving.
+        </p>
+        <p>
+          It is an easy assumption to make. If a team can see more of the
+          system, the system must be easier to operate. In practice, the
+          opposite can happen. A team that receives 50 alerts and only needs to
+          act on three of them does not have better observability. It has more
+          noise competing with the signal.
+        </p>
+        <p>
+          The goal of observability isn't to monitor everything. It's to make
+          the important things obvious.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-alert-noise.svg"
+            alt="An on-call engineer's phone buried beneath a stack of alert notifications, with one red notification highlighted among grey notifications."
+          />
+          <figcaption>
+            When every event looks urgent, the useful signal gets buried with
+            the rest.
+          </figcaption>
+        </figure>
+
+        <h2>Monitoring everything doesn't mean observing everything</h2>
+        <p>
+          I have seen monitoring systems grow in a predictable way. A team adds
+          a metric for a new component. Someone creates a monitor from that
+          metric. The monitor pages on a threshold. A dashboard is added so
+          people can inspect it. Then another service is connected, and the
+          pattern repeats.
+        </p>
+        <p>
+          The result looks impressive in an inventory: thousands of metrics,
+          hundreds of monitors, and a long list of dashboards. But an inventory
+          is not an operating model. The important question is whether the
+          system helps someone understand what is happening and choose the right
+          action.
+        </p>
+        <p>
+          A monitor can be technically correct and operationally useless. A
+          database connection count can be accurate while telling me nothing
+          about whether users can complete checkout. A deployment event can be
+          real without being a problem. A 404 can be expected application
+          behaviour.
+        </p>
+        <p>
+          Observability is not the amount of data collected. It is the quality
+          of the explanation that data enables.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-noise-vs-signal.svg"
+            alt="A split diagram showing 50 chaotic red and yellow alerts on the left and the same wall with only 3 highlighted signals on the right."
+          />
+          <figcaption>
+            Fewer actionable signals can be more useful than a wall of
+            technically accurate alerts.
+          </figcaption>
+        </figure>
+
+        <h2>Not every 4xx is an incident</h2>
+        <p>
+          HTTP status codes are a common source of alert noise because they are
+          easy to count and easy to threshold.
+        </p>
+        <p>
+          A 400 may mean a client sent invalid input. That can be a valid
+          response from a healthy API. A 404 may mean a user looked up a
+          resource that does not exist, or that the application intentionally
+          uses a missing resource as part of a normal workflow. Some APIs use
+          other 4xx responses to represent authentication, validation, rate
+          limiting, or business rules that clients are expected to encounter.
+        </p>
+        <p>
+          Alerting on raw status codes treats all of those cases as failures. It
+          asks, "Did an error response happen?" when the operational question is
+          usually, "Is the system behaving abnormally?"
+        </p>
+        <p>Those are different questions.</p>
+        <p>
+          A useful monitor might detect that the 404 rate for a known endpoint
+          has suddenly moved well above its normal baseline. It might compare
+          the rate by route, client, release, or region. It might alert when a
+          validation response changes from a small, expected proportion to a
+          sustained spike after a deployment.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-http-status-baseline.svg"
+            alt="A chart separating expected 400 and 404 responses below a baseline from an abnormal 4xx spike above it."
+          />
+          <figcaption>
+            Expected client errors belong in context; an abnormal change in
+            their rate may deserve attention.
+          </figcaption>
+        </figure>
+
+        <p>
+          The status code is still useful. It becomes a signal when it is
+          interpreted with traffic, route, time, and user impact instead of
+          being promoted directly to a page.
+        </p>
+
+        <h2>Null doesn't automatically mean broken</h2>
+        <p>
+          Null values create the same trap in data pipelines, APIs, and
+          application logs. A query finds a null and a monitor treats it as
+          evidence of failure.
+        </p>
+        <p>But null can mean several normal things:</p>
+        <ul class="body-list">
+          <li>The data does not exist yet.</li>
+          <li>The field is optional for this kind of object.</li>
+          <li>A downstream system has not returned a value.</li>
+          <li>
+            The application intentionally returns null when there is no
+            applicable result.
+          </li>
+        </ul>
+        <p>
+          The presence of null is not enough to establish an incident. The
+          useful question is whether the null rate has changed in a way that
+          affects expected behaviour.
+        </p>
+        <p>
+          For example, an optional profile field may be null for most records
+          and still be perfectly healthy. A payment status that becomes null for
+          a growing share of completed transactions is a different situation.
+          The monitor needs application context: which fields are optional, what
+          the normal distribution looks like, and what outcome users experience
+          when the value is missing.
+        </p>
+        <p>
+          Null does not equal incident. An alert should understand the contract
+          of the application it is watching.
+        </p>
+
+        <h2>The "restart" that wasn't a failure</h2>
+        <p>
+          Infrastructure metrics can also make normal behaviour look like
+          failure. Consider an AWS Auto Scaling Group during a rolling
+          deployment.
+        </p>
+        <p>
+          Instance A is terminated. A replacement, Instance B, is launched. The
+          health check passes, and the group returns to its desired healthy
+          capacity. From an event stream, the sequence contains a termination
+          and a launch. A monitor that pages whenever an instance terminates may
+          describe the deployment as an outage.
+        </p>
+        <p>
+          The system's actual behaviour says something else: capacity was
+          maintained, the replacement became healthy, and the service continued
+          operating.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-asg-rolling-deployment.svg"
+            alt="A flow diagram showing Instance A terminating, Instance B launching, a passing health check, and healthy capacity maintained."
+          />
+          <figcaption>
+            An instance termination can be one step in a healthy replacement
+            flow, not an incident.
+          </figcaption>
+        </figure>
+
+        <p>
+          The better signal is not "an instance terminated." It is "the Auto
+          Scaling Group cannot maintain healthy capacity," or "replacement
+          instances are failing health checks," or "available capacity fell
+          below the level required for the service."
+        </p>
+        <p>
+          Events provide context. State and user impact determine whether the
+          context represents a failure.
+        </p>
+
+        <h2>Alerts nobody needs to act on</h2>
+        <p>
+          I use a simple test for every proposed page: if this alert fires at 3
+          AM, what should the person receiving it do?
+        </p>
+        <p>
+          If the answer is "nothing, it is expected," it should not page anyone.
+          It may still belong in a dashboard, a log, an event stream, or a
+          lower-priority notification. But paging is a request for human
+          attention, and human attention is a limited production resource.
+        </p>
+        <p>These terms are useful when designing the boundary:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alert</td>
+              <td>Requires a person to take action</td>
+            </tr>
+            <tr>
+              <td>Monitor</td>
+              <td>Watches a condition or trend</td>
+            </tr>
+            <tr>
+              <td>Dashboard</td>
+              <td>Helps someone investigate and understand state</td>
+            </tr>
+            <tr>
+              <td>Log</td>
+              <td>Provides detailed context about an event</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The distinction prevents a monitor from quietly becoming an alert just
+          because a threshold was added. It also makes ownership clearer. A
+          dashboard can contain useful detail without implying that every change
+          deserves a response.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-alert-hierarchy.svg"
+            alt="A layered pyramid with Alert at the top, followed by Monitor, Dashboard, and Log at the base."
+          />
+          <figcaption>
+            The closer a signal is to paging a person, the stronger the action
+            and user-impact case should be.
+          </figcaption>
+        </figure>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-3am-decision.svg"
+            alt="A flowchart from Alert fires at 3 AM to Does someone need to act?, branching to Page or Don't page and routing to a dashboard or log."
+          />
+          <figcaption>
+            A page is justified when a person needs to act now; expected
+            behaviour belongs elsewhere.
+          </figcaption>
+        </figure>
+
+        <h2>The dashboard nobody looks at</h2>
+        <p>
+          A team can have 27 dashboards, 143 monitors, and thousands of metrics,
+          then still struggle to answer one basic question: are users actually
+          able to use the service?
+        </p>
+        <p>
+          That is usually a sign that monitoring has been organised around
+          components rather than service outcomes. Engineers can see CPU,
+          memory, queue depth, pod restarts, database connections, and
+          deployment events. They cannot quickly tell whether a user can sign
+          in, submit an order, retrieve a report, or complete the workflow that
+          matters.
+        </p>
+        <p>
+          Service-level indicators and transaction-level monitoring close that
+          gap. They connect technical data to a meaningful operation: successful
+          requests, acceptable latency, completed workflows, or another
+          measurable user outcome. The details still matter during
+          investigation, but the first view should answer whether the service is
+          working.
+        </p>
+        <p>
+          I have written more about the SLI and SLO side of this in
+          <a href="slo-alerting-framework.html"
+            >my SLO alerting framework article</a
+          >. The important point here is simple: monitoring should begin with
+          the question the service owner needs answered, then collect the
+          evidence needed to answer it.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/sre-trap-dashboard-before-after.svg"
+            alt="A before-and-after dashboard illustration: 27 cluttered dashboard thumbnails on the left and one clear panel asking Can users use the service? on the right."
+          />
+          <figcaption>
+            A smaller operational view can be more useful when it answers the
+            question that matters.
+          </figcaption>
+        </figure>
+
+        <h2>What good monitoring looks like</h2>
+        <p>
+          I define a signal as something that helps me understand or act on the
+          state of the system. That definition includes metrics, logs, traces,
+          events, and user-level checks. It excludes data that is merely
+          available but does not improve a decision.
+        </p>
+        <p>The difference is often a change in framing:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Noisy monitoring</th>
+              <th>Better signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alert on every 404</td>
+              <td>Alert on abnormal 404 rate</td>
+            </tr>
+            <tr>
+              <td>Alert on any null</td>
+              <td>Alert when null rate deviates from baseline</td>
+            </tr>
+            <tr>
+              <td>Alert when an instance terminates</td>
+              <td>Alert when the ASG cannot maintain healthy capacity</td>
+            </tr>
+            <tr>
+              <td>Alert on every 5xx</td>
+              <td>Alert on sustained / error-budget-impacting failures</td>
+            </tr>
+            <tr>
+              <td>Monitor CPU alone</td>
+              <td>Correlate CPU with latency and traffic</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          This does not mean removing all low-level telemetry. CPU, instance
+          lifecycle events, null counts, and 4xx responses can all be valuable
+          during diagnosis. The design mistake is allowing every diagnostic
+          detail to become an interruption.
+        </p>
+        <p>
+          Good monitoring also has a clear owner and a clear response. Someone
+          should be able to explain what the signal means, why its threshold
+          exists, what normal looks like, and where to start when it changes. If
+          nobody can answer those questions, the monitor is probably carrying
+          more confidence than it has earned.
+        </p>
+
+        <h2>Conclusion</h2>
+        <p>
+          The harder monitoring problem is not collecting one more metric or
+          adding one more dashboard. It is deciding what deserves attention.
+        </p>
+        <p>
+          That decision requires knowledge of application behaviour, user
+          workflows, normal variation, and the actions available to the person
+          on call. It means separating expected errors from abnormal changes,
+          infrastructure events from service failures, and useful context from
+          urgent signals.
+        </p>
+        <p>
+          The goal of observability isn't to monitor everything. It's to make
+          the important things obvious.
+        </p>
+        <p>
+          A good monitoring system doesn't tell you everything that happened. It
+          helps you quickly understand what matters.
+        </p>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Written by</div>
+          <div class="author-card">
+            <div class="author-avatar">F</div>
+            <div class="author-details">
+              <div class="author-name">Francis Morkeh Mensah</div>
+              <div class="author-title">
+                Site Reliability Engineer · AWS Community Builder
+              </div>
+              <div class="author-bio">
+                Building and operating cloud-native production systems at
+                Hubtel. Writing about SRE, infrastructure, and lessons learned
+                from production systems.
+              </div>
+            </div>
+          </div>
+          <div class="article-tags-footer">
+            <span class="atag">#Observability</span
+            ><span class="atag">#SRE</span>
+          </div>
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>

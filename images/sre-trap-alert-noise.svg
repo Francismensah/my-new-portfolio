@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">On-call phone buried under alert notifications</title>
+<desc id="desc">A dark navy phone is surrounded by grey alert cards, with one red alert highlighted.</desc>
+<rect width="1600" height="900" fill="#0d1b2a"/>
+<rect x="575" y="150" width="450" height="650" rx="48" fill="#172f42" stroke="#54d6c7" stroke-width="8"/>
+<rect x="625" y="225" width="350" height="470" rx="18" fill="#071018"/>
+<circle cx="800" cy="745" r="18" fill="#54d6c7"/>
+<g font-family="Arial, sans-serif" font-size="30">
+<g fill="#8897a5"><rect x="170" y="130" width="350" height="105" rx="14"/><text x="200" y="193" fill="#d8e1e8">ALERT 01  latency</text></g>
+<g fill="#647483"><rect x="1100" y="115" width="350" height="105" rx="14"/><text x="1130" y="178" fill="#d8e1e8">ALERT 02  deploy</text></g>
+<g fill="#718392"><rect x="115" y="350" width="350" height="105" rx="14"/><text x="145" y="413" fill="#d8e1e8">ALERT 03  404 rate</text></g>
+<g fill="#6a7a89"><rect x="1100" y="370" width="350" height="105" rx="14"/><text x="1130" y="433" fill="#d8e1e8">ALERT 04  CPU</text></g>
+<g fill="#697987"><rect x="250" y="650" width="350" height="105" rx="14"/><text x="280" y="713" fill="#d8e1e8">ALERT 05  null</text></g>
+<g fill="#e05252"><rect x="1010" y="650" width="410" height="110" rx="14"/><text x="1040" y="715" fill="#fff4f4">ACTION REQUIRED</text></g>
+</g>
+</svg>

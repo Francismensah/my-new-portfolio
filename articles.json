@@ -155,6 +155,17 @@
       "filters": ["Observability", "SRE"],
       "homePreview": true,
       "homeTag": "Observability · OpenTelemetry · Enterprise"
+    },
+    {
+      "href": "the-sre-trap-monitoring-noise-signal.html",
+      "tag": "Observability · SRE",
+      "title": "The SRE Trap: When Monitoring Creates More Noise Than Signal",
+      "excerpt": "How to distinguish useful operational signals from expected errors, infrastructure events, and alerts nobody needs to act on.",
+      "year": "2026",
+      "readMinutes": "9 min",
+      "filters": ["Observability", "SRE"],
+      "homePreview": false,
+      "homeTag": "Observability · SRE · Monitoring"
     }
   ],
   "comingSoon": [
