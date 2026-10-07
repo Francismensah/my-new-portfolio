@@ -561,11 +561,15 @@ code {
 
 .article-image {
   margin: 1rem 0;
+  width: 100%;
 }
 
 .article-image img {
+  display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
+  margin: 0 auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   transition:
@@ -583,6 +587,7 @@ code {
 }
 
 .article-image figcaption {
+  width: 100%;
   font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--muted);

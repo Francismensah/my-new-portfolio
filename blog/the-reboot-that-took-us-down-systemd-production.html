@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      The Reboot That Took Us Down: Mastering systemd Services in Production —
+      infrabyfrancis.me
+    </title>
+    <meta
+      name="description"
+      content="Run Linux applications reliably with systemd: units, logs, timers, releases, rollback, hardening, and incident lessons."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/the-reboot-that-took-us-down-systemd-production.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        document.documentElement.setAttribute(
+          "data-theme",
+          stored || (preferredDark ? "dark" : "light"),
+        );
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="nav-menu-btn"
+          id="navMenuBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed="false"
+        >
+          <span class="theme-icon" id="themeIcon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li>
+          <li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb">
+            <a href="../index.html">Home</a><span>/</span>
+            <a href="index.html">Blog</a><span>/</span>
+            <span style="color: var(--text)">The Reboot That Took Us Down</span>
+          </div>
+          <p class="article-category">Linux · Systemd · Production</p>
+          <h1>
+            The Reboot That Took Us Down: Mastering
+            <em>systemd</em> Services in Production
+          </h1>
+          <p class="article-subtitle">
+            A practical guide to running Linux applications reliably: service
+            enablement, journald diagnostics, unit hardening, timers, and the
+            reboot lesson that bites every operator eventually.
+          </p>
+          <div class="article-meta-bar">
+            <span class="meta-item">📅 2026</span>
+            <span class="meta-item">⏱ 12 min read</span>
+            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <div class="meta-tags">
+              <span class="meta-tag">systemd</span>
+              <span class="meta-tag">Linux</span>
+              <span class="meta-tag">SRE</span>
+              <span class="meta-tag">Operations</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <p>
+          When I deploy an application directly to a Linux VM,
+          <strong>systemd</strong> is the layer that turns its process into an
+          operating-system-managed service. A process is only the program that
+          happens to be running right now. A service also has a declared
+          owner, working directory, environment, startup command, dependencies,
+          restart policy, log destination, and boot behavior.
+        </p>
+        <p>
+          That distinction matters in production. Starting
+          <code>dotnet MyApi.dll</code> or <code>node server.js</code> from an
+          SSH session may prove that the binary works, but it does not define
+          what should happen after the terminal closes, the VM reboots, the
+          network becomes available late, or the application exits with an
+          error. A systemd unit makes those decisions explicit and gives the
+          operations team one control plane for status, lifecycle actions, and
+          logs.
+        </p>
+        <p>
+          In practice, systemd can start the service during boot, order it after
+          required targets, restart it when it fails, stop it cleanly, limit
+          the account and filesystem access it receives, and send stdout and
+          stderr to the journal. It does not make unhealthy application code
+          reliable by itself: the unit still needs sensible timeouts, a
+          deliberate restart policy, health checks, and monitoring outside the
+          process.
+        </p>
+        <p>
+          The operational lesson I learned the hard way is:
+          <strong>start affects now; enable affects future boots.</strong>
+          <code>systemctl start</code> can make a service available immediately,
+          while <code>systemctl enable</code> creates the boot-time relationship
+          that brings it back after the next restart.
+        </p>
+
+        <div class="info-box">
+          The service was active before maintenance. It was still not enabled
+          for boot. After the reboot, systemd did exactly what it was meant to
+          do: it left it inactive.
+        </div>
+
+        <figure class="article-image">
+          <img
+            src="../images/systemd-boot-flow.svg"
+            alt="Linux boot flow from the kernel to systemd targets and application services."
+          />
+          <figcaption>
+            The kernel hands control to systemd, which brings the host to a
+            target state before application services start.
+          </figcaption>
+        </figure>
+
+        <h2>What systemd actually does</h2>
+        <p>
+          systemd runs as PID 1, the first userspace process started by the
+          kernel. It brings the host to a target state, starts units in
+          dependency order, supervises long-running processes, and records
+          service output in the journal.
+        </p>
+        <p>
+          A unit is a resource systemd knows how to manage. The most common ones
+          are exactly the ones I rely on in production:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Unit</th>
+              <th>Purpose</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>service</td>
+              <td>Long-running process or one-shot command</td>
+              <td>api.service</td>
+            </tr>
+            <tr>
+              <td>timer</td>
+              <td>Schedules another unit</td>
+              <td>backup.timer</td>
+            </tr>
+            <tr>
+              <td>socket</td>
+              <td>Opens a socket and activates a service</td>
+              <td>sshd.socket</td>
+            </tr>
+            <tr>
+              <td>target</td>
+              <td>Groups units into a desired state</td>
+              <td>multi-user.target</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>systemctl is the control plane</h2>
+        <p>
+          I start with <code>systemctl status</code>, then move to the smallest
+          action I need. The commands are simple, but their meanings are not
+          interchangeable.
+        </p>
+
+        <pre><code>sudo systemctl start app.service
+sudo systemctl stop app.service
+sudo systemctl restart app.service
+sudo systemctl enable --now app.service
+systemctl is-active app.service
+systemctl is-enabled app.service
+sudo systemctl daemon-reload</code></pre>
+
+        <p>
+          The distinction I look for on every deployment is simple. A service
+          can be <strong>active now</strong> and still be
+          <strong>disabled for boot</strong>. That is a production mismatch
+          waiting to happen.
+        </p>
+
+        <figure class="article-image">
+          <img
+            src="../images/systemd-unit-anatomy.svg"
+            alt="Annotated systemd service unit showing the Unit, Service, and Install sections."
+          />
+          <figcaption>
+            A service unit is not just a process entry. It is also a dependency,
+            lifecycle, and boot contract.
+          </figcaption>
+        </figure>
+
+        <h2>Why unit files matter</h2>
+        <p>
+          A unit file at <code>/etc/systemd/system/my-api.service</code> usually
+          has three sections: <code>[Unit]</code>, <code>[Service]</code>, and
+          <code>[Install]</code>. That architecture is intentional because it
+          separates dependency ordering from runtime behavior and boot-time
+          activation.
+        </p>
+
+        <pre><code>[Unit]
+Description=My API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=my-api
+Group=my-api
+WorkingDirectory=/opt/my-api/current
+EnvironmentFile=/etc/my-api/my-api.env
+ExecStart=/usr/bin/node /opt/my-api/current/dist/server.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+        <p>
+          I always make the executable, user, working directory, environment,
+          and restart policy explicit. That reduces the chance of a deployment
+          that appears healthy at the shell but fails when the VM restarts or a
+          target pulls the service in at boot.
+        </p>
+
+        <h2>journalctl is where the truth lives</h2>
+        <p>
+          A unit's stdout and stderr normally land in journald. That gives me
+          one place to inspect application startup without guessing which log
+          file a framework chose.
+        </p>
+
+        <pre><code># Recent logs for a service
+sudo journalctl -u my-api.service --no-pager -n 100
+
+# Follow logs in real time
+sudo journalctl -fu my-api.service
+
+# Check a previous boot
+sudo journalctl -u my-api.service -b -1 --no-pager
+
+# Errors in the current boot
+sudo journalctl -p err -b --no-pager</code></pre>
+
+        <p>
+          If I need to keep logs across reboots, I make journald persistent and
+          monitor retention deliberately. The point is not to keep every log
+          forever; it is to ensure the log trail still exists when the next
+          reboot makes the previous stack trace relevant again.
+        </p>
+
+        <h2>Timers are better than ad hoc cron jobs</h2>
+        <p>
+          A timer is a systemd unit that activates a service. Compared with
+          cron, timers give me journal integration, dependency handling,
+          missed-run persistence, and the same operational lifecycle as every
+          other managed unit.
+        </p>
+
+        <pre><code>[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target</code></pre>
+
+        <p>
+          This is a better fit for production work like log cleanup, cache
+          refresh, database vacuum jobs, and health checks that should still run
+          after the host has been offline for a while.
+        </p>
+
+        <h2>The outage pattern: active now, disabled forever</h2>
+        <p>
+          This is the operational trap I see most often. A service is manually
+          started during a deploy, then nobody runs the persistent enable step.
+          The server reboots. The service remains missing. Or worse, an old
+          service is still enabled and it grabs the port after the reboot,
+          causing the new process to crash with <code>EADDRINUSE</code>.
+        </p>
+
+        <div class="warn-box">
+          Starting a service is not the same as enabling it. Always test both
+          the current state and the boot state.
+        </div>
+
+        <figure class="article-image">
+          <img
+            src="../images/systemd-release-flow.svg"
+            alt="Systemd release process showing versioned releases, a current symlink, health checks, and rollback flow."
+          />
+          <figcaption>
+            A controlled release path matters as much as a healthy unit file.
+            The app should be started, checked, and rolled back deliberately.
+          </figcaption>
+        </figure>
+
+        <h2>Production deployment pattern</h2>
+        <p>
+          I prefer immutable release directories and a single symlink update. It
+          is easier to reason about, easier to roll back, and easier to audit.
+          The deployment itself should always check health before the new
+          version is considered live.
+        </p>
+
+        <pre><code>new_release=${1:?release directory is required}
+app_root=/opt/orders
+service=orders.service
+previous_release=$(readlink -f "$app_root/current" || true)
+
+ln -sfn "$app_root/releases/$release_name" "$app_root/current"
+sudo systemctl daemon-reload
+sudo systemctl restart "$service"
+
+if ! curl --silent --show-error --fail --max-time 10 "$health_url" >/dev/null; then
+  ln -sfn "$previous_release" "$app_root/current"
+  sudo systemctl restart "$service"
+  exit 1
+fi</code></pre>
+
+        <p>
+          The key point is not only the shell script. It is the discipline of
+          verifying both the running process and the persisted systemd state.
+          Process health is part of the deployment. So is boot persistence.
+        </p>
+
+        <h2>Best-practice checklist</h2>
+        <ul class="body-list">
+          <li>Run each application as a dedicated non-root user.</li>
+          <li>
+            Use <code>enable --now</code> for the first production activation.
+          </li>
+          <li>
+            Keep unit files, environment files, and deploy scripts in Git.
+          </li>
+          <li>Enable persistent journald and monitor disk usage.</li>
+          <li>
+            Use <code>Restart=on-failure</code> with a sensible retry delay.
+          </li>
+          <li>
+            Assert both <code>is-active</code> and <code>is-enabled</code>.
+          </li>
+          <li>Test reboot behavior in staging before production.</li>
+        </ul>
+
+        <div class="takeaway">
+          <h3>Key lesson</h3>
+          <p>
+            A production service is not just a process on a VM. It is a managed,
+            boot-aware unit with a verified startup path, a health check, and an
+            understood rollback story.
+          </p>
+        </div>
+
+        <div class="article-footer">
+          <div class="post-nav">
+            <a href="index.html" class="btn-secondary">← Back to Blog</a>
+            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-copy">
+        © 2026 Francis Morkeh Mensah · infrabyfrancis.me
+      </div>
+      <div class="footer-tagline">
+        Built with intention. <span>Reliable by design.</span>
+      </div>
+    </footer>
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>

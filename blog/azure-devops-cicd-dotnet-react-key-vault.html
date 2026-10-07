@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Building a Reliable Azure DevOps CI/CD Pipeline for .NET and React — infrabyfrancis.me</title>
+    <meta
+      name="description"
+      content="A practical SRE guide to independent Azure DevOps pipelines for an ASP.NET Core API and React frontend, with Azure Key Vault, approvals, health checks, and rollback."
+    />
+    <link
+      rel="canonical"
+      href="https://infrabyfrancis.me/blog/azure-devops-cicd-dotnet-react-key-vault.html"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const preferredDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", stored || (preferredDark ? "dark" : "light"));
+      })();
+    </script>
+    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
+    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <nav id="nav" class="nav-solid">
+      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
+      <div class="nav-controls">
+        <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
+          <span class="nav-menu-bar"></span><span class="nav-menu-bar"></span><span class="nav-menu-bar"></span>
+        </button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" aria-pressed="false">
+          <span class="theme-icon" id="themeIcon">☀</span><span id="themeLabel">Light</span>
+        </button>
+      </div>
+      <div class="nav-panel" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="../index.html#about">About</a></li><li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#skills">Skills</a></li><li><a href="../index.html#projects">Projects</a></li>
+          <li><a href="index.html" class="active">Blog</a></li><li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <div class="article-hero">
+        <div class="article-hero-bg"></div>
+        <div class="article-hero-inner">
+          <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="index.html">Blog</a><span>/</span><span style="color: var(--text)">Azure DevOps CI/CD</span></div>
+          <p class="article-category">Azure DevOps · .NET · React · SRE</p>
+          <h1>Building a Reliable CI/CD Pipeline for .NET and React with Azure DevOps</h1>
+          <p class="article-subtitle">Independent delivery pipelines, environment-safe configuration, and operational guardrails for a production API and frontend.</p>
+          <div class="article-meta-bar">
+            <span class="meta-item">2026</span><span class="meta-item">14 min read</span><span class="meta-item">Francis Morkeh Mensah</span>
+            <div class="meta-tags"><span class="meta-tag">Azure DevOps</span><span class="meta-tag">Key Vault</span><span class="meta-tag">SRE</span><span class="meta-tag">CI/CD</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <p><img src="../images/azure-devops-cicd-systemd-key-vault.svg" alt="Azure DevOps pipeline flowing through build, test, Key Vault, and staged systemd service deployments" /></p>
+        <p><em>Hero image: a clean architectural illustration showing separate .NET and React delivery paths converging on dev, staging, and production Linux hosts.</em></p>
+
+        <h2>The problem: fast delivery without fragile releases</h2>
+        <p>For this case study, I run an ASP.NET Core API and a React single-page application as two independently deployable services. The team needs frequent releases, but a green build alone is not enough: configuration must be environment-safe, secrets must stay out of source control, and a bad production deployment must have a short path back to the last known good version.</p>
+        <p>My goal is a pipeline that makes the safe path the easy path. Every change is tested and scanned, promotion is explicit, and runtime health—not just task completion—decides whether a release stays live.</p>
+
+        <h2>What CI/CD means here</h2>
+        <p>Continuous integration (CI) validates each change by building, testing, scanning, and packaging it into a repeatable artifact. Continuous delivery (CD) promotes that immutable artifact through environments with approvals, checks, deployment verification, and rollback. CI answers “can we release this?” CD answers “should we release this here, now, and keep it running?”</p>
+
+        <h2>Case study architecture</h2>
+        <p>The API and frontend live in separate repositories so ownership, release cadence, and rollback boundaries remain clear. Each repository has its own Azure DevOps YAML pipeline and publishes a versioned artifact. Both services run on Linux hosts: the ASP.NET Core API is a dedicated <code>systemd</code> unit, while the React artifact is served by Nginx, also managed as a systemd service. Azure DevOps promotes the same artifact to separate dev, staging, and production hosts.</p>
+        <ul class="body-list">
+          <li><strong>Repositories:</strong> <code>orders-api</code> for ASP.NET Core and <code>orders-web</code> for React.</li>
+          <li><strong>Stages:</strong> CI, dev deployment, staging deployment, and production deployment.</li>
+          <li><strong>Environments:</strong> Azure DevOps environments named <code>dev</code>, <code>staging</code>, and <code>prod</code>, each mapped to a Linux host group with checks and approval policy.</li>
+          <li><strong>Artifacts:</strong> a published .NET package and a production React bundle. CD never rebuilds source.</li>
+          <li><strong>Isolation:</strong> an API change can roll forward without forcing a frontend release, and vice versa.</li>
+        </ul>
+
+        <pre><code class="language-mermaid">flowchart LR
+  C[Commit / Pull Request] --> B[Build]
+  B --> T[Unit tests + coverage]
+  T --> S[Dependency + secret + image scans]
+  S --> A[Immutable artifact]
+  A --> D[Dev]
+  D --> G[Staging]
+  G --> P[Production]
+  P --> H[Health checks and smoke tests]
+  H -->|Fail| R[Automatic rollback]</code></pre>
+        <p><em>Figure 1: the release path from commit to verified production.</em></p>
+
+        <h2>CI stage: prove the artifact is releasable</h2>
+        <p>CI is intentionally boring. It restores from lockfiles, builds in a clean agent, runs tests, and emits one artifact. I fail fast on linting and security findings that violate the repository policy. Coverage is a signal, not a vanity target: I track changed-line coverage and require a threshold that protects critical code.</p>
+
+        <h3>.NET API pipeline</h3>
+        <pre><code class="language-yaml">trigger:
+  branches: { include: [ main ] }
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: Release
+
+stages:
+- stage: CI
+  jobs:
+  - job: Api
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: sdk
+        version: 8.x
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs: { command: restore, projects: '**/*.csproj' }
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
+    - task: DotNetCoreCLI@2
+      displayName: Test with coverage
+      inputs:
+        command: test
+        projects: '**/*Tests/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" --no-build'
+    - task: PublishCodeCoverageResults@2
+      inputs:
+        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    - task: DotNetCoreCLI@2
+      displayName: Publish artifact
+      inputs:
+        command: publish
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api --no-restore'
+    - publish: '$(Build.ArtifactStagingDirectory)/api'
+      artifact: api</code></pre>
+
+        <h3>React pipeline</h3>
+        <pre><code class="language-yaml">trigger:
+  branches: { include: [ main ] }
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: CI
+  jobs:
+  - job: React
+    steps:
+    - task: NodeTool@0
+      inputs: { versionSpec: '20.x' }
+    - script: npm ci
+      displayName: Install locked dependencies
+    - script: npm run lint
+      displayName: Lint
+    - script: npm test -- --runInBand
+      displayName: Unit tests
+    - script: npm run build
+      displayName: Production build
+    - task: AzureKeyVault@2
+      inputs:
+        azureSubscription: 'sc-orders-nonprod'
+        KeyVaultName: 'kv-orders-dev'
+        SecretsFilter: 'PUBLIC_API_URL'
+    - script: echo "Public config is injected at deploy; no secret is bundled"
+      displayName: Validate public configuration
+    - publish: '$(Build.SourcesDirectory)/dist'
+      artifact: web</code></pre>
+        <p>Both pipelines also run a dependency scan (NuGet or npm), a secret scan over source and logs, and a container image scan when the service is containerized. A scan must publish actionable results and fail on the agreed severity, rather than becoming a dashboard nobody checks.</p>
+
+        <h2>Configuration and secrets with Azure Key Vault</h2>
+        <p>Credentials, connection strings, signing keys, and tokens never belong in Git, pipeline YAML, screenshots, or task output. A repository is copied, forked, cached, and inspected by more people than the production runtime. Pipeline variables are also easy to echo accidentally. I keep only non-sensitive defaults and references in source.</p>
+        <p>I provision one Key Vault per environment—<code>kv-orders-dev</code>, <code>kv-orders-staging</code>, and <code>kv-orders-prod</code>—with identical secret names. That convention lets code and templates stay consistent while values and access boundaries differ. The pipeline service connection uses a managed identity or workload identity federation, never a long-lived client secret, and receives only <em>get</em> and <em>list</em> permissions for the required vault.</p>
+        <p>For pipeline-time values, I use <code>AzureKeyVault@2</code> or a Key Vault-linked variable group. Secrets are marked secret and are not passed to scripts unless needed. For runtime values, the Linux host's managed identity reads Key Vault directly. In <code>Program.cs</code>, the API uses the Azure SDK credential chain:</p>
+        <pre><code class="language-csharp">using Azure.Identity;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddAzureKeyVault(
+    new Uri(builder.Configuration["KeyVault:Uri"]!),
+    new DefaultAzureCredential());
+
+var app = builder.Build();
+app.MapHealthChecks("/health");
+app.Run();</code></pre>
+        <p>The package is <code>Azure.Extensions.AspNetCore.Configuration.Secrets</code>. <code>DefaultAzureCredential</code> uses developer credentials locally and the VM or host managed identity in Azure, without changing application code between environments. React is different: anything in its bundle is public. I inject only public, non-sensitive configuration such as an API base URL at deploy time through a runtime config file or server-side template. No database password or private token belongs in a browser bundle.</p>
+        <p>Key Vault is configured with soft delete, purge protection, diagnostic logging, and alerts for unusual access. I rotate secrets on a schedule and after incidents, test that applications reload or restart safely, and record who accessed which vault. Rotation is an operational workflow, not a one-time provisioning task.</p>
+
+        <pre><code class="language-mermaid">flowchart TB
+  subgraph Pipeline
+    SP[Azure DevOps service connection]
+    SP -->|get/list only| KV1[Key Vault: dev]
+    SP -->|get/list only| KV2[Key Vault: staging]
+    SP -->|get/list only| KV3[Key Vault: prod]
+  end
+  subgraph Runtime
+    MI[Dev host managed identity] -->|DefaultAzureCredential| KV1
+    MI2[Staging host managed identity] -->|DefaultAzureCredential| KV2
+    MI3[Prod host managed identity] -->|DefaultAzureCredential| KV3
+  end
+  KV1 --> API1[.NET API]
+  KV2 --> API2[.NET API]
+  KV3 --> API3[.NET API]
+  KV1 -. public config only .-> WEB1[React app]</code></pre>
+        <p><em>Figure 2: pipeline access is separate from application runtime access.</em></p>
+
+        <h2>CD stage: promote the same artifact to systemd services</h2>
+        <p>CD downloads the CI artifact and deploys it unchanged to Linux hosts. Each stage maps to an Azure DevOps environment. The environment owns approvals, branch restrictions, business-hour checks, and required health gates; these controls should not be hidden in a script that can be bypassed.</p>
+        <p>The deployment agent connects through a restricted SSH service connection. It copies the API package into a versioned directory, writes environment-specific configuration outside the artifact, updates the systemd unit's release path, runs <code>systemctl daemon-reload</code>, and restarts the unit. For React, it extracts the bundle into a versioned Nginx directory, atomically updates the document-root symlink, and runs <code>systemctl reload nginx</code>. The deploy account can operate only the approved units; it is not a general-purpose root login.</p>
+        <pre><code class="language-yaml">stages:
+- stage: Dev
+  jobs:
+  - deployment: DeployDev
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: api
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: 'sc-orders-nonprod'
+              KeyVaultName: 'kv-orders-dev'
+              SecretsFilter: 'KeyVault__Uri'
+          - task: CopyFilesOverSSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-dev'
+              sourceFolder: '$(Pipeline.Workspace)/api'
+              targetFolder: '/srv/orders-api/releases/$(Build.BuildId)'
+          - task: SSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-dev'
+              runOptions: inline
+              inline: |
+                sudo systemctl daemon-reload
+                sudo systemctl restart orders-api
+                curl --fail --retry 10 http://127.0.0.1:8080/health
+
+- stage: Staging
+  dependsOn: Dev
+  condition: succeeded()
+  jobs:
+  - deployment: DeployStaging
+    environment: staging
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: api
+          - task: CopyFilesOverSSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-staging'
+              sourceFolder: '$(Pipeline.Workspace)/api'
+              targetFolder: '/srv/orders-api/releases/$(Build.BuildId)'
+          - task: SSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-staging'
+              runOptions: inline
+              inline: 'sudo systemctl restart orders-api && curl --fail http://127.0.0.1:8080/health'
+
+- stage: Production
+  dependsOn: Staging
+  condition: succeeded()
+  jobs:
+  - deployment: DeployProduction
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: api
+          - task: CopyFilesOverSSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-prod'
+              sourceFolder: '$(Pipeline.Workspace)/api'
+              targetFolder: '/srv/orders-api/releases/$(Build.BuildId)'
+          - task: SSH@0
+            inputs:
+              sshEndpoint: 'ssh-orders-prod'
+              runOptions: inline
+              inline: 'sudo systemctl restart orders-api && curl --fail http://127.0.0.1:8080/health'</code></pre>
+        <p>In the real template, each environment has its own SSH service connection, Key Vault reference, host group, systemd unit name, and post-deployment smoke test. The React pipeline uses the same promotion model but updates the Nginx document-root symlink and reloads <code>nginx.service</code>. Production requires approval plus checks for change window, artifact provenance, and staging success.</p>
+        <pre><code class="language-yaml"># React deploy steps run on the same environment stages
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'ssh-orders-prod'
+    sourceFolder: '$(Pipeline.Workspace)/web'
+    targetFolder: '/srv/orders-web/releases/$(Build.BuildId)'
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'ssh-orders-prod'
+    runOptions: inline
+    inline: |
+      sudo ln -sfn /srv/orders-web/releases/$(Build.BuildId) /srv/orders-web/current
+      sudo systemctl reload nginx
+      curl --fail --retry 10 https://orders.example.com/</code></pre>
+
+        <pre><code class="language-mermaid">flowchart LR
+  A[Azure DevOps CI artifact] --> E1[dev environment]
+  E1 --> C1[health + smoke checks]
+  C1 --> E2[staging environment]
+  E2 --> C2[approval + checks]
+  C2 --> E3[production environment]
+  E3 --> C3[systemd health, smoke, SLO watch]
+  C3 -->|failure| RB[Rollback previous artifact]</code></pre>
+        <p><em>Figure 3: CD adds controlled promotion and verification around one immutable artifact.</em></p>
+
+        <h3>Define the failure boundary</h3>
+        <p>Every stage needs a clear answer to “what happens when this step fails?” A failed build blocks the artifact. A failed dev smoke test blocks staging. A failed staging check blocks production. A failed production health check stops traffic or swaps the slot back. This sounds obvious, but it prevents a common anti-pattern: a pipeline reports partial failure while a later task continues and publishes a misleading success signal.</p>
+        <p>I also separate deployment errors from application errors. A permission failure, package upload timeout, or unavailable agent should retry within safe limits and page the pipeline owner. A 500 response after deployment should stop promotion and trigger rollback. The distinction improves incident routing: platform teams investigate delivery mechanics while service owners investigate application behavior.</p>
+
+        <h2>Choose a deployment strategy deliberately</h2>
+        <p>Rolling deployments replace hosts or restart instances gradually and are a good default for backward-compatible API changes. Blue/green runs two versioned directories or host groups, validates the inactive systemd unit, and switches traffic through Nginx or a load balancer. Canary sends a small percentage of traffic to a new host group and is best for high-risk changes where real production telemetry matters. App Service deployment slots are not part of this design; the equivalent control is versioned systemd units, separate host groups, or an upstream traffic switch.</p>
+        <pre><code class="language-mermaid">flowchart LR
+  R[Release]
+  R --> RO[Rolling: replace instances gradually]
+  R --> BG[Blue/green: validate slot, swap traffic]
+  R --> CA[Canary: route small traffic percentage]
+  RO --> D1[Lower cost, slower rollback]
+  BG --> D2[Fast rollback, extra capacity]
+  CA --> D3[Best signal, routing complexity]</code></pre>
+        <p><em>Figure 4: strategy choice is a reliability and risk decision, not only a tooling preference.</em></p>
+
+        <h2>Reliability practices I keep in the pipeline</h2>
+        <ul class="body-list">
+          <li><strong>Health checks:</strong> expose readiness and liveness separately; test dependencies without making a database outage look like a deploy failure.</li>
+          <li><strong>Smoke tests:</strong> call a safe API endpoint and load the React shell after every deployment.</li>
+          <li><strong>Rollback:</strong> retain the previous artifact and make rollback a pipeline action, not an emergency rebuild.</li>
+          <li><strong>Feature flags:</strong> decouple code deployment from risky behavior changes and turn off a feature without redeploying.</li>
+          <li><strong>Speed:</strong> cache NuGet and npm packages with Azure Pipelines caching, but key caches by lockfile hash.</li>
+          <li><strong>Metrics:</strong> track deployment frequency, lead time for changes, change failure rate, and mean time to restore. These DORA metrics reveal whether speed is creating operational debt.</li>
+        </ul>
+
+        <h3>Make the pipeline observable</h3>
+        <p>A pipeline is production infrastructure for the delivery system, so I instrument it like a service. Each run has a correlation ID, commit SHA, artifact version, approver, target environment, and deployment result. Logs are retained long enough to investigate a failed release, but sensitive task output is filtered before retention. Azure DevOps run summaries link to the systemd journal, Application Insights traces, and the rollback runbook.</p>
+        <p>Alerts should be actionable. I alert when a release fails repeatedly, when a production smoke test fails, or when deployment lead time crosses its normal range. I do not alert on every transient package download retry. The objective is to protect the release path and shorten diagnosis, not create another noisy monitoring surface.</p>
+
+        <h3>Standardize the boring parts</h3>
+        <p>Reusable YAML templates keep security and release controls consistent across repositories. I centralize the scan steps, artifact naming, test-result publishing, systemd deployment, and rollback task, then pass only service-specific values such as project paths, host groups, and unit names. Pull requests can review a small service template instead of a different home-grown pipeline in every repository. When the platform team updates an approved task version or a policy threshold, the change is visible and can be rolled out deliberately rather than copied manually.</p>
+
+        <h2>Common mistakes</h2>
+        <ul class="body-list">
+          <li><strong>Configuration drift:</strong> use the same secret names, systemd unit templates, and infrastructure-as-code across environments; vary values, not structure.</li>
+          <li><strong>Secrets in logs:</strong> never print all variables, command lines, or generated config files. Masking is a backstop, not a design.</li>
+          <li><strong>Over-permissioned connections:</strong> scope service connections to one subscription or resource group and Key Vault roles to the exact operations required.</li>
+          <li><strong>No rollback plan:</strong> rehearse a release symlink reversal and systemd restart, and confirm the previous artifact is retained before the first incident.</li>
+          <li><strong>Slow pipelines:</strong> parallelize independent jobs, cache dependencies, and run the smallest useful test set on pull requests while keeping the full suite on main.</li>
+        </ul>
+
+        <h2>A production failure caught before customers noticed</h2>
+        <p>In one release, the API package copied successfully but the systemd unit entered a restart loop because a new startup dependency was unavailable. The deployment task was green—the files were present—but the post-deployment health check and <code>systemctl is-active --quiet orders-api</code> failed within seconds. The pipeline stopped promotion, repointed the release symlink to the previous version, restarted the unit, and opened an incident notification with the failed check and artifact ID.</p>
+        <p>The important control was not the rollback command. It was treating application health as part of deployment success. We fixed the dependency timeout, added a staging test for the failure mode, and kept the release process unchanged for the next deploy.</p>
+
+        <h2>Conclusion</h2>
+        <ol class="body-list">
+          <li>Build and release the .NET API and React frontend independently as immutable, tested artifacts.</li>
+          <li>Use one Key Vault per environment, least-privilege identity, and runtime retrieval so secrets never enter source or browser bundles.</li>
+          <li>Make health checks, approvals, rollback, and delivery metrics first-class parts of CD.</li>
+        </ol>
+        <p>Share your own Azure DevOps pipeline setup, deployment strategy, or hard-won rollback lesson with me.</p>
+
+        <div class="article-footer">
+          <div class="article-footer-label">Written by</div>
+          <div class="author-card"><div class="author-avatar">F</div><div class="author-details"><div class="author-name">Francis Morkeh Mensah</div><div class="author-title">Site Reliability Engineer · AWS Community Builder</div><div class="author-bio">Building and operating cloud-native production systems. Writing about SRE, infrastructure, and lessons learned from production failures.</div></div></div>
+          <div class="article-tags-footer"><span class="atag">#AzureDevOps</span><span class="atag">#DotNet</span><span class="atag">#React</span><span class="atag">#KeyVault</span><span class="atag">#SRE</span><span class="atag">#CICD</span></div>
+          <div class="post-nav"><a href="index.html" class="btn-secondary">← Back to Blog</a><a href="../index.html#contact" class="btn-primary">Get in Touch</a></div>
+        </div>
+      </div>
+    </main>
+    <footer><div class="footer-copy">© 2026 Francis Morkeh Mensah · infrabyfrancis.me</div><div class="footer-tagline">Built with intention. <span>Reliable by design.</span></div></footer>
+    <script src="../assets/site.js?v=1779622165" defer></script>
+  </body>
+</html>

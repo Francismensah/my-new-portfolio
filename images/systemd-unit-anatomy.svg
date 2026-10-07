@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Simple systemd unit anatomy</title>
+  <desc id="desc">A systemd unit contains dependency, service, and installation settings.</desc>
+  <rect width="1200" height="420" rx="24" fill="#101827"/>
+  <text x="70" y="78" fill="#f8fafc" font-family="Arial, sans-serif" font-size="30" font-weight="700">A systemd unit has three jobs</text>
+  <g font-family="Arial, sans-serif">
+    <rect x="80" y="145" width="300" height="180" rx="14" fill="#1e3a5f" stroke="#60a5fa" stroke-width="2"/>
+    <text x="230" y="195" text-anchor="middle" fill="#bfdbfe" font-size="24" font-weight="700">[Unit]</text>
+    <text x="230" y="235" text-anchor="middle" fill="#f8fafc" font-size="18">ordering</text>
+    <text x="230" y="266" text-anchor="middle" fill="#f8fafc" font-size="18">dependencies</text>
+    <rect x="450" y="145" width="300" height="180" rx="14" fill="#164e63" stroke="#2dd4bf" stroke-width="2"/>
+    <text x="600" y="195" text-anchor="middle" fill="#99f6e4" font-size="24" font-weight="700">[Service]</text>
+    <text x="600" y="235" text-anchor="middle" fill="#f8fafc" font-size="18">user · command</text>
+    <text x="600" y="266" text-anchor="middle" fill="#f8fafc" font-size="18">restart policy</text>
+    <rect x="820" y="145" width="300" height="180" rx="14" fill="#3f2d16" stroke="#f59e0b" stroke-width="2"/>
+    <text x="970" y="195" text-anchor="middle" fill="#fde68a" font-size="24" font-weight="700">[Install]</text>
+    <text x="970" y="235" text-anchor="middle" fill="#f8fafc" font-size="18">boot target</text>
+    <text x="970" y="266" text-anchor="middle" fill="#f8fafc" font-size="18">enable behavior</text>
+  </g>
+</svg>

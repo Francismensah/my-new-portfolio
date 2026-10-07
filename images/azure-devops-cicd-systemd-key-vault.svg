@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Azure DevOps CI/CD pipeline with systemd and Key Vault</title>
+  <desc id="desc">A dark infrastructure diagram showing a commit moving through Azure DevOps build and security checks into dev, staging, and production Linux systemd services, with Azure Key Vault protecting configuration.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101b2d"/>
+      <stop offset="1" stop-color="#1d3557"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#45d3c2"/>
+      <stop offset="1" stop-color="#82aaff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#050a12" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" rx="36" fill="url(#bg)"/>
+  <path d="M80 730H1520M80 170H1520" stroke="#ffffff" stroke-opacity=".08"/>
+  <text x="100" y="116" fill="#ffffff" font-family="Arial, sans-serif" font-size="42" font-weight="700">Reliable delivery for .NET + React</text>
+  <text x="100" y="157" fill="#b8c7dc" font-family="Arial, sans-serif" font-size="22">Azure DevOps · Key Vault · Linux systemd services</text>
+
+  <g filter="url(#shadow)" font-family="Arial, sans-serif">
+    <rect x="100" y="280" width="220" height="130" rx="18" fill="#223b5d" stroke="#82aaff" stroke-width="2"/>
+    <text x="210" y="330" text-anchor="middle" fill="#ffffff" font-size="25" font-weight="700">Commit</text>
+    <text x="210" y="367" text-anchor="middle" fill="#b8c7dc" font-size="20">.NET API / React</text>
+
+    <rect x="400" y="245" width="300" height="200" rx="18" fill="#172940" stroke="#45d3c2" stroke-width="2"/>
+    <text x="550" y="296" text-anchor="middle" fill="#ffffff" font-size="25" font-weight="700">Azure DevOps</text>
+    <text x="550" y="337" text-anchor="middle" fill="#b8c7dc" font-size="20">build · test · scan</text>
+    <text x="550" y="376" text-anchor="middle" fill="#b8c7dc" font-size="20">immutable artifact</text>
+
+    <rect x="790" y="245" width="220" height="200" rx="18" fill="#253654" stroke="#f2c14e" stroke-width="2"/>
+    <path d="M900 286l44 20v36c0 33-22 55-44 66-22-11-44-33-44-66v-36z" fill="#f2c14e" fill-opacity=".9"/>
+    <path d="M900 300v73M877 324h46" stroke="#253654" stroke-width="8"/>
+    <text x="900" y="435" text-anchor="middle" fill="#ffffff" font-size="23" font-weight="700">Key Vault</text>
+
+    <rect x="1100" y="210" width="400" height="270" rx="18" fill="#172940" stroke="#82aaff" stroke-width="2"/>
+    <text x="1300" y="255" text-anchor="middle" fill="#ffffff" font-size="25" font-weight="700">Linux environments</text>
+    <rect x="1140" y="290" width="105" height="125" rx="12" fill="#223b5d"/>
+    <rect x="1265" y="290" width="105" height="125" rx="12" fill="#223b5d"/>
+    <rect x="1390" y="290" width="75" height="125" rx="12" fill="#223b5d"/>
+    <text x="1192" y="335" text-anchor="middle" fill="#45d3c2" font-size="20" font-weight="700">dev</text>
+    <text x="1317" y="335" text-anchor="middle" fill="#45d3c2" font-size="20" font-weight="700">stage</text>
+    <text x="1427" y="335" text-anchor="middle" fill="#45d3c2" font-size="18" font-weight="700">prod</text>
+    <text x="1192" y="370" text-anchor="middle" fill="#b8c7dc" font-size="17">systemd</text>
+    <text x="1317" y="370" text-anchor="middle" fill="#b8c7dc" font-size="17">systemd</text>
+    <text x="1427" y="370" text-anchor="middle" fill="#b8c7dc" font-size="17">systemd</text>
+  </g>
+
+  <g fill="none" stroke="url(#accent)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M320 345h80"/>
+    <path d="M700 345h90"/>
+    <path d="M1010 345h90"/>
+  </g>
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-size="21">
+    <text x="342" y="322">push</text>
+    <text x="727" y="322">artifact</text>
+    <text x="1035" y="322">promote</text>
+  </g>
+  <path d="M900 445v100M900 545H260M900 545h400" fill="none" stroke="#f2c14e" stroke-width="4" stroke-dasharray="12 12"/>
+  <text x="900" y="600" text-anchor="middle" fill="#f2c14e" font-family="Arial, sans-serif" font-size="22">least-privilege runtime configuration</text>
+  <text x="100" y="815" fill="#b8c7dc" font-family="Arial, sans-serif" font-size="20">Health checks decide whether a release remains live.</text>
+</svg>

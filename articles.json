@@ -8,6 +8,8 @@
     "Kubernetes",
     "Observability",
     "Incident",
+    "Azure DevOps",
+    "Azure",
     "Fintech"
   ],
   "featured": {
@@ -24,6 +26,17 @@
     ]
   },
   "published": [
+    {
+      "href": "azure-devops-cicd-dotnet-react-key-vault.html",
+      "tag": "Azure DevOps · .NET · React",
+      "title": "Building a Reliable CI/CD Pipeline for .NET and React with Azure DevOps",
+      "excerpt": "An SRE-focused guide to independent Azure DevOps pipelines, Azure Key Vault, staged promotion, health checks, and rollback.",
+      "year": "2026",
+      "readMinutes": "14 min",
+      "filters": ["Azure DevOps", "Azure", "Deployment", "SRE"],
+      "homePreview": false,
+      "homeTag": "Azure DevOps · Key Vault · SRE"
+    },
     {
       "href": "what-we-tag-and-why-otel-rollout.html",
       "tag": "OpenTelemetry · SRE · Fintech",
@@ -100,6 +113,17 @@
       "filters": ["Nginx", "Incident", "SRE"],
       "homePreview": false,
       "homeTag": "Nginx · SRE · Incident"
+    },
+    {
+      "href": "the-reboot-that-took-us-down-systemd-production.html",
+      "tag": "Linux · Systemd · Production",
+      "title": "The Reboot That Took Us Down: Mastering systemd Services in Production",
+      "excerpt": "A practical guide to running Linux applications reliably: units, logs, timers, release flow, rollback, and the reboot lesson that every operator learns the hard way.",
+      "year": "2026",
+      "readMinutes": "12 min",
+      "filters": ["Incident", "SRE"],
+      "homePreview": true,
+      "homeTag": "Linux · Systemd · Production"
     },
     {
       "href": "systemd-decommission-fix.html",
