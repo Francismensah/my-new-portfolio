@@ -53,9 +53,9 @@
     <path d="M1010 345h90"/>
   </g>
   <g fill="#ffffff" font-family="Arial, sans-serif" font-size="21">
-    <text x="342" y="322">push</text>
-    <text x="727" y="322">artifact</text>
-    <text x="1035" y="322">promote</text>
+    <text x="360" y="322" text-anchor="middle" font-size="18">push</text>
+    <text x="745" y="322" text-anchor="middle" font-size="18">artifact</text>
+    <text x="1055" y="322" text-anchor="middle" font-size="18">promote</text>
   </g>
   <path d="M900 445v100M900 545H260M900 545h400" fill="none" stroke="#f2c14e" stroke-width="4" stroke-dasharray="12 12"/>
   <text x="900" y="600" text-anchor="middle" fill="#f2c14e" font-family="Arial, sans-serif" font-size="22">least-privilege runtime configuration</text>
