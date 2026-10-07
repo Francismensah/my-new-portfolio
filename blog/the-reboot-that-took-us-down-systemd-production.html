@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-      The Reboot That Took Us Down: Mastering systemd Services in Production —
+      The Reboot That Took Us Down: Running systemd Services in Production —
       infrabyfrancis.me
     </title>
     <meta
@@ -84,17 +84,17 @@
           </div>
           <p class="article-category">Linux · Systemd · Production</p>
           <h1>
-            The Reboot That Took Us Down: Mastering
+            The Reboot That Took Us Down: Running
             <em>systemd</em> Services in Production
           </h1>
           <p class="article-subtitle">
-            A practical guide to running Linux applications reliably: service
-            enablement, journald diagnostics, unit hardening, timers, and the
-            reboot lesson that bites every operator eventually.
+            A practical guide to running Linux applications reliably with
+            systemd: units, logs, timers, releases, rollback, hardening, and
+            incident lessons.
           </p>
           <div class="article-meta-bar">
-            <span class="meta-item">📅 2026</span>
-            <span class="meta-item">⏱ 12 min read</span>
+            <span class="meta-item">📅 September 29, 2026</span>
+            <span class="meta-item">⏱ 8 min read</span>
             <span class="meta-item">✍️ Francis Morkeh Mensah</span>
             <div class="meta-tags">
               <span class="meta-tag">systemd</span>
@@ -107,46 +107,60 @@
       </div>
 
       <div class="article-body">
+        <div class="info-box">
+          <strong>TL;DR:</strong> <code>start</code> affects now.
+          <code>enable</code> affects future boots. A service can be running
+          today and still be gone after the next reboot.
+        </div>
+
         <p>
-          When I deploy an application directly to a Linux VM,
-          <strong>systemd</strong> is the layer that turns its process into an
-          operating-system-managed service. A process is only the program that
-          happens to be running right now. A service also has a declared
-          owner, working directory, environment, startup command, dependencies,
-          restart policy, log destination, and boot behavior.
+          During planned maintenance, we rebooted the VM hosting one of our critical services.
+          The VM came back, but the service did not. It was down for 18 minutes,
+          and [dependent services / user-facing flows] failed with it because
+          they depended on it.
         </p>
         <p>
-          That distinction matters in production. Starting
-          <code>dotnet MyApi.dll</code> or <code>node server.js</code> from an
-          SSH session may prove that the binary works, but it does not define
-          what should happen after the terminal closes, the VM reboots, the
-          network becomes available late, or the application exits with an
-          error. A systemd unit makes those decisions explicit and gives the
-          operations team one control plane for status, lifecycle actions, and
-          logs.
-        </p>
-        <p>
-          In practice, systemd can start the service during boot, order it after
-          required targets, restart it when it fails, stop it cleanly, limit
-          the account and filesystem access it receives, and send stdout and
-          stderr to the journal. It does not make unhealthy application code
-          reliable by itself: the unit still needs sensible timeouts, a
-          deliberate restart policy, health checks, and monitoring outside the
-          process.
-        </p>
-        <p>
-          The operational lesson I learned the hard way is:
-          <strong>start affects now; enable affects future boots.</strong>
-          <code>systemctl start</code> can make a service available immediately,
-          while <code>systemctl enable</code> creates the boot-time relationship
-          that brings it back after the next restart.
+          The trigger was small: the service had been started manually during an
+          earlier deploy and was never enabled for boot, so systemd left it
+          inactive after the reboot. The real cause was the gap around it.
+          Nothing checked boot state, and we had never tested a reboot. We
+          detected it through [alert / health check / user report] and fixed it
+          with
+          <code>sudo systemctl enable --now [service]</code>.
         </p>
 
-        <div class="info-box">
-          The service was active before maintenance. It was still not enabled
-          for boot. After the reboot, systemd did exactly what it was meant to
-          do: it left it inactive.
-        </div>
+        <p>
+          The service had been running before the reboot. Someone had started it
+          manually during a previous deploy with
+          <code>systemctl start</code>, and nobody ran
+          <code>systemctl enable</code>. After the reboot, systemd did exactly
+          what it was told: it left the service inactive.
+        </p>
+        <p>
+          We detected it through a failed post-deployment health check. We fixed
+          it with <code>sudo systemctl enable --now orders-api.service</code>.
+          Afterwards we added a pipeline assertion for the enabled state, a
+          service-state alert, and a reboot test in staging.
+        </p>
+        <p>
+          The rest of this post covers what I now check on every deployment.
+        </p>
+
+        <h2>What systemd actually does</h2>
+        <p>
+          systemd runs as PID 1, the first userspace process started by the
+          kernel. It brings the host to a target state, starts units in
+          dependency order, supervises long-running processes, and records
+          output in the journal.
+        </p>
+        <p>
+          A process is only the program running right now. A service also has an
+          owner, working directory, environment, startup command, dependencies,
+          restart policy, log destination, and boot behavior. Starting
+          <code>node server.js</code> from an SSH session proves the binary
+          works. It doesn't define what happens after the terminal closes, the
+          VM reboots, or the app crashes.
+        </p>
 
         <figure class="article-image">
           <img
@@ -159,18 +173,6 @@
           </figcaption>
         </figure>
 
-        <h2>What systemd actually does</h2>
-        <p>
-          systemd runs as PID 1, the first userspace process started by the
-          kernel. It brings the host to a target state, starts units in
-          dependency order, supervises long-running processes, and records
-          service output in the journal.
-        </p>
-        <p>
-          A unit is a resource systemd knows how to manage. The most common ones
-          are exactly the ones I rely on in production:
-        </p>
-
         <table>
           <thead>
             <tr>
@@ -181,48 +183,44 @@
           </thead>
           <tbody>
             <tr>
-              <td>service</td>
+              <td><code>service</code></td>
               <td>Long-running process or one-shot command</td>
-              <td>api.service</td>
+              <td><code>api.service</code></td>
             </tr>
             <tr>
-              <td>timer</td>
+              <td><code>timer</code></td>
               <td>Schedules another unit</td>
-              <td>backup.timer</td>
+              <td><code>backup.timer</code></td>
             </tr>
             <tr>
-              <td>socket</td>
+              <td><code>socket</code></td>
               <td>Opens a socket and activates a service</td>
-              <td>sshd.socket</td>
+              <td><code>sshd.socket</code></td>
             </tr>
             <tr>
-              <td>target</td>
+              <td><code>target</code></td>
               <td>Groups units into a desired state</td>
-              <td>multi-user.target</td>
+              <td><code>multi-user.target</code></td>
             </tr>
           </tbody>
         </table>
 
         <h2>systemctl is the control plane</h2>
         <p>
-          I start with <code>systemctl status</code>, then move to the smallest
-          action I need. The commands are simple, but their meanings are not
-          interchangeable.
+          I start with <code>systemctl status</code>, then move to the narrower
+          action I need.
         </p>
 
-        <pre><code>sudo systemctl start app.service
-sudo systemctl stop app.service
-sudo systemctl restart app.service
-sudo systemctl enable --now app.service
+        <pre><code>sudo systemctl start app.service            # now
+sudo systemctl enable app.service           # future boots
+sudo systemctl enable --now app.service     # both
 systemctl is-active app.service
 systemctl is-enabled app.service
-sudo systemctl daemon-reload</code></pre>
+sudo systemctl daemon-reload                # only after unit file changes</code></pre>
 
         <p>
-          The distinction I look for on every deployment is simple. A service
-          can be <strong>active now</strong> and still be
-          <strong>disabled for boot</strong>. That is a production mismatch
-          waiting to happen.
+          On every deployment I check both states. A service that is active but
+          not enabled is an outage waiting for the next reboot.
         </p>
 
         <figure class="article-image">
@@ -236,19 +234,18 @@ sudo systemctl daemon-reload</code></pre>
           </figcaption>
         </figure>
 
-        <h2>Why unit files matter</h2>
+        <h2>A production unit file</h2>
         <p>
-          A unit file at <code>/etc/systemd/system/my-api.service</code> usually
-          has three sections: <code>[Unit]</code>, <code>[Service]</code>, and
-          <code>[Install]</code>. That architecture is intentional because it
-          separates dependency ordering from runtime behavior and boot-time
-          activation.
+          Figure: systemd-unit-anatomy.svg — "A service unit is not just a
+          process entry. It is also a dependency, lifecycle, and boot contract."
         </p>
 
         <pre><code>[Unit]
 Description=My API
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -259,53 +256,91 @@ EnvironmentFile=/etc/my-api/my-api.env
 ExecStart=/usr/bin/node /opt/my-api/current/dist/server.js
 Restart=on-failure
 RestartSec=5s
+TimeoutStartSec=60s
 TimeoutStopSec=30s
+LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target</code></pre>
 
+        <p>Notes:</p>
+        <ul>
+          <li>
+            <code>StartLimit*</code> stops a crash loop from restarting forever.
+          </li>
+          <li>
+            <code>network-online.target</code> only delays startup if a
+            wait-online service (<code>systemd-networkd-wait-online</code> or
+            <code>NetworkManager-wait-online</code>) is enabled on the host.
+          </li>
+          <li>
+            Keep the env file at <code>0640</code>, owned by root with the app's
+            group.
+          </li>
+          <li>
+            For apps that support it (.NET does), <code>Type=notify</code> gives
+            systemd a real readiness signal.
+          </li>
+        </ul>
+
+        <h2>Hardening</h2>
         <p>
-          I always make the executable, user, working directory, environment,
-          and restart policy explicit. That reduces the chance of a deployment
-          that appears healthy at the shell but fails when the VM restarts or a
-          target pulls the service in at boot.
+          A service account is a start. These directives limit the damage if the
+          app is compromised:
         </p>
 
-        <h2>journalctl is where the truth lives</h2>
+        <pre><code>[Service]
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/my-api</code></pre>
+
         <p>
-          A unit's stdout and stderr normally land in journald. That gives me
-          one place to inspect application startup without guessing which log
-          file a framework chose.
+          <code>ProtectSystem=strict</code> makes the filesystem read-only for
+          the service except for paths you list. Run
+          <code>systemd-analyze security my-api.service</code> to see a score
+          and what's still exposed. Add directives gradually and test each one,
+          since a too-strict unit fails in ways that look like app bugs.
         </p>
 
-        <pre><code># Recent logs for a service
-sudo journalctl -u my-api.service --no-pager -n 100
-
-# Follow logs in real time
+        <h2>journalctl</h2>
+        <pre><code>sudo journalctl -u my-api.service --no-pager -n 100
 sudo journalctl -fu my-api.service
-
-# Check a previous boot
-sudo journalctl -u my-api.service -b -1 --no-pager
-
-# Errors in the current boot
+sudo journalctl -u my-api.service -b -1 --no-pager   # previous boot
 sudo journalctl -p err -b --no-pager</code></pre>
 
         <p>
-          If I need to keep logs across reboots, I make journald persistent and
-          monitor retention deliberately. The point is not to keep every log
-          forever; it is to ensure the log trail still exists when the next
-          reboot makes the previous stack trace relevant again.
+          The previous-boot query only works if the journal is persistent. Many
+          distros default to volatile storage, so after a reboot the evidence is
+          gone. Set this in <code>/etc/systemd/journald.conf</code>:
         </p>
 
-        <h2>Timers are better than ad hoc cron jobs</h2>
+        <pre><code>[Journal]
+Storage=persistent
+SystemMaxUse=1G</code></pre>
+
         <p>
-          A timer is a systemd unit that activates a service. Compared with
-          cron, timers give me journal integration, dependency handling,
-          missed-run persistence, and the same operational lifecycle as every
-          other managed unit.
+          Then run <code>sudo systemctl restart systemd-journald</code>. Keep an
+          eye on disk usage.
         </p>
 
-        <pre><code>[Timer]
+        <h2>Timers instead of cron</h2>
+        <p>A timer activates a service, so you need both units.</p>
+
+        <pre><code># /etc/systemd/system/backup.service
+[Unit]
+Description=Nightly backup
+
+[Service]
+Type=oneshot
+ExecStart=/opt/scripts/backup.sh</code></pre>
+
+        <pre><code># /etc/systemd/system/backup.timer
+[Unit]
+Description=Run backup nightly
+
+[Timer]
 OnCalendar=*-*-* 02:30:00
 Persistent=true
 RandomizedDelaySec=15m
@@ -313,30 +348,25 @@ RandomizedDelaySec=15m
 [Install]
 WantedBy=timers.target</code></pre>
 
+        <pre><code>sudo systemctl enable --now backup.timer
+systemctl list-timers</code></pre>
+
         <p>
-          This is a better fit for production work like log cleanup, cache
-          refresh, database vacuum jobs, and health checks that should still run
-          after the host has been offline for a while.
+          The same trap applies here: enable the <strong>timer</strong>, not the
+          service. <code>Persistent=true</code> runs a missed job after
+          downtime, and output goes to the journal like any other unit.
         </p>
 
-        <h2>The outage pattern: active now, disabled forever</h2>
+        <h2>Releases and rollback</h2>
         <p>
-          This is the operational trap I see most often. A service is manually
-          started during a deploy, then nobody runs the persistent enable step.
-          The server reboots. The service remains missing. Or worse, an old
-          service is still enabled and it grabs the port after the reboot,
-          causing the new process to crash with <code>EADDRINUSE</code>.
+          I use immutable release directories and a single symlink swap. It's
+          easy to audit and easy to roll back.
         </p>
-
-        <div class="warn-box">
-          Starting a service is not the same as enabling it. Always test both
-          the current state and the boot state.
-        </div>
 
         <figure class="article-image">
           <img
             src="../images/systemd-release-flow.svg"
-            alt="Systemd release process showing versioned releases, a current symlink, health checks, and rollback flow."
+            alt="Systemd deployment flow using versioned releases, a current symlink, health check, and rollback."
           />
           <figcaption>
             A controlled release path matters as much as a healthy unit file.
@@ -344,62 +374,90 @@ WantedBy=timers.target</code></pre>
           </figcaption>
         </figure>
 
-        <h2>Production deployment pattern</h2>
-        <p>
-          I prefer immutable release directories and a single symlink update. It
-          is easier to reason about, easier to roll back, and easier to audit.
-          The deployment itself should always check health before the new
-          version is considered live.
-        </p>
+        <pre><code>#!/usr/bin/env bash
+set -euo pipefail
 
-        <pre><code>new_release=${1:?release directory is required}
+release_name=${1:?release name required}
+health_url=${2:?health url required}
 app_root=/opt/orders
 service=orders.service
-previous_release=$(readlink -f "$app_root/current" || true)
+previous=$(readlink -f "$app_root/current" || true)
 
 ln -sfn "$app_root/releases/$release_name" "$app_root/current"
-sudo systemctl daemon-reload
 sudo systemctl restart "$service"
 
-if ! curl --silent --show-error --fail --max-time 10 "$health_url" >/dev/null; then
-  ln -sfn "$previous_release" "$app_root/current"
+for i in {1..10}; do
+  curl -sf --max-time 5 "$health_url" >/dev/null &amp;&amp; exit 0
+  sleep 3
+done
+
+if [ -n "$previous" ]; then
+  ln -sfn "$previous" "$app_root/current"
   sudo systemctl restart "$service"
-  exit 1
-fi</code></pre>
+fi
+exit 1</code></pre>
 
         <p>
-          The key point is not only the shell script. It is the discipline of
-          verifying both the running process and the persisted systemd state.
-          Process health is part of the deployment. So is boot persistence.
+          The retry loop gives the app time to start before it is judged. No
+          <code>daemon-reload</code> is needed, because the unit file didn't
+          change.
         </p>
 
-        <h2>Best-practice checklist</h2>
-        <ul class="body-list">
-          <li>Run each application as a dedicated non-root user.</li>
+        <h2>Preventing the next reboot incident</h2>
+        <ol>
           <li>
-            Use <code>enable --now</code> for the first production activation.
+            <strong>Assert boot state in the pipeline.</strong> Fail the deploy
+            if the service isn't enabled:
+            <pre><code>systemctl is-active --quiet orders.service  || { echo "not active"; exit 1; }
+systemctl is-enabled --quiet orders.service || { echo "not enabled"; exit 1; }</code></pre>
           </li>
           <li>
-            Keep unit files, environment files, and deploy scripts in Git.
+            <strong>Alert on service state.</strong> With node_exporter's
+            systemd collector enabled, alert on
+            <code
+              >node_systemd_unit_state{name="orders.service",state="active"} ==
+              0</code
+            >. This catches the outage after a reboot. It does not catch the
+            misconfiguration beforehand, which is why step 1 matters.
           </li>
-          <li>Enable persistent journald and monitor disk usage.</li>
           <li>
-            Use <code>Restart=on-failure</code> with a sensible retry delay.
+            <strong>Test reboots in staging.</strong> Run
+            <code>sudo systemctl reboot</code>, then run smoke tests. Do it
+            before maintenance, not during.
           </li>
           <li>
-            Assert both <code>is-active</code> and <code>is-enabled</code>.
+            <strong>Don't enable by hand.</strong> Put unit files and enablement
+            in Ansible, cloud-init, or your image build, so the state is
+            declared and repeatable.
           </li>
-          <li>Test reboot behavior in staging before production.</li>
+        </ol>
+
+        <h2>Checklist</h2>
+        <ul>
+          <li>Dedicated non-root user per application</li>
+          <li><code>enable --now</code> for the first production activation</li>
+          <li>Unit files, env files, and deploy scripts in Git</li>
+          <li>Persistent journald with a size limit</li>
+          <li><code>Restart=on-failure</code> with a delay and start limits</li>
+          <li>
+            Hardening directives, checked with
+            <code>systemd-analyze security</code>
+          </li>
+          <li>
+            <code>is-active</code> and <code>is-enabled</code> asserted on every
+            deploy
+          </li>
+          <li>A reboot test in staging before production</li>
         </ul>
 
-        <div class="takeaway">
-          <h3>Key lesson</h3>
-          <p>
-            A production service is not just a process on a VM. It is a managed,
-            boot-aware unit with a verified startup path, a health check, and an
-            understood rollback story.
-          </p>
-        </div>
+        <h2>Key lesson</h2>
+        <p>
+          A production service is not just a process on a VM. It is a boot-aware
+          unit with a verified startup path, a health check, and a tested
+          rollback. If you haven't rebooted it on purpose, you haven't tested
+          it.
+        </p>
+        <p>Related: [link your SRE demo series post]</p>
 
         <div class="article-footer">
           <div class="post-nav">
