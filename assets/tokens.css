@@ -1,109 +1,152 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap");
 
-/* ── Design tokens (mobile-first defaults) ── */
+/* ── Design tokens ──────────────────────────────────────────────
+   Dark by default, light via system preference. A page can force a
+   theme with <html data-theme="light"> or <html data-theme="dark">.
+   Legacy token names are kept as aliases so article components that
+   were written against the previous palette keep working.
+   ────────────────────────────────────────────────────────────── */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0b0d10;
+  --panel: #12161b;
+  --line: #222a33;
+  --tx: #d7dde5;
+  --mut: #8591a0;
+  --ac: #ff7a1a;
+  --accent-ink: #0b0d10;
+  --ok: #3ddc84;
+  --warn: #ffcc33;
+
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --red: #ff6b6b;
+  --blue: #6cb6ff;
+  --code-bg: #090b0e;
+  --code-purple: #b28cff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+
+    --bg: #f6f4f0;
+    --panel: #ffffff;
+    --line: #e0dbd2;
+    --tx: #1b1f24;
+    --mut: #667080;
+    --ac: #b84a00;
+    --accent-ink: #ffffff;
+    --ok: #15803d;
+    --warn: #8a5a00;
+
+    --red: #c0392b;
+    --blue: #2563eb;
+    --code-bg: #fbf9f6;
+    --code-purple: #7c3aed;
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f4f0;
+  --panel: #ffffff;
+  --line: #e0dbd2;
+  --tx: #1b1f24;
+  --mut: #667080;
+  --ac: #b84a00;
+  --accent-ink: #ffffff;
+  --ok: #15803d;
+  --warn: #8a5a00;
+
+  --red: #c0392b;
+  --blue: #2563eb;
+  --code-bg: #fbf9f6;
+  --code-purple: #7c3aed;
+}
+
 :root {
-  /* Color */
-  --bg: #090909;
-  --bg2: #101012;
-  --bg3: #141416;
-  --border: #222226;
-  --border2: #2c2c32;
-  --accent: #f97316;
-  --accent-dim: rgba(249, 115, 22, 0.1);
-  --text: #e2e0db;
-  --muted: #8a8a92;
-  --muted2: #5c5c64;
-  --white: #f5f3ee;
-  --copy: #9a9aa0;
-  --copy-soft: #83838b;
-  --green: #4ade80;
-  --red: #f87171;
-  --blue: #60a5fa;
-  --code-bg: #0d0d0f;
-  --inline-code-bg: rgba(255, 255, 255, 0.04);
-  --inline-code-text: #f3f3f4;
-  --pre-code-text: #d6d6d8;
-  --info-text: #e8c9a8;
-  --warn-text: #fed7aa;
-  --takeaway-text: #bbe7cb;
-  --focus-ring: rgba(249, 115, 22, 0.55);
-
   /* Layout */
-  --content-max: 72rem;
-  --prose-max: 42rem;
-  --nav-height: 3.5rem;
-  --touch-min: 2.75rem;
+  --content-max: 1040px;
+  --prose-max: 46rem;
+  --nav-height: 52px;
 
-  /* Spacing (mobile base) */
-  --space-page-x: max(1rem, env(safe-area-inset-left, 0px) + 1rem);
-  --space-page-y: 2.5rem;
-  --space-section: 2.5rem;
-  --space-stack: 1rem;
-  --space-inline: 0.75rem;
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
 
-  /* Typography */
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --text-base: 1rem;
-  --text-sm: 0.875rem;
+  /* Type scale */
+  --text-base: 16px;
+  --text-sm: 0.9rem;
   --text-xs: 0.75rem;
-  --leading: 1.65;
-  --leading-tight: 1.2;
+  --leading: 1.6;
+  --leading-tight: 1.15;
 
-  /* Radius & motion */
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
 
-  /* Breakpoints (for reference in comments; use in @media) */
-  --bp-sm: 40rem; /* 640px */
-  --bp-md: 48rem; /* 768px */
-  --bp-lg: 56.25rem; /* 900px */
-  --bp-xl: 75rem; /* 1200px */
-}
+  /* Legacy aliases used by article/blog components */
+  --bg2: var(--panel);
+  --bg3: color-mix(in srgb, var(--panel) 72%, var(--bg));
+  --bg-muted: var(--bg3);
+  --bg-subtle: var(--panel);
+  --bg-accent: var(--panel);
+  --border: var(--line);
+  --border2: color-mix(in srgb, var(--line) 65%, var(--tx));
+  --accent: var(--ac);
+  --accent-ink: #0b0d10;
+  --accent-dim: color-mix(in srgb, var(--ac) 12%, transparent);
+  --text: var(--tx);
+  --muted: var(--mut);
+  --muted2: color-mix(in srgb, var(--mut) 78%, var(--bg));
+  --white: var(--tx);
+  --copy: color-mix(in srgb, var(--tx) 84%, var(--mut));
+  --copy-soft: var(--mut);
+  --green: var(--ok);
+  --inline-code-bg: color-mix(in srgb, var(--tx) 8%, transparent);
+  --inline-code-text: var(--tx);
+  --pre-code-text: var(--tx);
+  --code-comment: var(--mut);
+  --success-ink: var(--ok);
+  --info-text: var(--copy);
+  --warn-text: var(--warn);
+  --takeaway-text: var(--copy);
 
-html[data-theme="light"] {
-  --bg: #f8f8f6;
-  --bg2: #ffffff;
-  --bg3: #efefea;
-  --border: #d8d8d0;
-  --border2: #bdbdb3;
-  --accent: #dd6413;
-  --accent-dim: rgba(221, 100, 19, 0.12);
-  --text: #1e1f22;
-  --muted: #4a4c52;
-  --muted2: #666a74;
-  --white: #151617;
-  --copy: #3f4249;
-  --copy-soft: #525661;
-  --code-bg: #f1f2ef;
-  --inline-code-bg: rgba(0, 0, 0, 0.06);
-  --inline-code-text: #1f2329;
-  --pre-code-text: #2a2d33;
-  --info-text: #5b3c1f;
-  --warn-text: #8a3f0d;
-  --takeaway-text: #1f5e3a;
-  --focus-ring: rgba(221, 100, 19, 0.45);
+  --font-sans: var(--sans);
+  --font-serif: var(--sans);
+  --font-accent: var(--sans);
+  --font-mono: var(--mono);
+
+  --space-page-x: 20px;
+  --space-page-y: 48px;
+  --space-section: 56px;
+  --space-stack: 1rem;
+  --space-inline: 0.75rem;
+  --touch-min: 2.75rem;
+
+  --focus-ring: color-mix(in srgb, var(--ac) 70%, transparent);
 }
 
 @media (min-width: 40rem) {
   :root {
-    --space-page-x: max(1.5rem, env(safe-area-inset-left, 0px) + 1.5rem);
-    --space-page-y: 4rem;
-    --space-section: 3.5rem;
-    --space-stack: 1.25rem;
+    --space-page-y: 64px;
+    --space-section: 64px;
   }
 }
 
 @media (min-width: 56.25rem) {
   :root {
-    --space-page-x: max(3rem, env(safe-area-inset-left, 0px) + 3rem);
-    --space-page-y: 5.5rem;
-    --space-section: 5rem;
-    --nav-height: 4rem;
+    --space-page-y: 72px;
+    --space-section: 72px;
+    --nav-height: 56px;
   }
 }
 

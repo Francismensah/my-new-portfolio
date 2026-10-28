@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>Kubernetes for SREs: What You Actually Need to Know — infrabyfrancis.me</title>
     <meta
       name="description"
@@ -12,327 +22,114 @@
       rel="canonical"
       href="https://infrabyfrancis.me/blog/kubernetes-for-sres-production-guide.html"
     />
-    <script>
-      (function () {
-        const stored = localStorage.getItem("theme");
-        const preferredDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        const theme = stored || (preferredDark ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", theme);
-      })();
-    </script>
-    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
-    <style>
+<style>
+      /* Page-specific components, themed with the shared design tokens */
       .terminal-block {
-        background: #1e1e1e;
-        border: 1px solid #333;
-        border-radius: 8px;
+        background: var(--code-bg);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
         margin: 1.5rem 0;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        font-family: "Monaco", "Menlo", "Courier New", monospace;
+        font-family: var(--mono);
         font-size: 0.85rem;
-        line-height: 1.6;
+        line-height: 1.7;
         position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
       }
       .terminal-block::before {
         content: "";
         display: block;
-        height: 28px;
-        background: linear-gradient(180deg, #555 0%, #4a4a4a 100%);
-        border-bottom: 1px solid #333;
-        position: relative;
-        padding-left: 12px;
-        padding-top: 6px;
+        height: 34px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
       }
       .terminal-header-buttons {
         position: absolute;
-        top: 8px;
+        top: 12px;
         left: 12px;
         display: flex;
-        gap: 8px;
+        gap: 6px;
         z-index: 10;
       }
       .terminal-button {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         display: inline-block;
+        background: var(--line);
       }
-      .terminal-button.close {
-        background: #ed6158;
-      }
-      .terminal-button.minimize {
-        background: #fcc02e;
-      }
-      .terminal-button.maximize {
-        background: #5fc038;
-      }
+      .terminal-button.close { background: #ff5f56; }
+      .terminal-button.minimize { background: #ffbd2e; }
+      .terminal-button.maximize { background: #27c93f; }
       .terminal-block code {
         display: block;
         white-space: pre-wrap;
         word-break: break-word;
-        padding: 1rem;
-        color: #a1efe4;
+        padding: 14px 16px;
+        color: var(--tx);
         overflow-x: auto;
+        background: transparent;
+        border: 0;
       }
-      .terminal-prompt {
-        color: #61dafb;
-        font-weight: 600;
-      }
-      .terminal-output {
-        color: #a1efe4;
-        display: block;
-      }
-      html[data-theme="light"] .terminal-block {
-        background: #2d2d2d;
-        border-color: #444;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      }
-      html[data-theme="light"] .terminal-block::before {
-        background: linear-gradient(180deg, #666 0%, #555 100%);
-        border-bottom-color: #444;
-      }
-      html[data-theme="light"] .terminal-block code {
-        color: #a1efe4;
-      }
-      html[data-theme="light"] .terminal-prompt {
-        color: #61dafb;
-      }
-      html[data-theme="light"] .terminal-output {
-        color: #a1efe4;
-      }
-      /* Mobile responsive */
-      @media (max-width: 768px) {
-        .terminal-block {
-          margin: 1rem 0;
-          border-radius: 6px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-          font-size: 0.75rem;
-          line-height: 1.5;
-        }
-        .terminal-block::before {
-          height: 24px;
-          padding-left: 8px;
-          padding-top: 4px;
-        }
-        .terminal-header-buttons {
-          top: 6px;
-          left: 8px;
-          gap: 6px;
-        }
-        .terminal-button {
-          width: 10px;
-          height: 10px;
-        }
-        .terminal-block code {
-          padding: 0.75rem;
-          font-size: 0.7rem;
-        }
-      }
-      @media (max-width: 480px) {
-        .terminal-block {
-          margin: 0.75rem 0;
-          border-radius: 4px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-          font-size: 0.65rem;
-          line-height: 1.4;
-        }
-        .terminal-block::before {
-          height: 22px;
-          padding-left: 6px;
-          padding-top: 3px;
-        }
-        .terminal-header-buttons {
-          top: 5px;
-          left: 6px;
-          gap: 5px;
-        }
-        .terminal-button {
-          width: 8px;
-          height: 8px;
-        }
-        .terminal-block code {
-          padding: 0.5rem;
-          font-size: 0.6rem;
-        }
-      }
-      .error-box {
-        background: rgba(220, 38, 38, 0.08);
-        border-left: 4px solid #dc2626;
-        padding: 1rem;
-        margin: 1.5rem 0;
-        border-radius: 6px;
-      }
-      .error-box strong {
-        color: #dc2626;
-      }
-      .success-box {
-        background: rgba(34, 197, 94, 0.08);
-        border-left: 4px solid #22c55e;
-        padding: 1rem;
-        margin: 1.5rem 0;
-        border-radius: 6px;
-      }
-      .success-box strong {
-        color: #22c55e;
-      }
+      .terminal-prompt { color: var(--ac); font-weight: 600; }
+      .terminal-output { color: var(--mut); display: block; }
       .scenario-card {
-        background: var(--bg-subtle);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
         padding: 1.25rem;
         margin: 1.5rem 0;
       }
-      .scenario-card h3 {
-        margin-top: 0;
-        color: var(--accent);
-      }
-      .article-body > h3 {
-        border-left: 4px solid var(--accent);
-        padding-left: 1rem;
-        font-weight: 700;
-        font-size: 1.35rem;
-        margin: 2rem 0 1rem 0;
-        background: var(--bg-subtle);
-        padding: 0.75rem 0.75rem 0.75rem 1rem;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .article-body > h3::before {
-        content: "⚠️";
-        font-size: 1.2rem;
-      }
+      .scenario-card h3,
+      .scenario-card h4 { margin-top: 0; color: var(--ac); }
       .cause-effect {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
         margin: 1.5rem 0;
       }
       .cause-effect div {
-        background: var(--bg-subtle);
+        background: var(--panel);
         padding: 1rem;
-        border-radius: 6px;
-        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--line);
       }
-      .cause-effect strong {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--accent);
-      }
-      @media (max-width: 768px) {
-        .cause-effect {
-          grid-template-columns: 1fr;
-        }
-        .scenario-card {
-          padding: 1rem;
-          margin: 1rem 0;
-        }
-        .article-body > h3 {
-          font-size: 1.1rem;
-          margin: 1.5rem 0 0.75rem 0;
-          padding: 0.5rem 0.5rem 0.5rem 0.75rem;
-        }
-        .error-box,
-        .success-box,
-        .kubectl-tip {
-          padding: 0.75rem;
-          margin: 1rem 0;
-          font-size: 0.9rem;
-        }
-      }
-      @media (max-width: 480px) {
-        .cause-effect {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-          margin: 1rem 0;
-        }
-        .cause-effect div {
-          padding: 0.75rem;
-        }
-        .scenario-card {
-          padding: 0.75rem;
-          margin: 0.75rem 0;
-        }
-        .scenario-card h4 {
-          font-size: 1rem;
-          margin-bottom: 0.5rem;
-        }
-        .article-body > h3 {
-          font-size: 1rem;
-          margin: 1.25rem 0 0.5rem 0;
-          padding: 0.4rem 0.4rem 0.4rem 0.6rem;
-          border-left-width: 3px;
-        }
-        .error-box,
-        .success-box,
-        .kubectl-tip {
-          padding: 0.5rem;
-          margin: 0.75rem 0;
-          font-size: 0.8rem;
-          border-left-width: 3px;
-        }
-        .kubectl-tip {
-          border-left-width: 3px;
-        }
-      }
+      .cause-effect strong { display: block; margin-bottom: 0.5rem; color: var(--ac); }
       .kubectl-tip {
-        background: var(--bg-muted);
+        background: var(--panel);
         padding: 1rem;
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         margin: 1rem 0;
-        border-left: 3px solid var(--accent);
+        border-left: 3px solid var(--ac);
       }
-      .kubectl-tip strong {
-        display: block;
-        margin-bottom: 0.5rem;
+      .kubectl-tip strong { display: block; margin-bottom: 0.5rem; }
+      @media (max-width: 768px) {
+        .cause-effect { grid-template-columns: 1fr; }
+        .terminal-block { font-size: 0.78rem; }
+        .terminal-block code { padding: 0.85rem; }
       }
     </style>
+      <link rel="icon" href="../assets/favicon.svg?v=20261026" type="image/svg+xml" />
+      <link rel="icon" href="../assets/favicon-32.png?v=20261026" sizes="32x32" type="image/png" />
+      <link rel="icon" href="../assets/favicon-16.png?v=20261026" sizes="16x16" type="image/png" />
+      <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=20261026" />
+      <meta name="theme-color" content="#0b0d10" />
+      <link rel="stylesheet" href="../assets/tokens.css?v=20261026" />
+    <link rel="stylesheet" href="../assets/base.css?v=20261026" />
+    <link rel="stylesheet" href="../assets/article.css?v=20261026" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-    <nav id="nav" class="nav-solid">
-      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
-      <div class="nav-controls">
-        <button
-          type="button"
-          class="nav-menu-btn"
-          id="navMenuBtn"
-          aria-expanded="false"
-          aria-controls="navMenu"
-          aria-label="Open menu"
-        >
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-        </button>
-        <button
-          class="theme-toggle"
-          id="themeToggle"
-          type="button"
-          aria-label="Toggle color theme"
-          aria-pressed="false"
-        >
-          <span class="theme-icon" id="themeIcon">☀</span>
-          <span id="themeLabel">Light</span>
-        </button>
-      </div>
-      <div class="nav-panel" id="navMenu">
-        <ul class="nav-links">
-          <li><a href="../index.html#about">About</a></li>
-          <li><a href="../index.html#experience">Experience</a></li>
-          <li><a href="../index.html#skills">Skills</a></li>
-          <li><a href="../index.html#projects">Projects</a></li>
-          <li><a href="index.html" class="active">Blog</a></li>
-          <li><a href="../index.html#contact">Contact</a></li>
-        </ul>
+    <nav>
+      <div class="wrap">
+        <b>~/francis</b>
+        <a href="../index.html#topology">topology</a>
+        <a href="../index.html#history">deploys</a>
+        <a href="../index.html#incidents">incidents</a>
+        <a href="../index.html#stack">stack</a>
+        <a href="index.html" class="active">writing</a>
+        <a href="../index.html#contact">contact</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme" title="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="icon-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></g><g class="icon-moon"><path d="M21 12.79A8.5 8.5 0 1 1 11.21 3 6.5 6.5 0 0 0 21 12.79Z"/></g></svg></button>
       </div>
     </nav>
 
@@ -354,9 +151,9 @@
             debugging workflows for fintech and ecommerce systems.
           </p>
           <div class="article-meta-bar">
-            <span class="meta-item">📅 2026</span>
-            <span class="meta-item">⏱ 22 min read</span>
-            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <span class="meta-item">2026</span>
+            <span class="meta-item">22 min read</span>
+            <span class="meta-item">Francis Morkeh Mensah</span>
             <div class="meta-tags">
               <span class="meta-tag">Kubernetes</span>
               <span class="meta-tag">Debugging</span>
@@ -1642,12 +1439,13 @@ X-Error: Database migrations not complete
         <div class="article-footer">
           <div class="post-nav">
             <a href="index.html" class="btn-secondary">← Back to Blog</a>
-            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mensah.morkehfrancis@gmail.com&su=Hello%20from%20infrabyfrancis.me" target="_blank" rel="noopener" class="btn-primary">Get in Touch</a>
           </div>
         </div>
       </div>
     </main>
 
-    <script src="../assets/site.js?v=1779622165"></script>
+    <footer>© 2026 Francis Morkeh Mensah · built with care, deployed without drama</footer>
+    <script src="../assets/site.js?v=20261026"></script>
   </body>
 </html>

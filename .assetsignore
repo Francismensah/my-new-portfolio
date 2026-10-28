@@ -2,6 +2,7 @@ node_modules
 .git
 .wrangler
 scripts
+design
 package.json
 package-lock.json
 *.md

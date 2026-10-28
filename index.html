@@ -1,110 +1,779 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Francis Morkeh Mensah — SRE</title>
+    <meta charset="utf-8" />
     <meta
-      name="description"
-      content="Site Reliability Engineer building cloud-native production systems. Based in Accra, Ghana."
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <link rel="canonical" href="https://infrabyfrancis.me" />
     <script>
       (function () {
-        const stored = localStorage.getItem("theme");
-        const preferredDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        const theme = stored || (preferredDark ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", theme);
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {}
       })();
     </script>
-    <link rel="stylesheet" href="./assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="./assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="./assets/home.css?v=1779622165" />
+    <title>Francis Morkeh Mensah · Site Reliability Engineer</title>
+    <link rel="canonical" href="https://infrabyfrancis.me" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="icon"
+      href="assets/favicon.svg?v=20261026"
+      type="image/svg+xml"
+    />
+    <link
+      rel="icon"
+      href="assets/favicon-32.png?v=20261026"
+      sizes="32x32"
+      type="image/png"
+    />
+    <link
+      rel="icon"
+      href="assets/favicon-16.png?v=20261026"
+      sizes="16x16"
+      type="image/png"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="assets/apple-touch-icon.png?v=20261026"
+    />
+    <meta name="theme-color" content="#0b0d10" />
+    <link rel="stylesheet" href="assets/tokens.css?v=20261026" />
+    <link rel="stylesheet" href="assets/base.css?v=20261026" />
+    <link rel="stylesheet" href="assets/home.css?v=20261026" />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
   </head>
   <body>
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-    <nav id="nav" class="nav-scroll">
-      <a href="index.html" class="nav-logo">infrabyfrancis.me</a>
-      <div class="nav-controls">
-        <button
-          type="button"
-          class="nav-menu-btn"
-          id="navMenuBtn"
-          aria-expanded="false"
-          aria-controls="navMenu"
-          aria-label="Open menu"
-        >
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-        </button>
-        <button
+    <nav>
+      <div class="wrap">
+        <b>~/francis</b><a href="#topology">topology</a
+        ><a href="#history">deploys</a><a href="#incidents">incidents</a
+        ><a href="#stack">stack</a><a href="#writing">writing</a
+        ><a href="blog/index.html">blog</a
+        ><button
           class="theme-toggle"
-          id="themeToggle"
           type="button"
-          aria-label="Toggle color theme"
-          aria-pressed="false"
+          data-theme-toggle
+          aria-label="Switch theme"
+          title="Switch theme"
         >
-          <span class="theme-icon" id="themeIcon">☀</span>
-          <span id="themeLabel">Light</span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <g class="icon-sun">
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"
+              />
+            </g>
+            <g class="icon-moon">
+              <path
+                d="M21 12.79A8.5 8.5 0 1 1 11.21 3 6.5 6.5 0 0 0 21 12.79Z"
+              />
+            </g>
+          </svg>
         </button>
-      </div>
-      <div class="nav-panel" id="navMenu">
-        <ul class="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#experience">Experience</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="blog/">Blog</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
       </div>
     </nav>
 
-    <main id="main">
-      <section id="hero">
-        <div class="hero-grid-bg"></div>
-        <div class="hero-glow"></div>
-        <div class="hero-inner">
-          <p class="hero-eyebrow">Site Reliability Engineer · Accra, Ghana</p>
-          <h1 class="hero-name">Francis<br />Morkeh Mensah</h1>
-          <p class="hero-title">Reliability as a product.</p>
-          <p class="hero-desc">
-            I design and operate mission-critical cloud platforms for
-            high-traffic, multi-sided digital products. I operationalize SLIs,
-            SLOs, and error budgets to keep availability, latency, and
-            performance targets consistently on track while enabling rapid, safe
-            product delivery.
+    <main class="wrap">
+      <header class="hero">
+        <div>
+          <span class="tag"
+            ><i class="dot"></i>all systems operational · Accra, GH</span
+          >
+          <div class="now">
+            <span>currently at</span
+            ><span class="lg"
+              ><img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJcAAABgCAMAAAAn1hDqAAAAYFBMVEX///////7+///+/v79/f399/L6+/vv5N7S2t+fvMPzlyTthST8SyDvSSPrSiUZnpsAnJRjfo88XXNRPEcMME8LME8KLk4KLEwJLk4JLU0JLUwJJkkGLEwBJ0gAI0QAHkB9kCdWAAAH8UlEQVR42u2bjZKjKBCARfCH5GZ2dcADT/T93/K6G1BMYiYzNate1fVWzSZCw2c3Ng2SLPuWcPrLBGOPyxlnItRhW3V+XhjPqqZtZJaJLS4msqy6XKoi43wvLOiqbKdxGts6E+JxDYFUl8v1UvD9wEQmJwUyqg2T8cxjgVSZ2M9eWeu0tVYNY1Nmt4MMfVhcZuGc7YZVqaEDLtvpCXxZ8oc+DFJkfDc31sYSlzXkS566CsyTYoEj9+OSzmMtvkwKxQrrKC7bdVMLgzuPZcXlcgquPviSUwBZ+/BILvSl+6chD2b3WEdy9dpMTZWVdz48mAufSwwY1eVsXODLUTeXE3JZ1Y8fZ+SC4O8+rifkwhirrmfkst3gPs7IBcH/zpen4MIYe+PLc3CZu0F2EnuhxT6O49ImSvd3txalhutRXNM/s7jhTlYG25Or1u0sHw/k/brIfgsP4Pq9SPPXA3lb5Ciu9u39Tt5OwPX7/a8Vx60cxvXrOdhhXJ+AHceFYG/vJ+TCh3IT7FCu382mL4/lIl+ekQtMdlKu3/LhIDua6xesH6/ns5csab19Ni4Z9yfebn15JBf40O/niKx6P4+95LwxB2DF9Sxc5MN0K/ogLr7iij6cSzn68v0QrvLXggU+vNuPTnz5vt9+NFhk5pL8zhwMr1zic3nN9nsPAwui2YfsUbfhuUR3VpvvkP6Ewbwj732YgpEvr+Wu762yUkpZg+U2euV+D/haiR3dCJJHvqfwB0guhPjs+eeCi0Pg/pf/5T8rMG2UIN+YXFmOmj8Wzqmx+fllMc7wb9zRdzWftZZkLZKC91fvG2YjUhQs/4mAyAljzj4gyVPTOI6q/mqeJLIGD1FMzaYiz/PXG5NIMbUl9zplOAsxSfj4xSxMDXiIot3wC8wHjL0a8EXWjkqrXsftWOKy9jtcdFpBb3HxLxq/HbW1Zohu+1NcPJO4K9y8uB1N9tqDC7w8udE9GX2PuOyf5sLHycKAce1rCc+eXIOx+FT8AJcIkh714euvEGgEPWQpVz4rxgC5cGF1nuS1DEK5uOvoKddyY/Pk4p9zkd5Y+JtwpcWhp8ReaUMhfjyqv8kFirVsUGBdv9xfVVcrB/NwYeGCZN4rSlCcwYkLSmuSIk2vIbL7fuqk/ra9ZKsx5oK00scfaL3FoCujSSAs4wUoF4m9ZOsg7mPwV01YXgcu26sgbRVaxBYwsmP9oW2KWH+Lq4FZJbSi4fGmqb2EqWYYhtGE2jlnLV6YWtxUilzNOHazIs5nbOGyfXjH5p8rUGrHcYiwncPjIL7+Yy58ndnp8LbTaOXjDnCNynTKhdo092ijB1VFLjso16v5/TZ8obozlw0vJaHBkrAmpZeXqnqpv8UFfZhOBx2jR/Qd2gsKu5TLGWtcyjV0xnY69GYUlHGecIWXuMhF5yWV7XsbzIV+xvriCZcxWg8QoY3xx1qawKVvuTr4nnChYoeKg9F9IBALFxJTXgBcIvRljB/Gg07qb3HBSBlV2ypHRxqha0iFXuHqwbYOFEFzRLAOncwjVzeER2nAc4hliy/GjRtazLUahV1B/QLrb3Fp18qqFJUkXagONV7hgptHxawETUwJLA2BwNU5IqC8M4drANKbAY+XotR0rDPU3+CC5yqEqZq665x8jUuDx+NUTWDkmDmuNkm+5kcrcpQkOId2Nrj4MRfcBBoapPQ1XuayPSnmqClH6red/Qjx3iOUwie4ypoeok4UvBHt7+Mxl59OGM0MzVe44HNMfQUnU8OAWM/bs8UYYsB4qosoxAV18nI7rnJ/cFdkX+ICCr7OMJD0ERfPuB+AnZqFHshPuEKeI2LMepFryXNe5bLLSYvej+xnXHI/ruVsyhwqxRm41FqePY87cplhWktf/wl7fXXcQ0Rq1lLTduzPccXPZdxuzWOcEGkefc9V3C4V2Pe4IEILSLJzSOOL2SLYDUwjXa9rjgE5h7/Szyvr+AWJHMeMnvkI1FNrK1nlX/wFrhDLktnE94yRk68KeQjfKp2HOj+Jx8UCzUM9zpnU0/IzBzavt9WIJ8A5FH3CJSlHMK7BVJxXcp4SRdTsQ2FW1I0z1rdd4mSJ38BgUFgWtaxjazTRkwYrKlwY1JTnNMTlWlw8sE/sRSMZ+zKYAkEqM9KMGBZ1fpjDfDcOdBIM8m2KmrQ1xL01g6YyDnS4b63XzjdHudEESTkn42tD+VVLS4EtLkMJa/iCp4wdJFFO+xQIM6yMLYWWCuH/3tg5BadJHIw7QJELEwo5Eq5hBooqA576A7dysqWv7pcCT+1FU7FT/pSxiol56BkGQuEHK+bpIQPHvJiGLubMsyaU4TAsFwXI2FE6Gqy0LCzib1nUwtV1K64RLmjiwoXZ4FRy+hJucGr9PiijPT2Vlmr67YLw8790w1JGHdwr4OFl5PK/SdJzTeKCtZRd2cvg4sxHEmrKLSkAeKUpl83GuOyiHF7ZkdZd81qzm5dkGjugsIYKIeentceAmQxtNzSTQ6d4LnQGrTuLmEWFtWwTtgVEVjR+3YoyqrjmjfsBuEz1pbhOlclvY6ClRsXJZvDtRYVZHCyF/VkClklc8EIrtd9ngKV+Xa02zmu6wOa+S3ycW/jX4Mu9ZIOG8bB7EAr57V4GbRAEvRjbs0pGDbhexEiGY0zGeQk6993k875GeAO77MuvfrYEQS3d3WHrbZCb316Juw0XctjNFlPc1GFiYf8XS29skjwy9icAAAAASUVORK5CYII="
+                alt="Hubtel logo"
+            /></span>
+          </div>
+          <h1>
+            I keep high-transaction systems <em class="availability">up</em> and
+            I make <em class="failure">failures</em> cheaper when they happen.
+          </h1>
+          <p class="lead">
+            Reliability engineer. Infrastructure thinker. <br /><br />
           </p>
-          <div class="hero-ctas">
-            <a href="#contact" class="btn-primary">Get in Touch</a>
-            <a href="blog/" class="btn-secondary">Read My Blog</a>
+          <div class="btns">
+            <a class="btn f" href="#incidents">Read the postmortems</a
+            ><a class="btn" href="blog/index.html">Read the blog →</a>
           </div>
         </div>
-        <div class="hero-scroll">Scroll to explore</div>
-        <div class="hero-badges">
-          <span class="hero-badge">AWS Certified</span>
-          <span class="hero-badge">AWS Community Builder</span>
-          <span class="hero-badge"
-            >Kubernetes and Cloud Native Associate Certified</span
-          >
+        <div class="term" aria-label="terminal">
+          <div class="bar">
+            <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span
+            ><span class="term-title">sev1-prod</span>
+          </div>
+          <pre id="t"></pre>
+        </div>
+      </header>
+
+      <section style="padding-top: 8px">
+        <div class="stats">
+          <div class="card stat rv">
+            <b>200+</b
+            ><span
+              >services moved to Datadog with OpenTelemetry, one place for
+              metrics, logs and traces</span
+            >
+          </div>
+          <div class="card stat rv">
+            <b>−20%</b><span>alert noise after SLO and burn-rate alerting</span>
+          </div>
+          <div class="card stat rv">
+            <b>3+</b
+            ><span
+              >years running production fleets across fintech and commerce</span
+            >
+          </div>
+          <div class="card stat rv">
+            <b>Cloud platforms</b
+            ><span class="cloud-logos"
+              ><img
+                src="assets/icons/aws.svg"
+                width="48"
+                height="32"
+                alt="AWS"
+                loading="lazy"
+                decoding="async" /><img
+                src="assets/icons/azure.svg"
+                width="32"
+                height="32"
+                alt="Microsoft Azure"
+                loading="lazy"
+                decoding="async" /><img
+                src="assets/icons/google-cloud.svg"
+                width="32"
+                height="32"
+                alt="Google Cloud"
+                loading="lazy"
+                decoding="async"
+            /></span>
+          </div>
         </div>
       </section>
 
-      <hr class="section-divider" />
+      <section id="topology">
+        <div class="k">// what I run</div>
+        <h2>Service request path</h2>
+        <p class="sub">
+          A simplified view of a production platform: frontend clients reach
+          APIs through one edge, with Kafka producers and consumers, background
+          jobs, CDC, and durable workflows behind them.
+        </p>
 
-      <section id="about">
-        <div class="reveal">
-          <p class="section-label">About</p>
-          <h2 class="section-title">
-            Reliability engineer.<br />Infrastructure thinker.
-          </h2>
+        <div class="qc rv" data-qc>
+          <div class="qc-bar">
+            <span class="qc-bar-t"
+              ><i class="qc-dot" aria-hidden="true"></i>production · request
+              path</span
+            >
+            <span class="qc-legend"
+              ><i class="qc-key"></i>confirmed<i class="qc-key qc-key--dash"></i
+              >to confirm</span
+            >
+          </div>
+
+          <div class="qc-tier">
+            <div class="qc-label"><b>01</b>clients</div>
+            <div class="qc-grid qc-grid-4">
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/Mobileclient.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Frontend apps</b
+                  ><small>browser and mobile clients</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/Users.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Operations frontends</b
+                  ><small>internal clients</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/Client.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Admin frontends</b
+                  ><small>back-office clients</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/AWSManagementConsole.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Service clients</b><small>internal tooling</small></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="qc-flow" aria-hidden="true"><i></i></div>
+
+          <div class="qc-tier">
+            <div class="qc-label"><b>02</b>edge &amp; ingress</div>
+            <div class="qc-edge">
+              <div class="qc-node qc-node--edge">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/cloudflare.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Cloudflare</b><small>WAF · DNS · TLS</small></span
+                >
+              </div>
+              <div class="qc-node qc-node--edge">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/nginx.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Nginx</b><small>reverse proxy · SSL</small></span
+                >
+              </div>
+              <div class="qc-node qc-node--edge">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/ElasticLoadBalancingApplicationLoadBalancer.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>ALB</b><small>request balancing</small></span
+                >
+              </div>
+              <div class="qc-node qc-node--edge">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/EC2AutoScaling.png"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>ASG</b><small>auto scaling EC2 fleet</small></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="qc-flow" aria-hidden="true"><i></i></div>
+
+          <div class="qc-tier">
+            <div class="qc-label">
+              <b>03</b>microservice domains<span class="qc-hint"
+                >click to inspect</span
+              >
+            </div>
+            <div
+              class="qc-domains"
+              role="group"
+              aria-label="Choose a microservice domain"
+            >
+              <button
+                type="button"
+                class="qc-dom"
+                data-qc-domain="consumer"
+                aria-pressed="false"
+                aria-controls="qc-panel"
+              >
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/GenericApplication.png"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-dom-t"
+                  ><b>API</b><small>.NET Core backend APIs</small></span
+                >
+                <span class="qc-dom-n" aria-hidden="true">4 svc</span>
+              </button>
+              <button
+                type="button"
+                class="qc-dom"
+                data-qc-domain="riders"
+                aria-pressed="false"
+                aria-controls="qc-panel"
+              >
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/User.png"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-dom-t"
+                  ><b>Frontend</b><small>web and mobile clients</small></span
+                >
+                <span class="qc-dom-n" aria-hidden="true">5 svc</span>
+              </button>
+              <button
+                type="button"
+                class="qc-dom on"
+                data-qc-domain="retailers"
+                aria-pressed="true"
+                aria-controls="qc-panel"
+              >
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/Officebuilding.png"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-dom-t"
+                  ><b>Kafka</b><small>producers and consumers</small></span
+                >
+                <span class="qc-dom-n" aria-hidden="true">6 svc</span>
+              </button>
+              <button
+                type="button"
+                class="qc-dom"
+                data-qc-domain="shared"
+                aria-pressed="false"
+                aria-controls="qc-panel"
+              >
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/Gear.png"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-dom-t"
+                  ><b>Platform</b><small>jobs, CDC, workflows</small></span
+                >
+                <span class="qc-dom-n" aria-hidden="true">4 svc</span>
+              </button>
+            </div>
+
+            <div class="qc-panel" id="qc-panel" aria-live="polite">
+              <div class="qc-ph">
+                <b>Kafka services</b><span>6 services</span>
+              </div>
+              <div class="qc-svcs">
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/APIGateway.png"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Producer</small><b>Kafka producer</b
+                    ><span class="qc-desc">Publishes change events</span></span
+                  >
+                </div>
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/kafka.svg"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Consumer</small><b>Kafka consumer</b
+                    ><span class="qc-desc"
+                      >Consumes topics asynchronously</span
+                    ></span
+                  >
+                </div>
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/GenericApplication.png"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Consumer</small
+                    ><b>Kafka consumer group</b
+                    ><span class="qc-desc"
+                      >Scalable event processing</span
+                    ></span
+                  >
+                </div>
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/GenericApplication.png"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Service</small
+                    ><b>Debezium CDC connector</b
+                    ><span class="qc-desc">Database change capture</span></span
+                  >
+                </div>
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/GenericApplication.png"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Service</small
+                    ><b>Temporal workflow worker</b
+                    ><span class="qc-desc">Durable workflows</span></span
+                  >
+                </div>
+                <div class="qc-svc">
+                  <span class="qc-ico qc-ico--sm"
+                    ><img
+                      src="assets/icons/GenericApplication.png"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-svc-t"
+                    ><small class="qc-tag">Job</small><b>.NET background job</b
+                    ><span class="qc-desc">Scheduled and async work</span></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="qc-flow" aria-hidden="true"><i></i></div>
+
+          <div class="qc-kafka">
+            <span class="qc-ico"
+              ><img
+                src="assets/icons/kafka.svg"
+                width="22"
+                height="22"
+                alt=""
+                loading="lazy"
+                decoding="async"
+            /></span>
+            <span class="qc-kafka-t"
+              ><b>Kafka producers, consumers &amp; background jobs</b
+              ><small>event processing · sync · scheduled work</small></span
+            >
+            <span class="qc-kafka-tag">async</span>
+          </div>
+
+          <div class="qc-flow" aria-hidden="true"><i></i></div>
+
+          <div class="qc-tier">
+            <div class="qc-label"><b>04</b>data &amp; messaging</div>
+            <div class="qc-grid qc-grid-6">
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/postgresql.svg"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>PostgreSQL</b><small>primary stores</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/redis.svg"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>Redis</b><small>cache layer</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/elasticsearch.svg"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>Elasticsearch</b><small>300+ indexes</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/OpenSearchService.png"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>OpenSearch</b><small>search</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/kafka.svg"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>Kafka</b><small>topics · events</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--sm"
+                  ><img
+                    src="assets/icons/kafka.svg"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>Debezium</b><small>CDC · change events</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--sm"
+                  ><img
+                    src="assets/icons/GenericApplication.png"
+                    width="20"
+                    height="20"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>Temporal</b><small>durable workflows</small></span
+                >
+              </div>
+              <div class="qc-data">
+                <span class="qc-ico qc-ico--xs"
+                  ><img
+                    src="assets/icons/SimpleStorageService.png"
+                    width="18"
+                    height="18"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-data-t"
+                  ><b>S3</b><small>presigned uploads</small></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="qc-tier qc-tier--last">
+            <div class="qc-label"><b>05</b>cross-cutting</div>
+            <div class="qc-grid qc-grid-2">
+              <div class="qc-node">
+                <span class="qc-ico-stack">
+                  <span class="qc-ico"
+                    ><img
+                      src="assets/icons/datadog.svg"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                  <span class="qc-ico"
+                    ><img
+                      src="assets/icons/opentelemetry.svg"
+                      width="20"
+                      height="20"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                  /></span>
+                </span>
+                <span class="qc-node-t"
+                  ><b>Datadog + OpenTelemetry</b
+                  ><small>metrics · logs · traces</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/azuredevops.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Azure DevOps pipelines</b
+                  ><small>build · release</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/newrelic.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>New Relic</b><small>application telemetry</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/cloudwatch.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>CloudWatch</b><small>AWS metrics · logs</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/prometheus.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Prometheus</b><small>metrics · alerting</small></span
+                >
+              </div>
+              <div class="qc-node">
+                <span class="qc-ico"
+                  ><img
+                    src="assets/icons/grafana.svg"
+                    width="22"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                /></span>
+                <span class="qc-node-t"
+                  ><b>Grafana</b><small>dashboards · visualization</small></span
+                >
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="about-grid reveal">
-          <div class="about-text">
+      </section>
+
+      <section id="history">
+        <div class="k">// deploy history</div>
+        <h2>Release notes for a career</h2>
+        <div class="tl" style="margin-top: 24px">
+          <div class="it rv">
+            <div class="when when-current">now · ~3 years</div>
+            <h3>Site Reliability Engineer — Hubtel</h3>
             <p>
               I own the reliability posture of mission-critical production
               systems across customer-facing and internal platforms. I
@@ -118,7 +787,7 @@
               design to incident response and continuous optimization.
             </p>
             <p>Core areas of expertise:</p>
-            <ul class="about-core-list">
+            <ul>
               <li>
                 Designing and managing scalable AWS infrastructure using
                 Terraform (Infrastructure as Code)
@@ -146,1170 +815,337 @@
               </li>
             </ul>
             <p>
-              I treat reliability as a product, balancing stability, cost
-              efficiency, and engineering velocity while driving operational
-              maturity across systems.
+              I treat <em>reliability as a product</em>, balancing stability,
+              cost efficiency, and engineering velocity while driving
+              operational maturity across systems.
             </p>
             <p>
               Passionate about building production platforms that scale
               predictably, fail gracefully, and recover quickly.
             </p>
           </div>
-          <div class="about-stats">
-            <div class="stat-card">
-              <div class="stat-num">3+</div>
-              <div class="stat-label">Years in Cloud & SRE</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">32</div>
-              <div class="stat-label">Certifications</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">24/7</div>
-              <div class="stat-label">Production Operations</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">∞</div>
-              <div class="stat-label">Postmortems Written</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <hr class="section-divider" />
-
-      <section id="experience">
-        <div class="reveal">
-          <p class="section-label">Experience</p>
-          <h2 class="section-title">
-            Where I've built<br />production systems.
-          </h2>
-        </div>
-        <div class="timeline reveal">
-          <div class="timeline-item">
-            <div class="timeline-period">Aug 2024 — Present</div>
-            <div class="timeline-role">Site Reliability Engineer</div>
-            <div class="timeline-company">Hubtel · Full-time · Remote</div>
-            <div class="timeline-desc">
-              Own infrastructure reliability and operational excellence for
-              mission-critical QuickCommerce services. Designed AWS
-              infrastructure with Terraform, operationalized SLIs/SLOs, led
-              incident response and postmortems, built observability with
-              Prometheus, Grafana, New Relic, and Datadog.
-            </div>
-            <div class="timeline-tags">
-              <span class="timeline-tag">AWS</span
-              ><span class="timeline-tag">Terraform</span
-              ><span class="timeline-tag">Kubernetes</span
-              ><span class="timeline-tag">Prometheus</span
-              ><span class="timeline-tag">Grafana</span
-              ><span class="timeline-tag">Datadog</span
-              ><span class="timeline-tag">Azure DevOps</span>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-period">Aug 2023 — Aug 2024</div>
-            <div class="timeline-role">Platform Engineer</div>
-            <div class="timeline-company">Rancard · Contract · Remote</div>
-            <div class="timeline-desc">
-              Designed, built, and operated scalable infrastructure for multiple
-              production applications. Managed servers, networking, databases,
-              and CI/CD pipelines while ensuring high availability and security
-              compliance.
-            </div>
-            <div class="timeline-tags">
-              <span class="timeline-tag">CI/CD</span
-              ><span class="timeline-tag">Jenkins</span
-              ><span class="timeline-tag">Linux</span
-              ><span class="timeline-tag">Infrastructure</span>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-period">Feb 2024 — May 2024</div>
-            <div class="timeline-role">Cloud Engineer</div>
-            <div class="timeline-company">
-              AmaliTech · AWS re/Start · Remote
-            </div>
-            <div class="timeline-desc">
-              Intensive AWS cloud engineering program. Administered Linux
-              servers, automated with Bash/Python, implemented networking and
-              security best practices. Earned AWS Certified Cloud Practitioner.
-            </div>
-            <div class="timeline-tags">
-              <span class="timeline-tag">AWS</span
-              ><span class="timeline-tag">Bash</span
-              ><span class="timeline-tag">Python</span
-              ><span class="timeline-tag">Linux</span>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-period">May 2023 — Aug 2023</div>
-            <div class="timeline-role">DevOps & MLOps Engineer</div>
-            <div class="timeline-company">
-              Trestle Academy Ghana · Internship
-            </div>
-            <div class="timeline-desc">
-              Provisioned infrastructure with Terraform, containerized Flask ML
-              models for AWS EC2, configured Jenkins CI/CD pipelines.
-              Collaborated with data scientists to integrate ML models into
-              production environments.
-            </div>
-            <div class="timeline-tags">
-              <span class="timeline-tag">Terraform</span
-              ><span class="timeline-tag">Docker</span
-              ><span class="timeline-tag">Kubernetes</span
-              ><span class="timeline-tag">Jenkins</span
-              ><span class="timeline-tag">Flask</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <hr class="section-divider" />
-
-      <section id="skills">
-        <div class="reveal">
-          <p class="section-label">Skills</p>
-          <h2 class="section-title">Tools of the trade.</h2>
-        </div>
-        <div class="skills-grid reveal">
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img" focusable="false">
-                <path
-                  fill="#61c9cc"
-                  d="M6.1 8.4a4.2 4.2 0 017.8-1.5 3.9 3.9 0 014.7 3.7 3.7 3.7 0 01-.1.8 2.9 2.9 0 01.5 5.8H5.4A3.6 3.6 0 015.1 10c.3-.9.6-1.2 1-1.6z"
-                />
-                <rect
-                  x="6"
-                  y="10"
-                  width="11"
-                  height="2.6"
-                  rx="0.9"
-                  fill="#5a95c8"
-                />
-                <rect
-                  x="6"
-                  y="12.9"
-                  width="11"
-                  height="2.6"
-                  rx="0.9"
-                  fill="#4b86b2"
-                />
-                <rect
-                  x="6"
-                  y="15.8"
-                  width="11"
-                  height="2.6"
-                  rx="0.9"
-                  fill="#5a95c8"
-                />
-                <circle cx="8.2" cy="11.3" r="0.45" fill="#f7d65a" />
-                <circle cx="8.2" cy="14.2" r="0.45" fill="#f7d65a" />
-                <circle cx="8.2" cy="17.1" r="0.45" fill="#f7d65a" />
-                <circle cx="10.1" cy="11.3" r="0.45" fill="#64d1d1" />
-                <circle cx="10.1" cy="14.2" r="0.45" fill="#64d1d1" />
-                <circle cx="10.1" cy="17.1" r="0.45" fill="#64d1d1" />
-                <rect
-                  x="12.9"
-                  y="10.9"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="14.5"
-                  y="10.9"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="16.1"
-                  y="10.9"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="12.9"
-                  y="13.8"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="14.5"
-                  y="13.8"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="16.1"
-                  y="13.8"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="12.9"
-                  y="16.7"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="14.5"
-                  y="16.7"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <rect
-                  x="16.1"
-                  y="16.7"
-                  width="0.95"
-                  height="0.5"
-                  rx="0.25"
-                  fill="#2b6f88"
-                />
-                <path
-                  fill="#ffffff"
-                  d="M10.15 7.25a.42.42 0 00-.6 0l-1.1 1.1a.42.42 0 00.6.6l.4-.4v1.2a.42.42 0 10.84 0v-1.2l.4.4a.42.42 0 10.6-.6l-1.1-1.1zm3.66 0a.42.42 0 00-.6.6l.4.4h-1.2a.42.42 0 100 .84h1.2l-.4.4a.42.42 0 00.6.6l1.1-1.1a.42.42 0 000-.6l-1.1-1.1z"
-                />
-              </svg>
-            </div>
-            <div class="skill-group-title">Cloud & Infrastructure</div>
-            <ul class="skill-list">
-              <li>Amazon Web Services (AWS)</li>
-              <li>Terraform / IaC</li>
-              <li>Kubernetes</li>
-              <li>Docker</li>
-              <li>Linux Server Administration</li>
+          <div class="it rv">
+            <div class="when when-before">before</div>
+            <h3>Platform Engineer — Rancard</h3>
+            <ul>
+              <li>
+                <b>Systems &amp; data management:</b> Managed servers, networks,
+                databases, and deployment pipelines for USSD applications
+                supporting bulk SMS blasts to 10,000+ customers.
+              </li>
+              <li>
+                <b>Reliability &amp; stability:</b> Implemented log rotation for
+                Kannel logs, maintaining system stability and performance during
+                large-scale SMS campaigns.
+              </li>
             </ul>
           </div>
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img" focusable="false">
-                <circle cx="11" cy="12.3" r="8.4" fill="#f0cea6" />
-                <rect
-                  x="6"
-                  y="4"
-                  width="12"
-                  height="5.1"
-                  rx="0.8"
-                  fill="#1d8ee0"
-                />
-                <rect x="6.7" y="4" width="1.7" height="5.1" fill="#2294e8" />
-                <path
-                  fill="#f6cb56"
-                  d="M8.8 5.2a1.4 1.4 0 101.4 1.4h1.5A2.9 2.9 0 108.8 5.2z"
-                />
-                <path fill="#65c848" d="M10.4 4.9h.8v1.7h-1.7V5.7h.9z" />
-                <rect
-                  x="12.3"
-                  y="5.9"
-                  width="0.5"
-                  height="1.5"
-                  rx="0.25"
-                  fill="#6ecf55"
-                />
-                <rect
-                  x="13.2"
-                  y="5.4"
-                  width="0.5"
-                  height="2"
-                  rx="0.25"
-                  fill="#f7c544"
-                />
-                <rect
-                  x="14.1"
-                  y="6.1"
-                  width="0.5"
-                  height="1.3"
-                  rx="0.25"
-                  fill="#ff9f00"
-                />
-                <rect
-                  x="15"
-                  y="5.2"
-                  width="0.5"
-                  height="2.2"
-                  rx="0.25"
-                  fill="#67c94d"
-                />
-                <rect
-                  x="11.5"
-                  y="9"
-                  width="11.2"
-                  height="9"
-                  rx="0.8"
-                  fill="#d6dfea"
-                />
-                <rect x="11.5" y="9" width="11.2" height="1.4" fill="#1f8fe2" />
-                <circle cx="21.2" cy="9.7" r="0.22" fill="#ff5f73" />
-                <circle cx="20.5" cy="9.7" r="0.22" fill="#f7c64f" />
-                <circle cx="19.8" cy="9.7" r="0.22" fill="#66c94c" />
-                <rect
-                  x="12.5"
-                  y="11.4"
-                  width="0.7"
-                  height="2.2"
-                  rx="0.2"
-                  fill="#67c94d"
-                />
-                <rect
-                  x="13.6"
-                  y="12.1"
-                  width="0.7"
-                  height="1.5"
-                  rx="0.2"
-                  fill="#ff6174"
-                />
-                <rect
-                  x="14.7"
-                  y="11.9"
-                  width="0.7"
-                  height="1.7"
-                  rx="0.2"
-                  fill="#f6a000"
-                />
-                <circle cx="18.4" cy="13" r="2.1" fill="#ff5d71" />
-                <circle cx="18.4" cy="13" r="1.3" fill="#f1f2f3" />
-                <path
-                  fill="#59aaf0"
-                  d="M16.9 13.6a.55.55 0 01-.39-.94l1.02-1.03a.55.55 0 01.78 0l.63.64 1.41-1.41a.55.55 0 11.78.78l-1.8 1.8a.55.55 0 01-.78 0l-.63-.64-.63.64a.54.54 0 01-.39.16z"
-                />
-                <path fill="#3f5bd0" d="M20 14.4l1.7 1.7-.7.7-1.7-1.7z" />
-                <rect
-                  x="20.8"
-                  y="15.8"
-                  width="1.9"
-                  height="0.8"
-                  rx="0.35"
-                  transform="rotate(45 20.8 15.8)"
-                  fill="#3550c8"
-                />
-              </svg>
-            </div>
-            <div class="skill-group-title">Observability</div>
-            <ul class="skill-list">
-              <li>Prometheus & Grafana</li>
-              <li>Datadog</li>
-              <li>New Relic</li>
-              <li>SLI / SLO / Error Budgets</li>
-              <li>Alerting & Incident Management</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <img
-                src="https://arrowcore.com/wp-content/uploads/2022/03/3.8-930x500-c-default.png"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                referrerpolicy="no-referrer"
-              />
-            </div>
-            <div class="skill-group-title">CI/CD & Automation</div>
-            <ul class="skill-list">
-              <li>Azure DevOps</li>
-              <li>Jenkins</li>
-              <li>GitHub Actions</li>
-              <li>Bash / Python Scripting</li>
-              <li>Ansible</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img" focusable="false">
-                <path
-                  fill="#bfcbdb"
-                  d="M5.4 9.1a2.4 2.4 0 013.8-2.1A2.7 2.7 0 0113.9 8a2 2 0 01.3 3.9H5.7a2.1 2.1 0 01-.3-2.8z"
-                />
-                <circle cx="8.1" cy="8.1" r="0.55" fill="#f6bf00" />
-                <circle cx="10.2" cy="7.6" r="0.62" fill="#ff4f66" />
-                <path
-                  fill="#2c345f"
-                  d="M14.6 5.5a2.1 2.1 0 012.6-.2c.9.6 1.2 1.8.8 2.8-.3.8-.1 1.7.3 2.5h-4.7a2.8 2.8 0 01-.2-2.2c.2-.9.6-2.1 1.2-2.9z"
-                />
-                <circle cx="16.1" cy="7.9" r="1.15" fill="#f4b49f" />
-                <path fill="#ffffff" d="M15.5 9h1.2l.3.7-1.8.4z" />
-                <path fill="#ff5164" d="M14.7 9.2h3.7v2.8h-3.7z" />
-                <path fill="#a3bee4" d="M11.9 10.8h3.6v3.2h-3.6z" />
-                <circle cx="13.6" cy="12.3" r="0.45" fill="#5fa4ef" />
-                <rect
-                  x="10.6"
-                  y="13.5"
-                  width="7.4"
-                  height="0.6"
-                  rx="0.3"
-                  fill="#6ab0ff"
-                />
-                <rect
-                  x="2.2"
-                  y="13.2"
-                  width="9.6"
-                  height="2.8"
-                  rx="0.45"
-                  fill="#5f6f8a"
-                />
-                <rect
-                  x="2.2"
-                  y="16.5"
-                  width="9.6"
-                  height="2.8"
-                  rx="0.45"
-                  fill="#4f5f7a"
-                />
-                <rect
-                  x="2.2"
-                  y="19.8"
-                  width="9.6"
-                  height="2.8"
-                  rx="0.45"
-                  fill="#43536d"
-                />
-                <rect
-                  x="3.1"
-                  y="14"
-                  width="2.6"
-                  height="0.8"
-                  rx="0.2"
-                  fill="#f3f4f7"
-                />
-                <rect
-                  x="3.1"
-                  y="17.3"
-                  width="2.6"
-                  height="0.8"
-                  rx="0.2"
-                  fill="#f3f4f7"
-                />
-                <rect
-                  x="3.1"
-                  y="20.6"
-                  width="2.6"
-                  height="0.8"
-                  rx="0.2"
-                  fill="#f3f4f7"
-                />
-                <rect
-                  x="8.7"
-                  y="13.8"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#f7c900"
-                />
-                <rect
-                  x="9.5"
-                  y="13.8"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="10.3"
-                  y="13.8"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="8.7"
-                  y="17.1"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#f7c900"
-                />
-                <rect
-                  x="9.5"
-                  y="17.1"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="10.3"
-                  y="17.1"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="8.7"
-                  y="20.4"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#f7c900"
-                />
-                <rect
-                  x="9.5"
-                  y="20.4"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="10.3"
-                  y="20.4"
-                  width="0.55"
-                  height="0.55"
-                  rx="0.1"
-                  fill="#ffffff"
-                />
-                <rect
-                  x="15.7"
-                  y="12.2"
-                  width="2.3"
-                  height="11.8"
-                  fill="#3490d4"
-                />
-                <rect
-                  x="17.7"
-                  y="12.2"
-                  width="1.9"
-                  height="11.8"
-                  fill="#5ea7de"
-                />
-              </svg>
-            </div>
-            <div class="skill-group-title">Reliability Practices</div>
-            <ul class="skill-list">
-              <li>Incident Response & RCA</li>
-              <li>Blameless Postmortems</li>
-              <li>Capacity Planning</li>
-              <li>Chaos Engineering</li>
-              <li>Toil Reduction</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img" focusable="false">
-                <ellipse cx="8" cy="7" rx="4.4" ry="1.7" fill="#6674a6" />
-                <path
-                  fill="#5f6ea0"
-                  d="M3.6 7v2.5c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V7z"
-                />
-                <ellipse cx="8" cy="9.5" rx="4.4" ry="1.7" fill="#6172a5" />
-                <path
-                  fill="#6a78aa"
-                  d="M3.6 9.5V12c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V9.5z"
-                />
-                <ellipse cx="8" cy="12" rx="4.4" ry="1.7" fill="#5c6da0" />
-                <path
-                  fill="#58679a"
-                  d="M3.6 12v2.5c0 .94 1.97 1.7 4.4 1.7s4.4-.76 4.4-1.7V12z"
-                />
-                <ellipse cx="8" cy="14.5" rx="4.4" ry="1.7" fill="#566599" />
-                <rect
-                  x="4.8"
-                  y="8.4"
-                  width="1.3"
-                  height="0.35"
-                  rx="0.17"
-                  fill="#dfe6ff"
-                />
-                <rect
-                  x="4.8"
-                  y="10.9"
-                  width="1.3"
-                  height="0.35"
-                  rx="0.17"
-                  fill="#dfe6ff"
-                />
-                <rect
-                  x="4.8"
-                  y="13.4"
-                  width="1.3"
-                  height="0.35"
-                  rx="0.17"
-                  fill="#dfe6ff"
-                />
-                <circle cx="10.2" cy="8.2" r="0.35" fill="#f35a57" />
-                <circle cx="11.1" cy="8.2" r="0.35" fill="#f7c843" />
-                <circle cx="12" cy="8.2" r="0.35" fill="#65c96d" />
-                <circle cx="10.2" cy="10.7" r="0.35" fill="#f35a57" />
-                <circle cx="11.1" cy="10.7" r="0.35" fill="#f7c843" />
-                <circle cx="12" cy="10.7" r="0.35" fill="#65c96d" />
-                <circle cx="10.2" cy="13.2" r="0.35" fill="#f35a57" />
-                <circle cx="11.1" cy="13.2" r="0.35" fill="#f7c843" />
-                <circle cx="12" cy="13.2" r="0.35" fill="#65c96d" />
-                <path
-                  fill="#d8d9ec"
-                  d="M14.8 7.8h1.9v.4h-1.5v3.5h1.5v.4h-1.9z"
-                />
-                <path fill="#d8d9ec" d="M14.8 11.5h2.1v.4h-2.1z" />
-                <rect
-                  x="16.9"
-                  y="6.9"
-                  width="3.1"
-                  height="1.8"
-                  rx="0.25"
-                  fill="#ea5250"
-                />
-                <rect
-                  x="16.9"
-                  y="9.6"
-                  width="3.1"
-                  height="1.8"
-                  rx="0.25"
-                  fill="#f7c53b"
-                />
-                <rect
-                  x="16.9"
-                  y="12.3"
-                  width="3.1"
-                  height="1.8"
-                  rx="0.25"
-                  fill="#73c978"
-                />
-                <rect
-                  x="17.2"
-                  y="8.9"
-                  width="1.2"
-                  height="0.15"
-                  rx="0.07"
-                  fill="#d74643"
-                />
-                <rect
-                  x="17.2"
-                  y="11.6"
-                  width="1.2"
-                  height="0.15"
-                  rx="0.07"
-                  fill="#e2a81e"
-                />
-                <rect
-                  x="17.2"
-                  y="14.3"
-                  width="1.2"
-                  height="0.15"
-                  rx="0.07"
-                  fill="#5bb661"
-                />
-              </svg>
-            </div>
-            <div class="skill-group-title">Data & Networking</div>
-            <ul class="skill-list">
-              <li>Redis</li>
-              <li>PostgreSQL / RDS</li>
-              <li>Nginx / Reverse Proxy</li>
-              <li>VPC & Network Security</li>
-              <li>Load Balancing</li>
-            </ul>
-          </div>
-          <div class="skill-group">
-            <div class="skill-group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img" focusable="false">
-                <rect
-                  x="2.4"
-                  y="4"
-                  width="5.9"
-                  height="2.2"
-                  rx="0.45"
-                  fill="#173b4e"
-                />
-                <rect
-                  x="15.7"
-                  y="4"
-                  width="5.9"
-                  height="2.2"
-                  rx="0.45"
-                  fill="#173b4e"
-                />
-                <rect
-                  x="3.1"
-                  y="4.7"
-                  width="3"
-                  height="0.45"
-                  rx="0.2"
-                  fill="#aacdd8"
-                />
-                <rect
-                  x="16.4"
-                  y="4.7"
-                  width="3"
-                  height="0.45"
-                  rx="0.2"
-                  fill="#aacdd8"
-                />
-                <circle cx="6" cy="9.2" r="1.7" fill="#66b8d7" />
-                <circle cx="18" cy="9.2" r="1.7" fill="#eb8f4b" />
-                <path
-                  fill="#66b8d7"
-                  d="M3.9 16.8v-3.7a2 2 0 012-2h2a2 2 0 012 2v3.7z"
-                />
-                <path
-                  fill="#eb8f4b"
-                  d="M14.1 16.8v-3.7a2 2 0 012-2h2a2 2 0 012 2v3.7z"
-                />
-                <rect
-                  x="9"
-                  y="12.6"
-                  width="6"
-                  height="0.8"
-                  rx="0.35"
-                  fill="#123644"
-                />
-                <rect
-                  x="11.6"
-                  y="13.4"
-                  width="0.8"
-                  height="4.2"
-                  fill="#123644"
-                />
-                <path
-                  fill="#f5cd56"
-                  d="M11.2 7.2a1 1 0 011 1h.8v1h-.8v.8h-1v-.8h-.8v-1h.8a1 1 0 011-1z"
-                />
-                <path
-                  fill="#f5cd56"
-                  d="M12.3 9.7h.6a.8.8 0 01.8.8v.6h-.8v-.4h-.6a.8.8 0 01-.8-.8v-.6h.8z"
-                />
-              </svg>
-            </div>
-            <div class="skill-group-title">Soft Skills</div>
-            <ul class="skill-list">
-              <li>Cross-team Collaboration</li>
-              <li>Technical Documentation</li>
-              <li>On-call & Escalation</li>
-              <li>Production Debugging</li>
-              <li>Engineering Mentorship</li>
+          <div class="it rv">
+            <div class="when when-ongoing">ongoing</div>
+            <h3>AWS Community Builder · Writer</h3>
+            <ul>
+              <li>
+                Publishing SRE and infrastructure write-ups as InfraByFrancis.
+              </li>
             </ul>
           </div>
         </div>
       </section>
 
-      <hr class="section-divider" />
-
-      <section id="projects">
-        <div class="reveal">
-          <p class="section-label">Projects</p>
-          <h2 class="section-title">Things I've built<br />and shipped.</h2>
-        </div>
-        <div class="projects-grid reveal">
-          <a
-            href="https://github.com/Francismensah/terraform-aws-infrastructure"
-            target="_blank"
-            class="project-card"
-          >
-            <div class="project-icon">IaC · AWS</div>
-            <div class="project-title">
-              Scalable AWS Infrastructure with Terraform
+      <section id="incidents">
+        <div class="k">// postmortems</div>
+        <h2>Things that broke, and what fixed them</h2>
+        <p class="sub">
+          Real classes of failure from a production fleet. The unglamorous ones
+          teach the most.
+        </p>
+        <div class="inc">
+          <a class="card post rv" href="blog/nginx-502-fix.html"
+            ><div class="hd">
+              <span>PM-01</span><span class="sev">SEV · NGINX</span>
             </div>
-            <div class="project-desc">
-              Multi-tier AWS infrastructure: VPC, subnets, security groups, EC2,
-              RDS, and ALB. State managed via S3 and DynamoDB. IaC best
-              practices throughout.
-            </div>
-            <div class="project-tags">
-              <span class="project-tag">Terraform</span
-              ><span class="project-tag">AWS VPC</span
-              ><span class="project-tag">EC2</span
-              ><span class="project-tag">RDS</span
-              ><span class="project-tag">ALB</span>
-            </div>
-            <div class="project-link">View on GitHub →</div>
-          </a>
-          <a
-            href="https://github.com/Francismensah/habit-tracker-k8s-deployment"
-            target="_blank"
-            class="project-card"
-          >
-            <div class="project-icon">Kubernetes · Cloud Native</div>
-            <div class="project-title">Habit Tracker Kubernetes Deployment</div>
-            <div class="project-desc">
-              Production-style Kubernetes deployment for a habit tracker
-              application, including container orchestration and cloud-native
-              deployment workflows.
-            </div>
-            <div class="project-tags">
-              <span class="project-tag">Kubernetes</span
-              ><span class="project-tag">Cloud Native</span
-              ><span class="project-tag">Deployment</span
-              ><span class="project-tag">DevOps</span>
-            </div>
-            <div class="project-link">View on GitHub →</div>
-          </a>
-          <a
-            href="blog/slo-alerting-framework.html"
-            target="_blank"
-            class="project-card"
-          >
-            <div class="project-icon">Observability · SRE</div>
-            <div class="project-title">SLI/SLO Alerting Framework</div>
-            <div class="project-desc">
-              Full observability strategy for QuickCommerce microservices — SLI
-              definitions, SLO targets, error budget burn alerts, and Grafana
-              dashboards for real-time health.
-            </div>
-            <div class="project-tags">
-              <span class="project-tag">Prometheus</span
-              ><span class="project-tag">Grafana</span
-              ><span class="project-tag">SLO</span
-              ><span class="project-tag">Alerting</span>
-            </div>
-            <div class="project-link">Read Writeup →</div>
-          </a>
-          <a
-            href="https://github.com/Francismensah/ansible-aws-ec2-web-deployment"
-            target="_blank"
-            class="project-card"
-          >
-            <div class="project-icon">Automation · Ansible</div>
-            <div class="project-title">Automated Web App Deployment on EC2</div>
-            <div class="project-desc">
-              Ansible playbooks that automate end-to-end setup and deployment of
-              web applications on AWS EC2, from server provisioning to
-              application bootstrapping.
-            </div>
-            <div class="project-tags">
-              <span class="project-tag">Ansible</span
-              ><span class="project-tag">AWS EC2</span
-              ><span class="project-tag">Automation</span
-              ><span class="project-tag">DevOps</span>
-            </div>
-            <div class="project-link">View on GitHub →</div>
-          </a>
-        </div>
-      </section>
-
-      <hr class="section-divider" />
-
-      <section id="blog">
-        <div class="reveal">
-          <p class="section-label">Blog</p>
-          <h2 class="section-title">
-            Writing on reliability,<br />infra & production systems.
-          </h2>
-        </div>
-        <div class="blog-preview-grid reveal">
-          <!-- build:home-blog-previews -->
-        <a href="blog/what-we-tag-and-why-otel-rollout.html" class="blog-preview-card">
-          <div class="blog-card-tag">OpenTelemetry · Fintech · SRE</div>
-          <div class="blog-card-title">What We Tag and Why: Rolling Out Custom OpenTelemetry Attributes Across a Microservices Fleet</div>
-          <div class="blog-card-excerpt">A practical guide to using service.visibility and isAsg as OpenTelemetry resource attributes across public and private fintech services.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>8 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/practical-enterprise-storage-and-resilience-engineering.html" class="blog-preview-card">
-          <div class="blog-card-tag">Storage · SRE</div>
-          <div class="blog-card-title">A practical guide to enterprise storage &amp; resilience engineering</div>
-          <div class="blog-card-excerpt">Practical guidance on Linux storage, capacity planning, DR/BC, monitoring, and AWS storage tradeoffs for resilient systems.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>11 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/building-and-deploying-my-portfolio.html" class="blog-preview-card">
-          <div class="blog-card-tag">AWS · DevOps · Deployment</div>
-          <div class="blog-card-title">How I Finally Built and Deployed My Personal Portfolio</div>
-          <div class="blog-card-excerpt">A personal, step-by-step walkthrough of shipping my portfolio with AWS EC2, Nginx, Cloudflare DNS, and SSL via Certbot.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>10 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/migrating-portfolio-ec2-cloudflare-workers.html" class="blog-preview-card">
-          <div class="blog-card-tag">Cloudflare · Workers · Deployment</div>
-          <div class="blog-card-title">Migrating My Portfolio from EC2 to Cloudflare Workers (and the 126 MiB File That Almost Stopped Me)</div>
-          <div class="blog-card-excerpt">How I moved a static portfolio from EC2 and Nginx to Cloudflare Workers, then fixed a failed deployment caused by a 126 MiB build dependency.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>10 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/cloudflare-522-ec2-public-ip-change.html" class="blog-preview-card">
-          <div class="blog-card-tag">AWS · Terraform · Cloudflare</div>
-          <div class="blog-card-title">Cloudflare 522 Caused by an EC2 Public IP Change</div>
-          <div class="blog-card-excerpt">How an instance restart changed the public IP, broke the origin, and was fixed by moving to a stable Elastic IP.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>7 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/building-scalable-elastic-infrastructure-aws-cloudflare.html" class="blog-preview-card">
-          <div class="blog-card-tag">AWS · Terraform · Cloudflare</div>
-          <div class="blog-card-title">Building Scalable and Elastic Infrastructure on AWS with Cloudflare: From AMI to ALB</div>
-          <div class="blog-card-excerpt">A complete guide to designing immutable infrastructure using EC2 AMIs, Launch Templates, Auto Scaling, ALB, and Cloudflare as your edge.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>18 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/the-reboot-that-took-us-down-systemd-production.html" class="blog-preview-card">
-          <div class="blog-card-tag">Linux · Systemd · Production</div>
-          <div class="blog-card-title">The Reboot That Took Us Down: Mastering systemd Services in Production</div>
-          <div class="blog-card-excerpt">A practical guide to running Linux applications reliably: units, logs, timers, release flow, rollback, and the reboot lesson that every operator learns the hard way.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>12 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/writing-postmortems-that-drive-real-change.html" class="blog-preview-card">
-          <div class="blog-card-tag">Incident · SRE · Culture</div>
-          <div class="blog-card-title">Writing Postmortems That Drive Real Change</div>
-          <div class="blog-card-excerpt">Blameless is not the same as inconclusive. A practical framework for timelines, root cause analysis, and action items that actually ship.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>11 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/kubernetes-for-sres-production-guide.html" class="blog-preview-card">
-          <div class="blog-card-tag">Kubernetes · Debugging · SRE</div>
-          <div class="blog-card-title">Kubernetes for SREs: What You Actually Need to Know</div>
-          <div class="blog-card-excerpt">Production troubleshooting patterns, error cause-and-effect analysis, and real debugging workflows from fintech and ecommerce systems.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>22 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-        <a href="blog/observability-google-sre-otel-grafana.html" class="blog-preview-card">
-          <div class="blog-card-tag">Observability · OpenTelemetry · Enterprise</div>
-          <div class="blog-card-title">Observability, the SRE Way: From Metrics to Root Cause in Minutes</div>
-          <div class="blog-card-excerpt">An enterprise observability architecture powered by OpenTelemetry, Grafana, and SRE principles. Learn to correlate metrics, logs, and traces at scale.</div>
-          <div class="blog-card-meta">
-            <span>2026</span><span>·</span><span>22 min read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
-        </a>
-      <!-- /build:home-blog-previews -->
-        </div>
-        <div class="reveal">
-          <a href="blog/" class="btn-secondary">View All Articles →</a>
-        </div>
-      </section>
-
-      <hr class="section-divider" />
-
-      <section id="contact">
-        <div class="reveal">
-          <p class="section-label">Contact</p>
-          <h2 class="section-title">
-            Let's build something<br />reliable together.
-          </h2>
-        </div>
-        <div class="contact-grid reveal">
-          <div class="contact-text">
+            <h3>Fixing the Nginx 502 Bad Gateway</h3>
             <p>
-              Whether you're looking for an SRE to join your team, want to
-              discuss infrastructure challenges, or just want to talk shop about
-              reliability engineering — I'm always open to a good conversation.
+              <b>SYMPTOM</b>Upstream sent too big header during a production
+              login outage.
             </p>
-            <div class="contact-links">
-              <a
-                href="https://www.linkedin.com/in/francis-morkeh-mensah"
-                target="_blank"
-                class="contact-link"
-                ><div
-                  class="contact-link-icon icon-linkedin"
-                  aria-hidden="true"
-                >
-                  <svg viewBox="0 0 24 24" role="img" focusable="false">
-                    <path
-                      d="M20.447 20.452h-3.554V14.87c0-1.331-.027-3.045-1.855-3.045-1.856 0-2.14 1.449-2.14 2.948v5.679H9.345V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.369-1.85 3.601 0 4.267 2.369 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 11.003-4.124 2.062 2.062 0 01-.003 4.124zM7.119 20.452H3.555V9h3.564v11.452z"
-                    />
-                  </svg>
-                </div>
-                <div class="contact-link-text">
-                  <div class="contact-link-label">LinkedIn</div>
-                  <div class="contact-link-value">francis-morkeh-mensah</div>
-                </div>
-                <div class="contact-link-arrow">→</div></a
-              >
-              <a
-                href="https://github.com/Francismensah"
-                target="_blank"
-                class="contact-link"
-                ><div class="contact-link-icon icon-github" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" role="img" focusable="false">
-                    <path
-                      d="M12 .5C5.648.5.5 5.662.5 12.03c0 5.095 3.292 9.417 7.863 10.943.575.109.785-.25.785-.556 0-.275-.01-1.004-.015-1.97-3.2.698-3.876-1.548-3.876-1.548-.523-1.333-1.278-1.688-1.278-1.688-1.045-.716.079-.702.079-.702 1.155.082 1.763 1.19 1.763 1.19 1.026 1.763 2.693 1.254 3.35.959.104-.747.402-1.254.73-1.541-2.554-.291-5.238-1.279-5.238-5.695 0-1.258.448-2.286 1.184-3.092-.119-.292-.513-1.468.113-3.06 0 0 .965-.31 3.162 1.181a10.96 10.96 0 015.757 0c2.196-1.491 3.16-1.181 3.16-1.181.628 1.592.234 2.768.115 3.06.738.806 1.182 1.834 1.182 3.092 0 4.427-2.688 5.4-5.25 5.685.413.355.781 1.058.781 2.133 0 1.54-.014 2.782-.014 3.16 0 .308.207.67.79.555 4.567-1.529 7.855-5.85 7.855-10.942C23.5 5.662 18.352.5 12 .5z"
-                    />
-                  </svg>
-                </div>
-                <div class="contact-link-text">
-                  <div class="contact-link-label">GitHub</div>
-                  <div class="contact-link-value">Francismensah</div>
-                </div>
-                <div class="contact-link-arrow">→</div></a
-              >
-              <a href="blog/" class="contact-link"
-                ><div class="contact-link-icon icon-blog" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" role="img" focusable="false">
-                    <rect
-                      x="1.5"
-                      y="2"
-                      width="17"
-                      height="20"
-                      rx="2.4"
-                      fill="#b9b8de"
-                    />
-                    <rect
-                      x="1.5"
-                      y="2"
-                      width="17"
-                      height="3"
-                      rx="1.3"
-                      fill="#5e5f8d"
-                    />
-                    <circle cx="3.6" cy="3.5" r="0.55" fill="#d9daf6" />
-                    <circle cx="5.5" cy="3.5" r="0.55" fill="#d9daf6" />
-                    <circle cx="7.4" cy="3.5" r="0.55" fill="#d9daf6" />
-                    <rect
-                      x="3.1"
-                      y="6.1"
-                      width="12.8"
-                      height="5"
-                      rx="1.1"
-                      fill="#68b5ef"
-                    />
-                    <text
-                      x="9.5"
-                      y="9.6"
-                      text-anchor="middle"
-                      fill="#d8d9f7"
-                      font-size="3"
-                      font-family="Arial, sans-serif"
-                      font-weight="700"
-                    >
-                      BLOG
-                    </text>
-                    <rect
-                      x="3.4"
-                      y="12.3"
-                      width="4"
-                      height="5.6"
-                      rx="0.7"
-                      fill="#f4b443"
-                    />
-                    <rect
-                      x="8.4"
-                      y="12.4"
-                      width="7.1"
-                      height="0.8"
-                      rx="0.4"
-                      fill="#a9a8d8"
-                    />
-                    <rect
-                      x="8.4"
-                      y="14.2"
-                      width="6"
-                      height="0.8"
-                      rx="0.4"
-                      fill="#a9a8d8"
-                    />
-                    <rect
-                      x="8.4"
-                      y="16"
-                      width="5"
-                      height="0.8"
-                      rx="0.4"
-                      fill="#a9a8d8"
-                    />
-                    <path
-                      d="M15.5 18.6l3.8-5.6 1.5 1-3.8 5.6-1.5.5z"
-                      fill="#3dbf6a"
-                    />
-                    <path
-                      d="M19.3 13l1.2-1.8a.8.8 0 011.1-.2l.5.3a.8.8 0 01.2 1.1l-1.2 1.8-1.8-1.2z"
-                      fill="#2a2d4f"
-                    />
-                    <circle cx="18.7" cy="2.7" r="2.8" fill="#ec4f7a" />
-                    <circle cx="18.7" cy="2.7" r="1" fill="#f7a7bc" />
-                  </svg>
-                </div>
-                <div class="contact-link-text">
-                  <div class="contact-link-label">Blog</div>
-                  <div class="contact-link-value">infrabyfrancis.me/blog</div>
-                </div>
-                <div class="contact-link-arrow">→</div></a
-              >
-              <a
-                href="mailto:mensah.morkehfrancis@gmail.com"
-                class="contact-link"
-                ><div class="contact-link-icon icon-email" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" role="img" focusable="false">
-                    <rect
-                      x="1"
-                      y="3"
-                      width="22"
-                      height="18"
-                      rx="3"
-                      fill="#c7cdd3"
-                    />
-                    <path
-                      fill="#f44336"
-                      d="M1 7.3V18a3 3 0 003 3h1.7V9.4L12 14.1l6.3-4.7V21H20a3 3 0 003-3V7.3l-11 8.2L1 7.3z"
-                    />
-                    <path
-                      fill="#e3e7ea"
-                      d="M1 7a3 3 0 013-3h16a3 3 0 013 3l-11 8.2L1 7z"
-                    />
-                    <path
-                      fill="#f44336"
-                      d="M1 7l5.7 4.2L12 14.9l5.3-3.7L23 7v1.5l-11 8.2L1 8.5V7z"
-                    />
-                  </svg>
-                </div>
-                <div class="contact-link-text">
-                  <div class="contact-link-label">Email</div>
-                  <div class="contact-link-value">
-                    mensah.morkehfrancis@gmail.com
-                  </div>
-                </div>
-                <div class="contact-link-arrow">→</div></a
-              >
+            <p>
+              <b>FIX</b>Adjusted proxy buffer configuration across affected
+              services.
+            </p></a
+          >
+          <a
+            class="card post rv"
+            href="blog/cloudflare-522-ec2-public-ip-change.html"
+            ><div class="hd">
+              <span>PM-02</span><span class="sev">SEV · EDGE</span>
+            </div>
+            <h3>Cloudflare 522 caused by an EC2 public IP change</h3>
+            <p>
+              <b>SYMPTOM</b>An instance restart changed the origin IP and broke
+              the edge connection.
+            </p>
+            <p><b>FIX</b>Moved the origin to a stable Elastic IP.</p></a
+          >
+          <a class="card post rv" href="blog/systemd-decommission-fix.html"
+            ><div class="hd">
+              <span>PM-03</span><span class="sev">SEV · SYSTEMD</span>
+            </div>
+            <h3>A decommissioned service ruined an Easter holiday</h3>
+            <p>
+              <b>SYMPTOM</b>An old service restarted after reboot, stole the
+              port, and crashed its replacement.
+            </p>
+            <p><b>FIX</b>Properly decommissioned the systemd unit.</p></a
+          >
+          <a
+            class="card post rv"
+            href="blog/the-reboot-that-took-us-down-systemd-production.html"
+            ><div class="hd">
+              <span>PM-04</span><span class="sev">SEV · LINUX</span>
+            </div>
+            <h3>The reboot that took us down</h3>
+            <p>
+              <b>SYMPTOM</b>Production services failed to return cleanly after a
+              server reboot.
+            </p>
+            <p>
+              <b>FIX</b>Hardened units, logs, timers, release flow, and
+              rollback.
+            </p></a
+          >
+          <a
+            class="card post rv"
+            href="blog/writing-postmortems-that-drive-real-change.html"
+            ><div class="hd">
+              <span>PM-05</span><span class="sev">SEV · CULTURE</span>
+            </div>
+            <h3>Writing postmortems that drive real change</h3>
+            <p>
+              <b>SYMPTOM</b>Blameless reviews that documented failure without
+              changing the system.
+            </p>
+            <p>
+              <b>FIX</b>Used timelines, root cause analysis, and action items
+              that actually ship.
+            </p></a
+          >
+          <a
+            class="card post rv"
+            href="blog/building-scalable-elastic-infrastructure-aws-cloudflare.html"
+            ><div class="hd">
+              <span>PM-06</span><span class="sev">SEV · SCALE</span>
+            </div>
+            <h3>Building scalable and elastic infrastructure</h3>
+            <p>
+              <b>SYMPTOM</b>Static infrastructure could not safely absorb
+              changing traffic.
+            </p>
+            <p>
+              <b>FIX</b>Used AMIs, launch templates, Auto Scaling, ALB, and
+              Cloudflare at the edge.
+            </p></a
+          >
+        </div>
+      </section>
+
+      <section id="stack">
+        <div class="k">// service catalog</div>
+        <h2>Stack</h2>
+        <div class="stack" style="margin-top: 20px">
+          <div class="card rv">
+            <h3>Cloud</h3>
+            <div class="chips">
+              <span>EC2</span><span>EKS</span><span>RDS</span
+              ><span>ElastiCache</span><span>Lambda</span><span>S3</span
+              ><span>IAM</span><span>ALB</span><span>ASG</span
+              ><span>CloudWatch</span><span>Azure App Service</span
+              ><span>Azure Functions</span><span>Azure Container Apps</span
+              ><span>Azure Storage</span><span>Azure Key Vault</span>
             </div>
           </div>
-          <div>
-            <div class="availability">
-              <div class="availability-status">
-                <div class="dot-pulse"></div>
-                Open to opportunities
-              </div>
-              <div class="availability-title">
-                Available for SRE & Platform Engineering roles
-              </div>
-              <div class="availability-text">
-                Based in Accra, Ghana. Open to remote-first roles globally. Open
-                to conversations about impactful SRE and platform engineering
-                opportunities.
-              </div>
+          <div class="card rv">
+            <h3>Platform & IaC</h3>
+            <div class="chips">
+              <span>Kubernetes</span><span>Terraform</span><span>Docker</span
+              ><span>Nginx</span><span>systemd</span><span>Cloudflare</span
+              ><span>Azure DevOps</span>
             </div>
           </div>
+          <div class="card rv">
+            <h3>Observability</h3>
+            <div class="chips">
+              <span>OpenTelemetry</span><span>Datadog</span
+              ><span>Prometheus</span><span>Grafana</span
+              ><span>OpenSearch</span>
+            </div>
+          </div>
+          <div class="card rv">
+            <h3>Data & runtime</h3>
+            <div class="chips">
+              <span>Redis</span><span>Elasticsearch</span><span>PostgreSQL</span
+              ><span>.NET / Kestrel</span><span>Bash</span><span>Python</span>
+            </div>
+          </div>
+        </div>
+        <h2 style="margin-top: 44px; font-size: 1.4rem">Attestations</h2>
+        <div class="certs" style="margin-top: 14px">
+          <div class="cert rv">
+            <div>AWS Solutions Architect – Associate</div>
+          </div>
+          <div class="cert rv"><div>AWS Developer – Associate</div></div>
+          <div class="cert rv"><div>AWS Cloud Practitioner</div></div>
+          <div class="cert rv"><div>KCNA</div></div>
+          <div class="cert rv"><div>Datadog Observability</div></div>
+          <div class="cert rv"><div>Google IT Automation with Python</div></div>
+          <div class="cert rv"><div>Google IT Support</div></div>
+          <div class="cert wip rv">
+            <div>Azure AZ-104<small>in progress</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="writing">
+        <div class="k">// writing</div>
+        <h2>InfraByFrancis</h2>
+        <div class="inc" style="margin-top: 20px">
+          <!-- build:home-blog-previews -->
+          <a
+            href="blog/what-we-tag-and-why-otel-rollout.html"
+            class="card post rv"
+          >
+            <small>OpenTelemetry · Fintech · SRE</small>
+            <h3>
+              What We Tag and Why: Rolling Out Custom OpenTelemetry Attributes
+              Across a Microservices Fleet
+            </h3>
+            <p>
+              A practical guide to using service.visibility and isAsg as
+              OpenTelemetry resource attributes across public and private
+              fintech services.
+            </p>
+          </a>
+          <a
+            href="blog/practical-enterprise-storage-and-resilience-engineering.html"
+            class="card post rv"
+          >
+            <small>Storage · SRE</small>
+            <h3>
+              A practical guide to enterprise storage &amp; resilience
+              engineering
+            </h3>
+            <p>
+              Practical guidance on Linux storage, capacity planning, DR/BC,
+              monitoring, and AWS storage tradeoffs for resilient systems.
+            </p>
+          </a>
+          <a
+            href="blog/building-and-deploying-my-portfolio.html"
+            class="card post rv"
+          >
+            <small>AWS · DevOps · Deployment</small>
+            <h3>How I Finally Built and Deployed My Personal Portfolio</h3>
+            <p>
+              A personal, step-by-step walkthrough of shipping my portfolio with
+              AWS EC2, Nginx, Cloudflare DNS, and SSL via Certbot.
+            </p>
+          </a>
+          <a
+            href="blog/migrating-portfolio-ec2-cloudflare-workers.html"
+            class="card post rv"
+          >
+            <small>Cloudflare · Workers · Deployment</small>
+            <h3>
+              Migrating My Portfolio from EC2 to Cloudflare Workers (and the 126
+              MiB File That Almost Stopped Me)
+            </h3>
+            <p>
+              How I moved a static portfolio from EC2 and Nginx to Cloudflare
+              Workers, then fixed a failed deployment caused by a 126 MiB build
+              dependency.
+            </p>
+          </a>
+          <a
+            href="blog/cloudflare-522-ec2-public-ip-change.html"
+            class="card post rv"
+          >
+            <small>AWS · Terraform · Cloudflare</small>
+            <h3>Cloudflare 522 Caused by an EC2 Public IP Change</h3>
+            <p>
+              How an instance restart changed the public IP, broke the origin,
+              and was fixed by moving to a stable Elastic IP.
+            </p>
+          </a>
+          <a
+            href="blog/building-scalable-elastic-infrastructure-aws-cloudflare.html"
+            class="card post rv"
+          >
+            <small>AWS · Terraform · Cloudflare</small>
+            <h3>
+              Building Scalable and Elastic Infrastructure on AWS with
+              Cloudflare: From AMI to ALB
+            </h3>
+            <p>
+              A complete guide to designing immutable infrastructure using EC2
+              AMIs, Launch Templates, Auto Scaling, ALB, and Cloudflare as your
+              edge.
+            </p>
+          </a>
+          <!-- /build:home-blog-previews -->
+        </div>
+      </section>
+
+      <section class="cta" id="contact">
+        <div class="k">// on-call for opportunities</div>
+        <h2>Got a fleet that needs calming down?</h2>
+        <p class="sub" style="margin: 0 auto 22px">
+          Let's talk reliability, observability and cloud platforms.
+        </p>
+        <a
+          class="btn f"
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=mensah.morkehfrancis@gmail.com&su=Hello%20from%20infrabyfrancis.me"
+          target="_blank"
+          rel="noopener"
+          >Get in touch via InfraByFrancis</a
+        >
+        <div class="social-links" aria-label="Professional profiles">
+          <a
+            class="btn"
+            href="https://www.linkedin.com/in/francis-morkeh-mensah/"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><svg
+              class="social-icon social-icon--linkedin"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M6.5 8.5V21H2.8V8.5h3.7ZM4.7 3A2.2 2.2 0 1 1 4.7 7.4 2.2 2.2 0 0 1 4.7 3ZM9 8.5h3.5v1.7h.1c.5-1 1.8-2.1 3.8-2.1 4 0 4.7 2.6 4.7 6V21h-3.7v-6.1c0-1.5 0-3.4-2.1-3.4s-2.4 1.6-2.4 3.3V21H9V8.5Z"
+              /></svg
+            >LinkedIn</a
+          >
+          <a
+            class="btn"
+            href="https://github.com/Francismensah"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><svg
+              class="social-icon social-icon--github"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M12 2.5a9.7 9.7 0 0 0-3.1 18.9c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.7-1.3-2.2-.3-4.5-1.1-4.5-4.8 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.7 9.7 0 0 1 5.1 0c2-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.7-2.3 4.5-4.5 4.8.4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A9.7 9.7 0 0 0 12 2.5Z"
+              /></svg
+            >GitHub</a
+          >
         </div>
       </section>
     </main>
+    <footer>© 2026 InfraByFrancis · Reliability as a product.</footer>
 
-    <footer>
-      <div class="footer-copy">
-        © 2025 Francis Morkeh Mensah · infrabyfrancis.me
-      </div>
-      <div class="footer-tagline">
-        Built with intention. <span>Reliable by design.</span>
-      </div>
-    </footer>
-    <script src="./assets/site.js?v=1779622165" defer></script>
+    <script src="assets/site.js?v=20261026" defer></script>
   </body>
 </html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Francis Morkeh Mensah · Site Reliability Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d10;--panel:#12161b;--line:#222a33;--tx:#d7dde5;--mut:#8591a0;--ac:#ff7a1a;--ok:#3ddc84;--warn:#ffcc33;color-scheme:dark;
+--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;--sans:"Space Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f4f0;--panel:#fff;--line:#e0dbd2;--tx:#1b1f24;--mut:#667080;--ac:#d95d00;--ok:#16a34a;--warn:#b7791f;color-scheme:light}}
+:root[data-theme="dark"]{--bg:#0b0d10;--panel:#12161b;--line:#222a33;--tx:#d7dde5;--mut:#8591a0;--ac:#ff7a1a}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 60px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 var(--sans);
+background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 30% 0,transparent 0,var(--bg) 75%);pointer-events:none;z-index:0}
+main,header{position:relative;z-index:1}
+a{color:var(--ac);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:18px;align-items:center;height:52px;font:13px var(--mono);overflow-x:auto;white-space:nowrap}
+nav b{color:var(--ac);margin-right:auto;font-weight:600}nav a{color:var(--mut)}nav a:hover{color:var(--tx);text-decoration:none}
+.hero{padding:72px 0 48px;display:grid;gap:32px;grid-template-columns:1.1fr .9fr;align-items:center}
+@media(max-width:820px){.hero{grid-template-columns:1fr;padding-top:40px}}
+.tag{font:12px var(--mono);color:var(--ok);display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--panel);padding:4px 10px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+h1{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.05;margin:18px 0 12px;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--ac)}
+.lead{color:var(--mut);max-width:52ch;font-size:1.05rem}
+.btns{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{font:13px var(--mono);padding:10px 16px;border:1px solid var(--ac);border-radius:6px;color:var(--ac)}
+.btn.f{background:var(--ac);color:var(--bg);font-weight:600}.btn:hover{text-decoration:none;filter:brightness(1.15)}
+.now{display:inline-flex;align-items:center;gap:12px;margin:16px 0 0;padding:8px 14px 8px 10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font:12px var(--mono);color:var(--mut)}
+.now .lg{height:46px;display:grid;place-items:center;padding:6px 10px;border-radius:8px;background:#fff;border:1px solid var(--line)}
+.now .lg img{height:34px;width:auto;display:block}
+.now b{display:block;color:var(--tx);font:600 14px var(--sans)}
+.term{background:var(--panel);border:1px solid var(--line);border-radius:10px;font:13px/1.7 var(--mono);box-shadow:0 20px 60px #0006}
+.term .bar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.term .bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.term .bar span{margin-left:auto;color:var(--mut);font-size:11px}
+.term pre{margin:0;padding:14px 16px;min-height:250px;white-space:pre-wrap;color:var(--tx)}
+.p{color:var(--ac)}.m{color:var(--mut)}.g{color:var(--ok)}.w{color:var(--warn)}
+.cur{display:inline-block;width:8px;height:15px;background:var(--ac);vertical-align:-2px;animation:bl 1s steps(1) infinite}@keyframes bl{50%{opacity:0}}
+section{padding:56px 0}
+.k{font:12px var(--mono);color:var(--ac);letter-spacing:.12em;text-transform:uppercase}
+h2{font-size:clamp(1.6rem,4vw,2.2rem);margin:6px 0 8px;letter-spacing:-.02em}
+.sub{color:var(--mut);max-width:62ch;margin:0 0 28px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.stat b{display:block;font:700 2.4rem var(--sans);color:var(--ac);line-height:1}.stat span{color:var(--mut);font-size:.9rem}
+.topo{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;overflow-x:auto}
+.topo svg{min-width:720px;width:100%;height:auto;display:block}
+.topo text{font:11px var(--mono);fill:var(--tx)}.topo .n{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.topo .hot{stroke:var(--ac)}.topo .l{stroke:var(--line);stroke-width:1.2;fill:none}.topo .pk{fill:var(--ac)}.topo .mt{fill:var(--mut)}
+.tl{border-left:2px solid var(--line);margin-left:6px;padding-left:24px;display:grid;gap:22px}
+.tl .it{position:relative}.tl .it::before{content:"";position:absolute;left:-31px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--ac)}
+.tl h3{margin:0;font-size:1.15rem}.tl .when{font:12px var(--mono);color:var(--mut)}.tl ul{margin:8px 0 0;padding-left:18px;color:var(--mut)}.tl li{margin:4px 0}
+.inc{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.inc .card{font-size:.93rem}.inc .hd{font:11px var(--mono);display:flex;justify-content:space-between;color:var(--mut);margin-bottom:8px}
+.sev{color:var(--warn)}.inc h3{margin:0 0 6px;font-size:1rem}.inc p{margin:4px 0;color:var(--mut)}.inc p b{color:var(--tx);font:600 11px var(--mono);margin-right:6px}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.stack h3{font:600 12px var(--mono);color:var(--ac);margin:0 0 10px;text-transform:uppercase;letter-spacing:.08em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips span{font:12px var(--mono);border:1px solid var(--line);padding:3px 8px;border-radius:4px;color:var(--tx)}
+.certs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cert{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:.92rem}
+.cert::before{content:"✓";font:700 14px var(--mono);color:var(--ok)}.cert.wip::before{content:"…";color:var(--warn)}.cert small{display:block;color:var(--mut);font:11px var(--mono)}
+.post{display:block;color:var(--tx);transition:border-color .2s,transform .2s}.post:hover{border-color:var(--ac);transform:translateY(-2px);text-decoration:none}
+.post small{font:11px var(--mono);color:var(--ac)}.post h3{margin:6px 0 4px;font-size:1.05rem}.post p{margin:0;color:var(--mut);font-size:.9rem}
+.cta{text-align:center;padding:64px 0 80px}.cta h2{font-size:clamp(1.8rem,5vw,2.8rem)}
+footer{border-top:1px solid var(--line);padding:22px 0;font:12px var(--mono);color:var(--mut);text-align:center;position:relative;z-index:1}
+.rv{opacity:0;transform:translateY(14px);transition:.6s}.rv.on{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.dot,.cur{animation:none}.pk{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><b>~/francis</b><a href="#topology">topology</a><a href="#history">deploys</a><a href="#incidents">incidents</a><a href="#stack">stack</a><a href="#writing">writing</a></div></nav>
+
+<main class="wrap">
+<header class="hero">
+  <div>
+    <span class="tag"><i class="dot"></i>all systems operational · Accra, GH</span>
+    <div class="now"><span>currently at</span><span class="lg"><img src="data:image/png;base64,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" alt="Hubtel logo"></span></div>
+    <h1>I keep the pager <em>quiet</em> and the fleet <em>fast</em>.</h1>
+    <p class="lead">Francis Morkeh Mensah — Site Reliability Engineer at Hubtel. I run production infrastructure for a microservices platform, turn noisy telemetry into signal, and write about what breaks.</p>
+    <div class="btns"><a class="btn f" href="#incidents">Read the postmortems</a><a class="btn" href="https://infrabyfrancis.me" target="_blank" rel="noopener">InfraByFrancis blog →</a></div>
+  </div>
+  <div class="term" aria-label="terminal">
+    <div class="bar"><i></i><i></i><i></i><span>sre@production</span></div>
+    <pre id="t"></pre>
+  </div>
+</header>
+
+<section style="padding-top:8px">
+  <div class="stats">
+    <div class="card stat rv"><b>80+</b><span>services moved to Datadog with OpenTelemetry, one place for metrics, logs and traces</span></div>
+    <div class="card stat rv"><b>−20%</b><span>alert noise after SLO and burn-rate alerting</span></div>
+    <div class="card stat rv"><b>3 yrs</b><span>on a production microservices fleet</span></div>
+    <div class="card stat rv"><b>AWS</b><span>Community Builder · Solutions Architect Associate</span></div>
+  </div>
+</section>
+
+<section id="topology">
+  <div class="k">// what I run</div>
+  <h2>Service request path</h2>
+  <p class="sub">A simplified view of a production platform: frontend clients reach APIs through one edge, with Kafka producers and consumers, background jobs, CDC, and durable workflows behind them. Orange dots are requests in flight.</p>
+  <div class="topo rv">
+  <svg viewBox="0 0 760 330" role="img" aria-label="Service topology diagram">
+    <path id="r1" class="l" d="M70 165H150"/><path id="r2" class="l" d="M230 165H300"/>
+    <path class="l" d="M380 150L450 60M380 160L450 120M380 170L450 180M380 180L450 240"/>
+    <path id="r3" class="l" d="M530 60H600M530 120H600M530 180H600M530 240H600"/>
+    <path class="l" d="M450 300L380 180" opacity=".5"/>
+    <g><rect class="n" x="10" y="145" width="60" height="40" rx="6"/><text x="22" y="170">users</text></g>
+    <g><rect class="n hot" x="150" y="145" width="80" height="40" rx="6"/><text x="160" y="170">Cloudflare</text></g>
+    <g><rect class="n hot" x="300" y="130" width="80" height="70" rx="6"/><text x="318" y="160">Nginx</text><text x="314" y="176" class="mt">ALB · ASG</text></g>
+    <g><rect class="n" x="450" y="40" width="80" height="40" rx="6"/><text x="462" y="65">API</text></g>
+    <g><rect class="n" x="450" y="100" width="80" height="40" rx="6"/><text x="456" y="125">Frontend</text></g>
+    <g><rect class="n" x="450" y="160" width="80" height="40" rx="6"/><text x="456" y="185">Kafka</text></g>
+    <g><rect class="n" x="450" y="220" width="80" height="40" rx="6"/><text x="452" y="245">Temporal</text></g>
+    <g><rect class="n" x="450" y="285" width="80" height="34" rx="6"/><text x="458" y="306">Kafka jobs</text></g>
+    <g><rect class="n" x="600" y="40" width="80" height="40" rx="6"/><text x="610" y="65">Postgres</text></g>
+    <g><rect class="n" x="600" y="100" width="80" height="40" rx="6"/><text x="618" y="125">Redis</text></g>
+    <g><rect class="n" x="600" y="160" width="100" height="40" rx="6"/><text x="606" y="185">OpenSearch</text></g>
+    <g><rect class="n" x="600" y="220" width="80" height="40" rx="6"/><text x="624" y="245">S3</text></g>
+    <rect x="10" y="10" width="740" height="22" rx="6" class="n hot" opacity=".7"/><text x="24" y="25" class="mt">OpenTelemetry → Datadog · metrics / logs / traces correlated across every service</text>
+    <circle class="pk" r="3"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath href="#r1"/></animateMotion></circle>
+    <circle class="pk" r="3"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite"><mpath href="#r1"/></animateMotion></circle>
+    <circle class="pk" r="3"><animateMotion dur="2.4s" begin=".6s" repeatCount="indefinite"><mpath href="#r2"/></animateMotion></circle>
+    <circle class="pk" r="3"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#r3"/></animateMotion></circle>
+  </svg>
+  </div>
+</section>
+
+<section id="history">
+  <div class="k">// deploy history</div>
+  <h2>Release notes for a career</h2>
+  <div class="tl" style="margin-top:24px">
+    <div class="it rv"><div class="when">now · ~3 years</div><h3>Site Reliability Engineer — Hubtel</h3>
+      <ul><li>Own production infrastructure and reliability for a production microservices fleet.</li>
+      <li>Moved 80+ services from New Relic and Graylog to Datadog; introduced OpenTelemetry to avoid vendor lock-in.</li>
+      <li>Built SLO and burn-rate alerting that cut alert noise by 20%.</li>
+      <li>Run Nginx and SSL, Azure DevOps release pipelines, Cloudflare WAF rules, ASG/ALB setups and EBS capacity planning.</li></ul></div>
+    <div class="it rv"><div class="when">before</div><h3>Platform Engineer — Rancard</h3>
+      <ul><li>Linux server operations: Bash automation for disk space management and log rotation across Kannel and Spring Boot workloads.</li></ul></div>
+    <div class="it rv"><div class="when">ongoing</div><h3>AWS Community Builder · Writer</h3>
+      <ul><li>Publishing SRE and infrastructure write-ups as InfraByFrancis.</li></ul></div>
+  </div>
+</section>
+
+<section id="incidents">
+  <div class="k">// postmortems</div>
+  <h2>Things that broke, and what fixed them</h2>
+  <p class="sub">Real classes of failure from a production fleet. The unglamorous ones teach the most.</p>
+  <div class="inc">
+    <div class="card rv"><div class="hd"><span>PM-01</span><span class="sev">SEV · DB</span></div><h3>Migration blocked on lock contention</h3><p><b>SYMPTOM</b>EF Core migration hung on a PostgreSQL ALTER TABLE.</p><p><b>FIX</b>Found the competing lock and sequenced the migration around it.</p></div>
+    <div class="card rv"><div class="hd"><span>PM-02</span><span class="sev">SEV · IAM</span></div><h3>Uploads failing on a missing S3 permission</h3><p><b>SYMPTOM</b>Inventory API errors on presigned uploads.</p><p><b>FIX</b>Closed the IAM gap, then added Cloudflare WAF bypass rules for the presigned endpoints.</p></div>
+    <div class="card rv"><div class="hd"><span>PM-03</span><span class="sev">SEV · APP</span></div><h3>Type mismatch took out an API endpoint</h3><p><b>SYMPTOM</b>Npgsql InvalidCastException in production.</p><p><b>FIX</b>Traced DateTimeOffset vs timestamp mismatch to the schema.</p></div>
+    <div class="card rv"><div class="hd"><span>PM-04</span><span class="sev">SEV · SEARCH</span></div><h3>Client and server disagreed on what "Elasticsearch" is</h3><p><b>SYMPTOM</b>UnsupportedProductException from the NEST client.</p><p><b>FIX</b>Identified the OpenSearch incompatibility and moved to a compatible client path.</p></div>
+    <div class="card rv"><div class="hd"><span>PM-05</span><span class="sev">SEV · SCALE</span></div><h3>ASG rollout hit a security group limit</h3><p><b>SYMPTOM</b>API scale-out blocked by a rule cap.</p><p><b>FIX</b>Restructured security group rules to fit within limits.</p></div>
+    <div class="card rv"><div class="hd"><span>PM-06</span><span class="sev">SEV · POOL</span></div><h3>Connection pool exhaustion in a consumer</h3><p><b>SYMPTOM</b>Npgsql pool at its 100 cap, 30s timeouts.</p><p><b>STATUS</b>Investigating the repository call path holding connections.</p></div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="k">// service catalog</div>
+  <h2>Stack</h2>
+  <div class="stack" style="margin-top:20px">
+    <div class="card rv"><h3>Cloud</h3><div class="chips"><span>EC2</span><span>EKS</span><span>RDS</span><span>ElastiCache</span><span>Lambda</span><span>S3</span><span>IAM</span><span>ALB</span><span>ASG</span><span>CloudWatch</span></div></div>
+    <div class="card rv"><h3>Platform & IaC</h3><div class="chips"><span>Kubernetes</span><span>Terraform</span><span>Docker</span><span>Nginx</span><span>systemd</span><span>Cloudflare</span><span>Azure DevOps</span></div></div>
+    <div class="card rv"><h3>Observability</h3><div class="chips"><span>OpenTelemetry</span><span>Datadog</span><span>Prometheus</span><span>Grafana</span><span>OpenSearch</span></div></div>
+    <div class="card rv"><h3>Data & runtime</h3><div class="chips"><span>Redis</span><span>Elasticsearch</span><span>PostgreSQL</span><span>.NET / Kestrel</span><span>Bash</span><span>Python</span></div></div>
+  </div>
+  <h2 style="margin-top:44px;font-size:1.4rem">Attestations</h2>
+  <div class="certs" style="margin-top:14px">
+    <div class="cert rv"><div>AWS Solutions Architect – Associate</div></div>
+    <div class="cert rv"><div>AWS Developer – Associate<small>DVA-C02 passed</small></div></div>
+    <div class="cert rv"><div>AWS Cloud Practitioner</div></div>
+    <div class="cert rv"><div>KCNA</div></div>
+    <div class="cert rv"><div>Datadog Observability</div></div>
+    <div class="cert rv"><div>Google IT Automation with Python</div></div>
+    <div class="cert rv"><div>Google IT Support</div></div>
+    <div class="cert wip rv"><div>Azure AZ-104<small>in progress</small></div></div>
+  </div>
+</section>
+
+<section id="writing">
+  <div class="k">// writing</div>
+  <h2>InfraByFrancis</h2>
+  <div class="inc" style="margin-top:20px">
+    <a class="card post rv" href="https://infrabyfrancis.me/blog/the-sre-trap-monitoring-noise-signal" target="_blank" rel="noopener"><small>SRE · OBSERVABILITY</small><h3>The SRE Trap: When Monitoring Creates More Noise Than Signal</h3><p>Why more alerts means less reliability, and what to do about it.</p></a>
+    <a class="card post rv" href="https://infrabyfrancis.me" target="_blank" rel="noopener"><small>SRE · SLO</small><h3>An SLO alerting framework</h3><p>Burn-rate alerts that page for what matters.</p></a>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="k">// on-call for opportunities</div>
+  <h2>Got a fleet that needs calming down?</h2>
+  <p class="sub" style="margin:0 auto 22px">Let's talk reliability, observability and cloud platforms.</p>
+  <a class="btn f" href="https://infrabyfrancis.me" target="_blank" rel="noopener">Get in touch via InfraByFrancis</a>
+</section>
+</main>
+<footer>© 2026 Francis Morkeh Mensah · built with care, deployed without drama</footer>
+
+<script>
+(function(){
+var el=document.getElementById("t");
+var lines=[
+['$ whoami','p'],['francis · sre · accra','g'],['$ kubectl get slo --burn-rate','p'],['checkout-api    ok   0.4x','m'],['riders-api      ok   0.7x','m'],['retailer-api    ok   0.3x','m'],['$ alerts --noise','p'],['↓ 20% after SLO rework','w'],['$ ']
+];
+var i=0,out="";
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function render(){el.innerHTML=out+'<span class="cur"></span>'}
+function next(){
+ if(i>=lines.length){render();return}
+ var l=lines[i],txt=l[0],c=l[1],j=0;
+ (function type(){
+  if(j<=txt.length){
+   var cur=esc(txt.slice(0,j));
+   el.innerHTML=out+'<span class="'+c+'">'+cur+'</span><span class="cur"></span>';
+   j++;setTimeout(type,c==='p'?45:8)
+  }else{out+='<span class="'+c+'">'+esc(txt)+'</span>'+(i<lines.length-1?'\n':'');i++;setTimeout(next,c==='p'?260:90)}
+ })()
+}
+if(matchMedia("(prefers-reduced-motion:reduce)").matches){lines.forEach(function(l,k){out+='<span class="'+l[1]+'">'+esc(l[0])+'</span>'+(k<lines.length-1?'\n':'')});render()}else next();
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("on");io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll(".rv").forEach(function(n){io.observe(n)});
+})();
+</script>
+</body>
+</html>

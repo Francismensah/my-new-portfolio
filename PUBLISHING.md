@@ -38,12 +38,14 @@ Blog listings are generated from **`articles.json`**. Shared styles and scripts 
 
 | Task | File |
 |------|------|
-| Colors / fonts | `assets/tokens.css` |
-| Nav, footer, buttons, cursor | `assets/base.css` |
+| Colors / fonts / spacing | `assets/tokens.css` |
+| Nav, footer, buttons, cards | `assets/base.css` |
 | Homepage sections | `assets/home.css` |
 | Blog index | `assets/blog.css` |
 | Article layout & components | `assets/article.css` |
-| Theme, cursor, filters, reveal | `assets/site.js` |
+| Filters, reveal, homepage terminal | `assets/site.js` |
+
+Theme follows the OS preference (dark first); there is no toggle.
 
 ## Markdown drafts
 

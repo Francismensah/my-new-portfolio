@@ -75,14 +75,10 @@ function renderArticleCard(a, { comingSoon = false } = {}) {
 
 function renderHomePreview(a) {
   const href = a.href.startsWith("blog/") ? a.href : `blog/${a.href}`;
-  return `        <a href="${esc(href)}" class="blog-preview-card">
-          <div class="blog-card-tag">${esc(a.homeTag || a.tag)}</div>
-          <div class="blog-card-title">${esc(a.title)}</div>
-          <div class="blog-card-excerpt">${esc(a.excerpt)}</div>
-          <div class="blog-card-meta">
-            <span>${esc(a.year)}</span><span>·</span><span>${esc(a.readMinutes)} read</span>
-          </div>
-          <div class="blog-card-read">Read Article →</div>
+  return `        <a href="${esc(href)}" class="card post rv">
+          <small>${esc(a.homeTag || a.tag)}</small>
+          <h3>${esc(a.title)}</h3>
+          <p>${esc(a.excerpt)}</p>
         </a>`;
 }
 
@@ -120,6 +116,7 @@ const gridHtml = [
 ].join("\n");
 const homeHtml = data.published
   .filter((a) => a.homePreview)
+  .slice(0, 6)
   .map(renderHomePreview)
   .join("\n");
 

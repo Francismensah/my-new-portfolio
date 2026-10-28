@@ -7,28 +7,93 @@ This is a **static personal portfolio and engineering blog** built with HTML, CS
 ```bash
 npm run build        # Regenerate blog listings from articles.json
 npm run start        # Local preview at http://localhost:8080
-npm run build:css    # Re-extract CSS (legacy; edit assets/*.css directly instead)
-npm run build:all    # Both build:css and build
+npm run build:all    # Alias for build
 ```
 
 ## Project Structure
 
 ```
 assets/              Shared CSS (tokens, base, home, blog, article) + site.js
+assets/icons/        Vendored AWS Architecture Icons + brand SVGs for the service architecture diagram
+assets/favicon.svg   Browser tab icon (dark tile + orange `>_` prompt); PNGs are
+                     raster fallbacks — regenerate with sharp, see Design System
 blog/
-  index.html         Auto-generated blog index (filters, featured, listings)
+  index.html         Blog index (filters, featured, listings; markers filled by build)
   *.html             Published article pages
   *.md               Optional markdown drafts (coexist with .html)
 articles.json        Blog manifest: filters, featured article, all published posts
+design/              Reference designs incl. the service architecture source (not published)
 images/              Article images
-index.html           Homepage (includes featured block + blog preview cards)
+index.html           Homepage (single-page SRE site; includes blog preview cards)
 scripts/
   build.mjs          Generates blog/index.html + index.html listings from articles.json
-  generate-css.mjs   Legacy: extracts CSS (use direct editing instead)
+  generate-css.mjs   Legacy extractor, unused (CSS is edited directly)
   fix-article-heads.mjs  Patches article header structure
   patch-html.mjs     General HTML patching utilities
   relocate-blog.mjs  Helpers for moving articles
 ```
+
+## Design System
+
+Single dark-first design system (orange accent, JetBrains Mono + Space Grotesk).
+The nav theme toggle switches light/dark, persists the choice in `localStorage`
+(`theme`), and falls back to the OS preference when unset. Every page runs a
+small inline script before its stylesheets so the stored theme applies without
+a flash. A page can still force a theme with `<html data-theme="light">` or
+`<html data-theme="dark">`.
+
+- `assets/tokens.css` — Palette, fonts, spacing, legacy token aliases
+- `assets/base.css` — Reset, grid background, nav, footer, buttons, cards, reveal
+- `assets/home.css` — Homepage hero, terminal, stats, interactive architecture, timeline, cards
+- `assets/blog.css` — Blog index header, filters, featured block, article grid
+- `assets/article.css` — Article hero, prose, code, callouts, diagrams, author card
+- `assets/site.js` — Scroll reveal, blog filters, homepage terminal typing, QC domain picker, theme toggle
+
+### Favicon
+
+`assets/favicon.svg` is the canonical icon (32×32 art: `#0b0d10` tile, `#ff7a1a`
+chevron, light underscore — the `~/francis` terminal prompt). Every page links
+the SVG plus PNG fallbacks for browsers without SVG favicon support:
+
+```html
+<link rel="icon" href="assets/favicon.svg?v=…" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon-32.png?v=…" sizes="32x32" type="image/png" />
+<link rel="icon" href="assets/favicon-16.png?v=…" sizes="16x16" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=…" />
+<meta name="theme-color" content="#0b0d10" />
+```
+
+Blog pages use the `../assets/` prefix. If you edit the SVG, re-rasterise the
+PNGs and bump the `?v=` value:
+
+```bash
+npx sharp-cli -i assets/favicon.svg -o assets/favicon-32.png resize 32 32
+npx sharp-cli -i assets/favicon.svg -o assets/favicon-16.png resize 16 16
+npx sharp-cli -i assets/apple-touch-icon.svg -o assets/apple-touch-icon.png resize 180 180
+```
+
+Legacy token names (`--text`, `--accent`, `--border`, `--bg2`, …) are aliases in
+`tokens.css`, so article components keep working. Prefer the newer names
+(`--tx`, `--ac`, `--line`, `--panel`) in new CSS.
+
+### Page shell
+
+Every page uses the same shell:
+
+```html
+<nav>
+  <div class="wrap">
+    <b>~/francis</b>
+    <a href="…">topology</a> … <a href="…" class="active">writing</a>
+  </div>
+</nav>
+<main class="wrap">…</main>
+<footer>© 2026 Francis Morkeh Mensah · built with care, deployed without drama</footer>
+<script src="…/assets/site.js" defer></script>
+```
+
+Blog pages link `../assets/tokens.css`, `base.css`, then `blog.css` or
+`article.css`, all with the same `?v=` cache-busting value.
 
 ## Publishing an Article
 
@@ -57,17 +122,6 @@ See [PUBLISHING.md](./PUBLISHING.md) for complete workflow. Quick summary:
   - `homePreview` (optional): Show this article on homepage blog grid
   - Articles must have a matching `.html` file in `blog/`
 
-### Design System
-
-Edit colors/fonts/themes in:
-
-- `assets/tokens.css` — Design tokens (colors, fonts, spacing)
-- `assets/base.css` — Nav, footer, buttons, cursor
-- `assets/home.css` — Homepage sections
-- `assets/blog.css` — Blog index page
-- `assets/article.css` — Article layout & components
-- `assets/site.js` — Theme toggles, filters, reveal animations
-
 ### Slugs and URLs
 
 - Article slug = filename without `.html` (e.g. `nginx-502-fix.html` → `nginx-502-fix`)
@@ -81,7 +135,7 @@ Edit colors/fonts/themes in:
 | -------------------- | ---------------------------------------------------------------------- | --------------------------- |
 | Add new article      | Create `blog/slug.html`, update `articles.json`                        | `npm run build`             |
 | Feature an article   | Update `articles.json` `featured` object                               | `npm run build`             |
-| Change colors/fonts  | `assets/tokens.css`                                                    | Just save (CSS is embedded) |
+| Change colors/fonts  | `assets/tokens.css`                                                    | Save + bump `?v=`           |
 | Add homepage preview | Add `homePreview: true` to article in `articles.json`                  | `npm run build`             |
 | Update blog filters  | Edit `filters` array in `articles.json` (and article `filters` fields) | `npm run build`             |
 | Local testing        | `npm run start` then visit `http://localhost:8080`                     | —                           |

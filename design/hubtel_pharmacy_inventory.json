@@ -1,0 +1,1079 @@
+[
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "694c37b02c174b6282d0b658fc2b9447",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "694c37b02c174b6282d0b658fc2b9447",
+          "createdAt" : "2023-06-16 13:19:10.073243",
+          "updatedAt" : "2024-04-25 21:51:42.732606",
+          "pharmacyId" : "9e2ec26c9dd04b848967c98073f47047",
+          "name" : "Medication 8",
+          "categoryId" : "5d9138c6e3714cf3b7670313eba7145d",
+          "notes" : null,
+          "description" : null,
+          "image" : null,
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 4.0,
+          "displayPrice" : 4.0,
+          "isAvailable" : false,
+          "createdBy" : "Miracle  Lartey",
+          "updatedBy" : "System",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 0,
+          "deliveryFee" : 0.0,
+          "station" : null,
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : null,
+          "searchTerms" : null,
+          "shortName" : "Medication",
+          "attributes" : [ ],
+          "hasVariety" : false,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : null,
+          "averageRatingDescription" : "",
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : null,
+          "city" : null,
+          "isHidden" : false,
+          "pharmacyImage" : null,
+          "pharmacyName" : null,
+          "stations" : [ ],
+          "zone" : null,
+          "pharmacySearchTerms" : [ ],
+          "isDeleted" : true,
+          "rawImageUrl" : null,
+          "stationId" : null,
+          "stationsIds" : [ ],
+          "zoneId" : null,
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : null,
+          "displayTimes" : null
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "9a43cab038274d2b9731d16e47667595",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "9a43cab038274d2b9731d16e47667595",
+          "createdAt" : "2025-07-28 07:17:13.786464",
+          "updatedAt" : "2025-07-28 23:32:45.94773",
+          "pharmacyId" : "ca519cafd2fc42f58b242ede9530b65c",
+          "name" : "eye test drug",
+          "categoryId" : "a6ee786322c344558961eaaf62cfab02",
+          "notes" : null,
+          "description" : "<p>QA automation drug TEST</p>",
+          "image" : "ecommerce_images/81b765f4ea1645d8ab9aa1e3744e6805.jpg",
+          "oldSellingPrice" : 7.0,
+          "supplierPrice" : 9.0,
+          "displayPrice" : 10.0,
+          "isAvailable" : true,
+          "createdBy" : "kwadwo.yeboah@hubtel.com",
+          "updatedBy" : null,
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 0,
+          "deliveryFee" : 1.0,
+          "station" : "Hubtel Test Station",
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : "eye",
+          "searchTerms" : null,
+          "shortName" : "eye",
+          "attributes" : [
+            {
+              "id" : "265e6ecc2a6b49a0b0011329c5a0f2c4",
+              "Name" : "Volume",
+              "Value" : 1000
+            }
+          ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "Volume:1000",
+          "averageRatingDescription" : null,
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : null,
+          "city" : "Accra",
+          "isHidden" : false,
+          "pharmacyImage" : null,
+          "pharmacyName" : "BigTest Pharmacy",
+          "stations" : [
+            "Hubtel Test Station"
+          ],
+          "zone" : "Hubtel Test Zone - Kubekrom",
+          "pharmacySearchTerms" : [ ],
+          "isDeleted" : true,
+          "rawImageUrl" : "ecommerce_images/81b765f4ea1645d8ab9aa1e3744e6805.jpg",
+          "stationId" : "32f0c6e7-8c2e-456f-9071-593aa2e901f7",
+          "stationsIds" : [
+            "32f0c6e7-8c2e-456f-9071-593aa2e901f7"
+          ],
+          "zoneId" : "d8c4d104-c674-4af7-acf4-327a985d7c12",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : "QA drugs test",
+          "displayTimes" : [
+            {
+              "id" : "cbd4571950b145849846b83106a84f74",
+              "day" : "Sunday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "8d54ee3f1e62460cb1db24a7c4edfb95",
+              "day" : "Monday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "4ffc4db2f39341c49aa83e567b97d565",
+              "day" : "Tuesday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "6b893b7b8f8b475db1cd9897282080e0",
+              "day" : "Wednesday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "bee63619c5d240fe87b53d51cc7281ad",
+              "day" : "Thursday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "276102b063234fb6be6fce94a309a48c",
+              "day" : "Friday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "6725ad21f432479fa7f1147ec3fb6947",
+              "day" : "Saturday",
+              "time" : [
+                {
+                  "to" : "5:00 PM",
+                  "from" : "11:00 AM"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "a78f349b603049cf8bebf7de08debb30",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "a78f349b603049cf8bebf7de08debb30",
+          "createdAt" : "2023-04-14 11:30:52.539176",
+          "updatedAt" : "2024-12-05 16:31:33.089779",
+          "pharmacyId" : "6a1936552b1d45a4a12f72905f5bd8b5",
+          "name" : "Leena Syrup 200ml",
+          "categoryId" : "4bc8143ff5344a5d85c1aab4592bf55d",
+          "notes" : null,
+          "description" : """<p>Leena Syrup is an appetizer syrup with vitamins. It can be taken before meals or a main course of meals to stimulate one's appetite for food.</p>
+<p><strong>Warning:</strong> Overdose of this product particularly in Infants and young children can produce hallucinations, central nervous system depression, convulsion, respiratory and cardiac arrest and even death. It can cause dizziness, sedation and hypotension in elderly patients.</p>
+<p><strong>Dosage:</strong></p>
+<p>Children:</p>
+<ul>
+<li>2-6 years should take 5ml of the Syrup 2 times daily before meals.</li>
+<li>7-14 years: 10ml of the Syrup should be taken 2-3 times daily before meals</li>
+</ul>
+<p>Adults: 10ml of the Syrup should be taken daily before meals.</p>
+<p><strong>Ingredients:</strong> Cyproheptadine Hydrochloride BP 2mg, L-lysine Hydrochloride USP 150mg, Proteolysed Liver extract BP 25mg</p>
+<p>&nbsp;</p>""",
+          "image" : "images/4ddd52c446834a0a84cac689f7bc005b.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 20.0,
+          "displayPrice" : 23.0,
+          "isAvailable" : true,
+          "createdBy" : "Francisca  Afia Pomaa Frimpong",
+          "updatedBy" : "Lewis Adjei",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 1,
+          "deliveryFee" : 7.95,
+          "station" : "SANTASI ROUNDABOUT",
+          "priceWithDeliveryFee" : 30.95,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Blood Tonic,Blood Syrup,Weight Gain,Appetite Syrup,Appetite Stimulant,Leena,Appetite Syrup,Apetamin,Leena Syrup,Apepetizer Syrup,Supplements,Vitamins",
+          "searchTerms" : null,
+          "shortName" : "Leena Syrup",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : "",
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : "",
+          "address" : "20 Minutes Away",
+          "city" : "Kumasi",
+          "isHidden" : false,
+          "pharmacyImage" : "https://hubtel.com/wp-content/uploads/2022/10/Asake-Joha.jpg",
+          "pharmacyName" : "Glitz Pharmacy",
+          "stations" : [
+            "SANTASI ROUNDABOUT"
+          ],
+          "zone" : "Santasi - Atonsu",
+          "pharmacySearchTerms" : [
+            "PregnaCare Plus Capsules",
+            "Perfectil Original Capsules",
+            "Wellwoman Tablet",
+            "Eyecopen Tablet",
+            "Livopat Tablet",
+            "Proman Tablet",
+            "Ronivit Multivitamin Drop",
+            "Calcium Biz Syrup",
+            "Kinderplex Syrup",
+            "Letaplex B Syrup",
+            "Ascorbin Syrup",
+            "Kidics Syrup",
+            "Vin -C Plus 100ml",
+            "Zincovit Drop 15ml",
+            "Well Kid Syrup 150ml",
+            "Virol Syrup 200ml",
+            "Aminotop Syrup 200ml",
+            "Feroglobin Capsules",
+            "Foligrow Capsules",
+            "Zincovit Tablet",
+            "Major Nasal Drop 18ml",
+            "Zincofer Capsules",
+            "Minamino Syrup 200ml",
+            "Zincofer Syrup 200ml",
+            "Polyfer Syrup 50ml",
+            "Dynewell Syrup 200ml",
+            "Vigorix Syrup 200ml",
+            "Pregnancy Test Casette",
+            "Vikil 20",
+            "Taabea Tacum",
+            "Sibiwomen",
+            "Otwea Herbal",
+            "Cotton Wool 200g",
+            "Dragon Spray",
+            "Blokof Child 100ml",
+            "Pain",
+            "Condom",
+            "Leg Pain",
+            "Syrup",
+            "Tablet",
+            "Pill"
+          ],
+          "isDeleted" : true,
+          "rawImageUrl" : null,
+          "stationId" : "fe93fc24-3a34-412c-aa2b-12581e411337",
+          "stationsIds" : [
+            "fe93fc24-3a34-412c-aa2b-12581e411337"
+          ],
+          "zoneId" : "a2a59cc6-6494-45f2-a33c-af1783b9b5eb",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : null,
+          "displayTimes" : null
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "2864026354084057bc8d31b875f106ee",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "2864026354084057bc8d31b875f106ee",
+          "createdAt" : "2025-05-09 21:14:41.289341",
+          "updatedAt" : "2025-05-12 07:55:16.72976",
+          "pharmacyId" : "e1a044e86b384edbb859b126b0b19729",
+          "name" : "Fiesta Strawberry Condoms (3 Pieces)",
+          "categoryId" : "cbb434e1a8194df790c68742c5e818ea",
+          "notes" : null,
+          "description" : """<p>Fiesta Strawberry Condoms are 100% electronically tested and manufactured to meet the highest International Quality Standards (ISO 4074 and EN ISO 4074) to provide the ultimate protection and pleasure.Yes, it can be sweet when you find the right flavour. Fiesta Strawberry Condoms are strawberry-scented condoms made to add a sweet smell to your sexual experience. &nbsp;</p><p>
+</p><p style="color: #252525;"><strong>Caution:</strong></p><p>
+</p><p><br></p>""",
+          "image" : "images/36f894e4898f4770a983f513c2ab16dd.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 16.0,
+          "displayPrice" : 19.0,
+          "isAvailable" : true,
+          "createdBy" : "frank.gyamfi@hubtel.com",
+          "updatedBy" : "",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 3,
+          "deliveryFee" : 8.05,
+          "station" : "Hubtel Test Station",
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Fiesta,Strawberry,Condoms,Sex",
+          "searchTerms" : null,
+          "shortName" : "Fiesta Strawberry Condoms",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : null,
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : null,
+          "city" : "Accra",
+          "isHidden" : false,
+          "pharmacyImage" : null,
+          "pharmacyName" : "Panacea Pharmacy",
+          "stations" : [
+            "Hubtel Test Station"
+          ],
+          "zone" : "Hubtel Test Zone - Kubekrom",
+          "pharmacySearchTerms" : [ ],
+          "isDeleted" : true,
+          "rawImageUrl" : "images/36f894e4898f4770a983f513c2ab16dd.jpg",
+          "stationId" : "32f0c6e7-8c2e-456f-9071-593aa2e901f7",
+          "stationsIds" : [
+            "32f0c6e7-8c2e-456f-9071-593aa2e901f7"
+          ],
+          "zoneId" : "d8c4d104-c674-4af7-acf4-327a985d7c12",
+          "outOfStock" : false,
+          "isOriginalImage" : true,
+          "summaryDescription" : "Fiesta Strawberry Condoms: Flavored pleasure, 3 pieces, strawberry scent, smooth & reliable",
+          "displayTimes" : [
+            {
+              "id" : "ba42a7320ee84d2bb98ccad69d642304",
+              "day" : "Monday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "8af289b7fa7544cc9f05151f0933ad1a",
+              "day" : "Tuesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "2d8b670c9e8745a8861c85e4cf0512e8",
+              "day" : "Wednesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "3844b1c29857449eb75453c4d89bcf5c",
+              "day" : "Thursday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "2b4066cf450d49d6a190179be0cd3bc9",
+              "day" : "Friday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "e5e4270406344fd58b54a68264d54b83",
+              "day" : "Saturday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "682d0989ed0d40fb9693c00ca385721d",
+              "day" : "Sunday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "08:00 AM"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "f608a1f4d2254f76a396a8be1cac0dd1",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "f608a1f4d2254f76a396a8be1cac0dd1",
+          "createdAt" : "2023-06-15 08:48:57.04369",
+          "updatedAt" : "2024-04-25 21:51:42.732606",
+          "pharmacyId" : "ada8338268c94761be853f9008b01d4f",
+          "name" : "Kiss Condom",
+          "categoryId" : "4caea9b385df4f55a82d82ed01ea3401",
+          "notes" : null,
+          "description" : "<p>Test</p>",
+          "image" : null,
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 1.0,
+          "displayPrice" : 1.0,
+          "isAvailable" : false,
+          "createdBy" : "Miracle  Lartey",
+          "updatedBy" : "System",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 0,
+          "deliveryFee" : 0.0,
+          "station" : null,
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Condoms,Condom,Kondom,Rubber,Latex Rubber,Latex Condom,Kndom,Kondoms",
+          "searchTerms" : null,
+          "shortName" : "Kiss Condom",
+          "attributes" : [ ],
+          "hasVariety" : false,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : null,
+          "averageRatingDescription" : "",
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : null,
+          "city" : null,
+          "isHidden" : false,
+          "pharmacyImage" : null,
+          "pharmacyName" : null,
+          "stations" : [ ],
+          "zone" : null,
+          "pharmacySearchTerms" : [ ],
+          "isDeleted" : true,
+          "rawImageUrl" : null,
+          "stationId" : null,
+          "stationsIds" : [ ],
+          "zoneId" : null,
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : null,
+          "displayTimes" : null
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "c3c98378d1c547369e6824a988be390b",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "c3c98378d1c547369e6824a988be390b",
+          "createdAt" : "2025-04-17 17:08:43.610964",
+          "updatedAt" : "2025-04-18 11:28:47.70295",
+          "pharmacyId" : "e3a04cd97d8c4887977cd0d7f6061eb6",
+          "name" : "Kamaclox Mouthwash 300ml",
+          "categoryId" : "7410b367080b4eb0ad82a3661205836e",
+          "notes" : null,
+          "description" : """<p>Kamaclox Mouthwash contains chlorhexidine gluconate and peppermint. Kamaclox is a germicidal mouthwash that reduces bacteria in the mouth.</p><p>
+</p><p>It is used to treat gingivitis (swelling, redness, and bleeding gums).</p>""",
+          "image" : "ecommerce_images/3f543483d7bf4e08bdb1fadc2c1da1c0.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 26.0,
+          "displayPrice" : 33.0,
+          "isAvailable" : true,
+          "createdBy" : "nurudeen.mohammed@hubtel.com",
+          "updatedBy" : "",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 9,
+          "deliveryFee" : 7.95,
+          "station" : "PATASI",
+          "priceWithDeliveryFee" : 32.95,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Mouthwash,Mint Mouthwash,Peppermint Mouthwash,Mouth Rinse,Mint Oral Rinse,Mouthwash,Dental Care,Cavity Protection,Teeth Protection",
+          "searchTerms" : null,
+          "shortName" : "Kamaclox Mouthwash",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : null,
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : "",
+          "address" : "Asokwa",
+          "city" : "Kumasi",
+          "isHidden" : true,
+          "pharmacyImage" : "https://d3hxftityr9pmy.cloudfront.net/720x720/ecommerce_images/7c044bc7b24748938679673fb937847f.jpg",
+          "pharmacyName" : "Panacea Pharmacy",
+          "stations" : [
+            "PATASI",
+            "AHINSAN"
+          ],
+          "zone" : "Santasi - Atonsu",
+          "pharmacySearchTerms" : [
+            "Panacea",
+            "Panacea Pharmacy",
+            "Panacea Shop",
+            "Pharmacy Shop",
+            "Pharm Shop",
+            "Pharm",
+            "Panasea Pharmacy",
+            "Gel",
+            "Diclofenac Gel",
+            "Pain Killer",
+            "Condom",
+            "Sex",
+            "Pleasure",
+            "Cream",
+            "Ointment"
+          ],
+          "isDeleted" : true,
+          "rawImageUrl" : "ecommerce_images/3f543483d7bf4e08bdb1fadc2c1da1c0.jpg",
+          "stationId" : "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+          "stationsIds" : [
+            "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+            "47540336-f2d3-4175-a8ae-1284ee59e6c2"
+          ],
+          "zoneId" : "a2a59cc6-6494-45f2-a33c-af1783b9b5eb",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : "Kamaclox Kamaclox Mouthwash: Provides Antimicrobial Protection and Fresh Breath, Medicated Formula.",
+          "displayTimes" : [
+            {
+              "id" : "ab61ee861729401ca1cc0e558e4fdf0a",
+              "day" : "Monday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "e41e142ac2f64f3fad97ca85e5d74206",
+              "day" : "Tuesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "a3e10ee06c7e45d1bb45cc76a8b9d0a1",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "a3e10ee06c7e45d1bb45cc76a8b9d0a1",
+          "createdAt" : "2023-06-15 11:29:33.779058",
+          "updatedAt" : "2024-04-25 21:51:42.732606",
+          "pharmacyId" : "ffc8586424bf41f7bc608c5d1472694a",
+          "name" : "Imax Spray",
+          "categoryId" : "ccc91605675d45c889bef31aaf68b079",
+          "notes" : null,
+          "description" : "<p>Test</p>",
+          "image" : null,
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 5.0,
+          "displayPrice" : 5.0,
+          "isAvailable" : false,
+          "createdBy" : "Miracle  Lartey",
+          "updatedBy" : "System",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 0,
+          "deliveryFee" : 0.0,
+          "station" : null,
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : null,
+          "searchTerms" : null,
+          "shortName" : "Imax Spray",
+          "attributes" : [ ],
+          "hasVariety" : false,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : null,
+          "averageRatingDescription" : "",
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : null,
+          "city" : null,
+          "isHidden" : false,
+          "pharmacyImage" : null,
+          "pharmacyName" : null,
+          "stations" : [ ],
+          "zone" : null,
+          "pharmacySearchTerms" : [ ],
+          "isDeleted" : true,
+          "rawImageUrl" : null,
+          "stationId" : null,
+          "stationsIds" : [ ],
+          "zoneId" : null,
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : null,
+          "displayTimes" : null
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "e1cb6dcf86b94db88a2f6c4fa1744abe",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "e1cb6dcf86b94db88a2f6c4fa1744abe",
+          "createdAt" : "2024-05-24 18:15:57.64219",
+          "updatedAt" : "2025-05-15 16:29:30.681033",
+          "pharmacyId" : "ff6c87d86d4d49149bcf6a0a2c7765a2",
+          "name" : "Madam Catherine Blood Tonic 330ml",
+          "categoryId" : "076c9ca4469b4020805b7ec50a002f30",
+          "notes" : null,
+          "description" : """<p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p><p>
+</p><p><br></p>""",
+          "image" : "ecommerce_images/f1f7271fc82448d2a2fd90e20f8c15f4.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 19.0,
+          "displayPrice" : 22.0,
+          "isAvailable" : true,
+          "createdBy" : "Clifford  Boateng",
+          "updatedBy" : "lewis.adjei@hubtel.com",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 3,
+          "deliveryFee" : 7.95,
+          "station" : "PATASI",
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Madam,Catherine,Blood,Tonic,Madam Catherine,Blood Tonic,Catherine Blood Tonic,Madam Catherine Blood Tonic,Herbs,Herba,Herbal,Herbal Tonic,Herbal Blood Tonic",
+          "searchTerms" : null,
+          "shortName" : "Madam Catherine Blood Tonic",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : null,
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : "Asokwa",
+          "city" : "Kumasi",
+          "isHidden" : false,
+          "pharmacyImage" : "https://d3hxftityr9pmy.cloudfront.net/720x720/ecommerce_images/7c044bc7b24748938679673fb937847f.jpg",
+          "pharmacyName" : "Panacea Pharmacy",
+          "stations" : [
+            "PATASI",
+            "AHINSAN"
+          ],
+          "zone" : "Santasi - Atonsu",
+          "pharmacySearchTerms" : [
+            "Panacea",
+            "Panacea Pharmacy",
+            "Panacea Shop",
+            "Pharmacy Shop",
+            "Pharm Shop",
+            "Pharm",
+            "Panasea Pharmacy",
+            "Gel",
+            "Diclofenac Gel",
+            "Pain Killer",
+            "Condom",
+            "Sex",
+            "Pleasure",
+            "Cream",
+            "Ointment"
+          ],
+          "isDeleted" : true,
+          "rawImageUrl" : "ecommerce_images/f1f7271fc82448d2a2fd90e20f8c15f4.jpg",
+          "stationId" : "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+          "stationsIds" : [
+            "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+            "47540336-f2d3-4175-a8ae-1284ee59e6c2"
+          ],
+          "zoneId" : "a2a59cc6-6494-45f2-a33c-af1783b9b5eb",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : "Madam Catherine Madam Catherine Blood Tonic: Helps Boost Energy and Improve Blood Circulation. 330ml",
+          "displayTimes" : [
+            {
+              "id" : "59cfbf2f901b4316adad540c74250373",
+              "day" : "Monday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "4b488f6b87784de0aa3bcbe1721994d1",
+              "day" : "Tuesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "b9338430a03340cd89b55aa920026459",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "b9338430a03340cd89b55aa920026459",
+          "createdAt" : "2025-04-17 17:08:43.610964",
+          "updatedAt" : "2025-04-18 11:28:53.23392",
+          "pharmacyId" : "e3a04cd97d8c4887977cd0d7f6061eb6",
+          "name" : "Vitabiotics Wellwoman Max Capsules (84 Capsules)",
+          "categoryId" : "a969ad23369e4e5b80826d55f19150bb",
+          "notes" : null,
+          "description" : """<div class="ewa-rteLine">
+<div id="s-549cecb5-a4f8-41ed-ae70-349b19413e4b" class="shg-c  ">
+<div class="shg-rich-text shg-theme-text-content">
+<div id="s-549cecb5-a4f8-41ed-ae70-349b19413e4b" class="shg-c  ">
+<div class="shg-rich-text shg-theme-text-content">
+<p>Wellwoman Max is the ultimate daily supplement for women. A comprehensive 3-in-1 multivitamin triple pack with all round support for key areas of health such as energy, immune system, hormone levels and bone health. Wellwoman is also the UK&rsquo;s No.1 women&rsquo;s supplement brand.</p>
+<p><strong>Benefits:</strong></p>
+<ul class="expandable__content__productlist">
+<li>Energy - with Vitamins B6 and B12 which contribute to normal energy release</li>
+<li>Immune system - with Vitamins C and D which contribute to normal immune system function</li>
+<li>Regulation of hormonal activity - provides Vitamin B6 which contributes to the regulation of hormonal activity</li>
+<li>Bone Health - contains Calcium and Vitamin D which contribute to the maintenance of normal bones</li>
+<li>Suitable for vegetarians</li>
+<li>No preservatives, yeast, lactose or gluten</li>
+<li>Wellwoman is not tested on animals</li>
+</ul>
+<p><strong>Ingredients:</strong></p>
+<p>Bulking agents: microcrystalline cellulose, starch (pregelatinised maize starch) &amp; potato starch, magnesium oxide, vitamin c (ascorbic acid), tablet coating (hydroxypropylmethylcellulose, polydextrose, talc, medium chain triglyceride, colours [iron oxides &amp; calcium carbonate]), l-carnitine tartrate, niacin (as nicotinamide), ferrous fumarate, zinc sulphate, l-methionine, n-acetyl cysteine, vitamin e (d alpha tocopheryl acid succinate) (from&nbsp;<strong>soya),</strong> anti-caking agents: magnesium stearate, stearic acid, silicon dioxide &amp; purified talc, polyvinylpolypyrrolidone, guarana extract, thiamin (vitamin b1 as mononitrate), citrus bioflavonoids, ethyl cellulose, vitamin b6 (pyridoxine hcl), betacarotene, pantothenic acid (as calcium salt), vitamin d3 (cholecalciferol), manganese sulphate, vitamin b12 (cyanocobalamin), riboflavin, green tea extract, copper sulphate, vitamin k1 (phytomenadione), coenzyme q10, folic acid (as pteroylmonoglutamic acid), chromium trichloride, sodium selenate, potassium iodide, biotin.</p>
+<p><strong>Dosage</strong>:&nbsp;</p>
+<ul>
+<li>1 max tablet (purple blister), plus 1 omega 3-6-9 capsule (green blister, plus one calcium tablet (blue blister), per day</li>
+<li>Swallow each with water or a cold drink and take with a main meal</li>
+</ul>
+<p><strong>Caution:&nbsp;</strong></p>
+<ul>
+<li>Not to be chewed</li>
+<li>Do not exceed the recommended intake</li>
+<li>To be taken on a full stomach</li>
+<li>This comprehensive formula replaces other Wellwoman supplements &amp; multivitamins. There is no need to take an additional multivitamin</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>""",
+          "image" : "ecommerce_images/219f606d22b14736b8bcd90949040294.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 410.0,
+          "displayPrice" : 420.0,
+          "isAvailable" : true,
+          "createdBy" : "nurudeen.mohammed@hubtel.com",
+          "updatedBy" : "",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 11,
+          "deliveryFee" : 7.95,
+          "station" : "PATASI",
+          "priceWithDeliveryFee" : 0.0,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Vitabiotics Wellwoman,Wellwoman,Wellwoman Max ,Supplements,Strong Bones,Vitamins,Multivitamins,Healthy,Zinc,Iron",
+          "searchTerms" : null,
+          "shortName" : "Vitabiotics Wellwoman Max Capsules",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : null,
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : null,
+          "address" : "Asokwa",
+          "city" : "Kumasi",
+          "isHidden" : true,
+          "pharmacyImage" : "https://d3hxftityr9pmy.cloudfront.net/720x720/ecommerce_images/7c044bc7b24748938679673fb937847f.jpg",
+          "pharmacyName" : "Panacea Pharmacy",
+          "stations" : [
+            "PATASI",
+            "AHINSAN"
+          ],
+          "zone" : "Santasi - Atonsu",
+          "pharmacySearchTerms" : [
+            "Panacea",
+            "Panacea Pharmacy",
+            "Panacea Shop",
+            "Pharmacy Shop",
+            "Pharm Shop",
+            "Pharm",
+            "Panasea Pharmacy",
+            "Gel",
+            "Diclofenac Gel",
+            "Pain Killer",
+            "Condom",
+            "Sex",
+            "Pleasure",
+            "Cream",
+            "Ointment"
+          ],
+          "isDeleted" : true,
+          "rawImageUrl" : "ecommerce_images/219f606d22b14736b8bcd90949040294.jpg",
+          "stationId" : "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+          "stationsIds" : [
+            "ecbc39b0-b04b-4cf1-920c-fa6a3d138d27",
+            "47540336-f2d3-4175-a8ae-1284ee59e6c2"
+          ],
+          "zoneId" : "a2a59cc6-6494-45f2-a33c-af1783b9b5eb",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : "Vitabiotics Vitabiotics Wellwoman Max: Comprehensive Multivitamin for Women's Health and Well-being.",
+          "displayTimes" : [
+            {
+              "id" : "837761e40b154b6db628713272a3fa09",
+              "day" : "Monday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "45d5b283271d43068aadd9464ec28364",
+              "day" : "Tuesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            },
+            {
+              "id" : "a53e008153ca4579a3b96d10ee4212e4",
+              "day" : "Wednesday",
+              "time" : [
+                {
+                  "to" : "9:00 PM",
+                  "from" : "9:00 AM"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_index" : "hubtel_pharmacy_inventory",
+        "_type" : "_doc",
+        "_id" : "39b48fb2f1834580912f6fd7e70aacfd",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "39b48fb2f1834580912f6fd7e70aacfd",
+          "createdAt" : "2023-12-29 08:13:43.589008",
+          "updatedAt" : "2024-12-05 16:31:33.089779",
+          "pharmacyId" : "6a1936552b1d45a4a12f72905f5bd8b5",
+          "name" : "Chocho Natural Beauty Soap 110g (2 Pieces)",
+          "categoryId" : "27115310334b48fe879934dc8ff572d7",
+          "notes" : null,
+          "description" : """<p>Chocho Natural Beauty Soap is made from natural ingredients that start to work as soon as you put it on, helping to reduce bumps, redness, and irritation while leaving your skin feeling replenished and nourished.</p>
+<p><strong>Active Ingredients: </strong></p>
+<p>Elaeis Guineensis, Palm Oil, Cassia Alanta, Shea Butter, and Aloe Vera</p>""",
+          "image" : "images/20fc6700d15b4399b9147a80cbea563c.jpg",
+          "oldSellingPrice" : 0.0,
+          "supplierPrice" : 20.0,
+          "displayPrice" : 23.0,
+          "isAvailable" : true,
+          "createdBy" : "Clifford  Boateng",
+          "updatedBy" : "Clifford  Boateng",
+          "hasDeal" : false,
+          "averageRating" : 0.0,
+          "totalRatingsCount" : 0,
+          "cartCount" : 0,
+          "searchCount" : 0,
+          "soldCount" : 0,
+          "viewCount" : 1,
+          "deliveryFee" : 7.95,
+          "station" : "SANTASI ROUNDABOUT",
+          "priceWithDeliveryFee" : 30.95,
+          "displayCurrency" : "GHS",
+          "searchTags" : "Chocho Soap,Chocho Beauty Soap ,Chocho Natural Beauty Soap,Chocho,Herbal Soap,Herbs,Soap",
+          "searchTerms" : null,
+          "shortName" : "Chocho Natural Beauty Soap",
+          "attributes" : [ ],
+          "hasVariety" : true,
+          "isVariety" : false,
+          "mainItemId" : null,
+          "quantity" : null,
+          "attributeValues" : "",
+          "averageRatingDescription" : "",
+          "additionalDeliveryFee" : 0.0,
+          "additionalDeliveryFeeDescription" : "",
+          "address" : "20 Minutes Away",
+          "city" : "Kumasi",
+          "isHidden" : false,
+          "pharmacyImage" : "https://hubtel.com/wp-content/uploads/2022/10/Asake-Joha.jpg",
+          "pharmacyName" : "Glitz Pharmacy",
+          "stations" : [
+            "SANTASI ROUNDABOUT"
+          ],
+          "zone" : "Santasi - Atonsu",
+          "pharmacySearchTerms" : [
+            "PregnaCare Plus Capsules",
+            "Perfectil Original Capsules",
+            "Wellwoman Tablet",
+            "Eyecopen Tablet",
+            "Livopat Tablet",
+            "Proman Tablet",
+            "Ronivit Multivitamin Drop",
+            "Calcium Biz Syrup",
+            "Kinderplex Syrup",
+            "Letaplex B Syrup",
+            "Ascorbin Syrup",
+            "Kidics Syrup",
+            "Vin -C Plus 100ml",
+            "Zincovit Drop 15ml",
+            "Well Kid Syrup 150ml",
+            "Virol Syrup 200ml",
+            "Aminotop Syrup 200ml",
+            "Feroglobin Capsules",
+            "Foligrow Capsules",
+            "Zincovit Tablet",
+            "Major Nasal Drop 18ml",
+            "Zincofer Capsules",
+            "Minamino Syrup 200ml",
+            "Zincofer Syrup 200ml",
+            "Polyfer Syrup 50ml",
+            "Dynewell Syrup 200ml",
+            "Vigorix Syrup 200ml",
+            "Pregnancy Test Casette",
+            "Vikil 20",
+            "Taabea Tacum",
+            "Sibiwomen",
+            "Otwea Herbal",
+            "Cotton Wool 200g",
+            "Dragon Spray",
+            "Blokof Child 100ml",
+            "Pain",
+            "Condom",
+            "Leg Pain",
+            "Syrup",
+            "Tablet",
+            "Pill"
+          ],
+          "isDeleted" : true,
+          "rawImageUrl" : null,
+          "stationId" : "fe93fc24-3a34-412c-aa2b-12581e411337",
+          "stationsIds" : [
+            "fe93fc24-3a34-412c-aa2b-12581e411337"
+          ],
+          "zoneId" : "a2a59cc6-6494-45f2-a33c-af1783b9b5eb",
+          "outOfStock" : false,
+          "isOriginalImage" : false,
+          "summaryDescription" : null,
+          "displayTimes" : null
+        }
+      }
+    ]

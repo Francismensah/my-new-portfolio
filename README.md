@@ -6,6 +6,7 @@ Static personal site and engineering blog for Francis Morkeh Mensah (SRE).
 
 ```
 assets/              Shared CSS and JavaScript
+assets/icons/        AWS Architecture Icons + brand SVGs for the service architecture diagram
 blog/
   index.html         Blog listing
   *.html             Article pages
@@ -21,7 +22,6 @@ scripts/build.mjs    Generates blog/index.html + index.html listing blocks
 ```bash
 npm run build       # Regenerate blog listings from articles.json
 npm run start       # Local preview at http://localhost:8080
-npm run build:css   # Re-extract assets/*.css (legacy; edit CSS directly instead)
 ```
 
 See **[PUBLISHING.md](./PUBLISHING.md)** for how to add posts and deploy.

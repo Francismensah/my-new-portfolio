@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>Systemd Decommission Incident — infrabyfrancis.me</title>
     <meta
       name="description"
@@ -12,59 +22,27 @@
       rel="canonical"
       href="https://infrabyfrancis.me/blog/systemd-decommission-fix.html"
     />
-    <script>
-      (function () {
-        const stored = localStorage.getItem("theme");
-        const preferredDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        const theme = stored || (preferredDark ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", theme);
-      })();
-    </script>
-    <link rel="stylesheet" href="../assets/tokens.css?v=1779622165" />
-    <link rel="stylesheet" href="../assets/base.css?v=1779622165" />
-    <link rel="stylesheet" href="../assets/article.css?v=1779622165" />
+    <link rel="icon" href="../assets/favicon.svg?v=20261026" type="image/svg+xml" />
+    <link rel="icon" href="../assets/favicon-32.png?v=20261026" sizes="32x32" type="image/png" />
+    <link rel="icon" href="../assets/favicon-16.png?v=20261026" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=20261026" />
+    <meta name="theme-color" content="#0b0d10" />
+    <link rel="stylesheet" href="../assets/tokens.css?v=20261026" />
+    <link rel="stylesheet" href="../assets/base.css?v=20261026" />
+    <link rel="stylesheet" href="../assets/article.css?v=20261026" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-    <nav id="nav" class="nav-solid">
-      <a href="../index.html" class="nav-logo">infrabyfrancis.me</a>
-      <div class="nav-controls">
-        <button
-          type="button"
-          class="nav-menu-btn"
-          id="navMenuBtn"
-          aria-expanded="false"
-          aria-controls="navMenu"
-          aria-label="Open menu"
-        >
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-          <span class="nav-menu-bar"></span>
-        </button>
-        <button
-          class="theme-toggle"
-          id="themeToggle"
-          type="button"
-          aria-label="Toggle color theme"
-          aria-pressed="false"
-        >
-          <span class="theme-icon" id="themeIcon">☀</span>
-          <span id="themeLabel">Light</span>
-        </button>
-      </div>
-      <div class="nav-panel" id="navMenu">
-        <ul class="nav-links">
-          <li><a href="../index.html#about">About</a></li>
-          <li><a href="../index.html#experience">Experience</a></li>
-          <li><a href="../index.html#skills">Skills</a></li>
-          <li><a href="../index.html#projects">Projects</a></li>
-          <li><a href="index.html" class="active">Blog</a></li>
-          <li><a href="../index.html#contact">Contact</a></li>
-        </ul>
+    <nav>
+      <div class="wrap">
+        <b>~/francis</b>
+        <a href="../index.html#topology">topology</a>
+        <a href="../index.html#history">deploys</a>
+        <a href="../index.html#incidents">incidents</a>
+        <a href="../index.html#stack">stack</a>
+        <a href="index.html" class="active">writing</a>
+        <a href="../index.html#contact">contact</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme" title="Switch theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="icon-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></g><g class="icon-moon"><path d="M21 12.79A8.5 8.5 0 1 1 11.21 3 6.5 6.5 0 0 0 21 12.79Z"/></g></svg></button>
       </div>
     </nav>
 
@@ -89,9 +67,9 @@
             hijacked the port, and crashed the replacement with EADDRINUSE.
           </p>
           <div class="article-meta-bar">
-            <span class="meta-item">📅 2026</span>
-            <span class="meta-item">⏱ 6 min read</span>
-            <span class="meta-item">✍️ Francis Morkeh Mensah</span>
+            <span class="meta-item">2026</span>
+            <span class="meta-item">6 min read</span>
+            <span class="meta-item">Francis Morkeh Mensah</span>
             <div class="meta-tags">
               <span class="meta-tag">Systemd</span>
               <span class="meta-tag">Linux</span>
@@ -193,20 +171,13 @@ sudo systemctl daemon-reload</code></pre>
         <div class="article-footer">
           <div class="post-nav">
             <a href="index.html" class="btn-secondary">← Back to Blog</a>
-            <a href="../index.html#contact" class="btn-primary">Get in Touch</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mensah.morkehfrancis@gmail.com&su=Hello%20from%20infrabyfrancis.me" target="_blank" rel="noopener" class="btn-primary">Get in Touch</a>
           </div>
         </div>
       </div>
     </main>
 
-    <footer>
-      <div class="footer-copy">
-        © 2025 Francis Morkeh Mensah · infrabyfrancis.me
-      </div>
-      <div class="footer-tagline">
-        Built with intention. <span>Reliable by design.</span>
-      </div>
-    </footer>
-    <script src="../assets/site.js?v=1779622165" defer></script>
+    <footer>© 2026 Francis Morkeh Mensah · built with care, deployed without drama</footer>
+    <script src="../assets/site.js?v=20261026" defer></script>
   </body>
 </html>
